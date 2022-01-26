@@ -25,9 +25,12 @@ namespace Arkayns.HM {
 
         private void CreateCell(int x, int z, int i) {
             Vector3 position;
-            position.x = x * 10f;
+            
+            // Each row is offset along the X axis by the inner radius
+            // ReSharper disable once PossibleLossOfFraction
+            position.x = (x + z * 0.5f - (z / 2)) * (HexMetrics.InnerRadius * 2f); 
             position.y = 0f;
-            position.z = z * 10f;
+            position.z = z * (HexMetrics.OuterRadius * 1.5f);
 
             HexCell cell = m_cells[i] = Instantiate<HexCell>(cellPrefab, transform, false);
             cell.transform.localPosition = position;
