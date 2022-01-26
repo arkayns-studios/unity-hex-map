@@ -41,10 +41,11 @@ namespace Arkayns.HM {
 
             HexCell cell = m_cells[i] = Instantiate<HexCell>(cellPrefab, transform, false);
             cell.transform.localPosition = position;
+            cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
 
             Text label = Instantiate<Text>(cellLabelPrefab, m_gridCanvas.transform, false);
             label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-            label.text = $"{x}\n{z}";
+            label.text = cell.coordinates.ToStringOnSeparateLines();
         } // CreateCell
 
     } // Class HexGrid
