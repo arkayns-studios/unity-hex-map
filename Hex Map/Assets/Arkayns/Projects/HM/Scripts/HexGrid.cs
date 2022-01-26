@@ -1,19 +1,20 @@
-using System;
 using UnityEngine.UI;
 using UnityEngine;
 
 namespace Arkayns.HM {
     
     public class HexGrid : MonoBehaviour {
+
         public int width = 6;
         public int height = 6;
 
+        public HexCell cellPrefab;
+        public Text cellLabelPrefab;
+        
         private HexCell[] m_cells;
         private Canvas m_gridCanvas;
         private HexMesh m_hexMesh;
-        
-        public HexCell cellPrefab;
-        public Text cellLabelPrefab;
+
         
         private void Awake() {
             m_gridCanvas = GetComponentInChildren<Canvas>();
@@ -30,6 +31,11 @@ namespace Arkayns.HM {
             m_hexMesh.Triangulate(m_cells);
         } // Start
 
+        private void Update () {
+            if (Input.GetMouseButton(0)) HandleInput();
+        } // Update
+
+        
         private void CreateCell(int x, int z, int i) {
             Vector3 position;
             
@@ -48,6 +54,17 @@ namespace Arkayns.HM {
             label.text = cell.coordinates.ToStringOnSeparateLines();
         } // CreateCell
 
+        private void HandleInput () {
+            Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(inputRay, out RaycastHit hit)) TouchCell(hit.point);
+        } // HandleInput
+	
+        private void TouchCell (Vector3 position) {
+            position = transform.InverseTransformPoint(position);
+            HexCoordinates coordinates = HexCoordinates.FromPosition(position);
+            Debug.Log($"touched at {coordinates.ToString()}");
+        } // TouchCell
+       
     } // Class HexGrid
     
 } // Namespace Arkayns HM
