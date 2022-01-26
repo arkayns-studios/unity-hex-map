@@ -1,5 +1,6 @@
-using UnityEngine;
+using System;
 using UnityEngine.UI;
+using UnityEngine;
 
 namespace Arkayns.HM {
     
@@ -7,14 +8,16 @@ namespace Arkayns.HM {
         public int width = 6;
         public int height = 6;
 
-        public HexCell cellPrefab;
         private HexCell[] m_cells;
-
-        public Text cellLabelPrefab;
         private Canvas m_gridCanvas;
+        private HexMesh m_hexMesh;
+        
+        public HexCell cellPrefab;
+        public Text cellLabelPrefab;
         
         private void Awake() {
             m_gridCanvas = GetComponentInChildren<Canvas>();
+            m_hexMesh = GetComponentInChildren<HexMesh>();
             m_cells = new HexCell[height * width];
 
             for (int z = 0, i = 0; z < height; z++) {
@@ -22,6 +25,10 @@ namespace Arkayns.HM {
                     CreateCell(x, z, i++);
             }
         } // Awake
+
+        private void Start() {
+            m_hexMesh.Triangulate(m_cells);
+        } // Start
 
         private void CreateCell(int x, int z, int i) {
             Vector3 position;
