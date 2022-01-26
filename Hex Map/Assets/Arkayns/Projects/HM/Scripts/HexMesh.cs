@@ -10,8 +10,9 @@ namespace Arkayns.HM {
         private MeshCollider m_meshCollider;
         private List<Vector3> m_vertices;
         private List<int> m_triangles;
+        private List<Color> m_colors;
 
-        
+
         private void Awake() {
             GetComponent<MeshFilter>().mesh = m_hexMesh = new Mesh();
             m_meshCollider = GetComponent<MeshCollider>();
@@ -19,6 +20,7 @@ namespace Arkayns.HM {
             m_hexMesh.name = "Hex Mesh";
             m_vertices = new List<Vector3>();
             m_triangles = new List<int>();
+            m_colors = new List<Color>();
         } // Awake
 
         
@@ -27,12 +29,14 @@ namespace Arkayns.HM {
             m_hexMesh.Clear();
             m_vertices.Clear();
             m_triangles.Clear();
+            m_colors.Clear();
 
             foreach (HexCell cell in cells)
                 Triangulate(cell);
 
             m_hexMesh.vertices = m_vertices.ToArray();
             m_hexMesh.triangles = m_triangles.ToArray();
+            m_hexMesh.colors = m_colors.ToArray();
             m_hexMesh.RecalculateNormals();
             
             m_meshCollider.sharedMesh = m_hexMesh;
@@ -41,8 +45,10 @@ namespace Arkayns.HM {
         /// <summary> Loop through all six triangles </summary>
         private void Triangulate(HexCell cell) {
             Vector3 center = cell.transform.localPosition;
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 6; i++) {
                 AddTriangle(center, center + HexMetrics.Corners[i], center + HexMetrics.Corners[i + 1]);
+                AddTriangleColor(cell.color);
+            }
         } // Triangulate
 
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
@@ -55,6 +61,13 @@ namespace Arkayns.HM {
             m_triangles.Add(vertexIndex + 1);
             m_triangles.Add(vertexIndex + 2);
         } // AddTriangle
+
+        /// <summary> Add color data for each triangle </summary>
+        private void AddTriangleColor(Color color) {
+            m_colors.Add(color);
+            m_colors.Add(color);
+            m_colors.Add(color);
+        } // AddTriangleColor
         
     } // Class HexMesh
     

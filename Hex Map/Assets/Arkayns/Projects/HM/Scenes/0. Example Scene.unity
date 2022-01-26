@@ -437,6 +437,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 6
   height: 6
+  defaultColor: {r: 1, g: 1, b: 1, a: 1}
+  touchedColor: {r: 1, g: 0, b: 1, a: 1}
   cellPrefab: {fileID: 5776280694864960985}
   cellLabelPrefab: {fileID: 706694021}
 --- !u!4 &1637657164
