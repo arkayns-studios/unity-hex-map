@@ -9,7 +9,6 @@ namespace Arkayns.HM {
         public int height = 6;
 
         public Color defaultColor = Color.white;
-        public Color touchedColor = Color.magenta;
         
         public HexCell cellPrefab;
         public Text cellLabelPrefab;
@@ -34,11 +33,6 @@ namespace Arkayns.HM {
             m_hexMesh.Triangulate(m_cells);
         } // Start
 
-        private void Update () {
-            if (Input.GetMouseButton(0)) HandleInput();
-        } // Update
-
-        
         private void CreateCell(int x, int z, int i) {
             Vector3 position;
             
@@ -58,20 +52,15 @@ namespace Arkayns.HM {
             label.text = cell.coordinates.ToStringOnSeparateLines();
         } // CreateCell
 
-        private void HandleInput () {
-            Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(inputRay, out RaycastHit hit)) TouchCell(hit.point);
-        } // HandleInput
-	
-        private void TouchCell (Vector3 position) {
+        public void ColorCell (Vector3 position, Color color) {
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
             int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
             HexCell cell = m_cells[index];
-            cell.color = touchedColor;
+            cell.color = color;
             m_hexMesh.Triangulate(m_cells);
-        } // TouchCell
-       
+        } // ColorCell
+        
     } // Class HexGrid
     
 } // Namespace Arkayns HM
