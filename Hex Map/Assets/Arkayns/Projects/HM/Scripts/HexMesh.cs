@@ -8,6 +8,7 @@ namespace Arkayns.HM {
         
         private Mesh m_hexMesh;
         private MeshCollider m_meshCollider;
+        
         private List<Vector3> m_vertices;
         private List<int> m_triangles;
         private List<Color> m_colors;
@@ -42,13 +43,17 @@ namespace Arkayns.HM {
             m_meshCollider.sharedMesh = m_hexMesh;
         } // Triangulate
 
-        /// <summary> Loop through all six triangles </summary>
+        /// <summary> Loop through all HexDirection </summary>
         private void Triangulate(HexCell cell) {
+            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) 
+                Triangulate(d, cell);
+        } // Triangulate
+        
+        /// <summary> Get the direction and add the Triangle and Color </summary>
+        private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.transform.localPosition;
-            for (int i = 0; i < 6; i++) {
-                AddTriangle(center, center + HexMetrics.Corners[i], center + HexMetrics.Corners[i + 1]);
-                AddTriangleColor(cell.color);
-            }
+            AddTriangle(center, center + HexMetrics.GetFirstCorner(direction), center + HexMetrics.GetSecondCorner(direction));
+            AddTriangleColor(cell.color);
         } // Triangulate
 
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
