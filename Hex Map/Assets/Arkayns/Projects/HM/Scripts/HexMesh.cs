@@ -53,8 +53,8 @@ namespace Arkayns.HM {
         private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.transform.localPosition;
             AddTriangle(center, 
-                center + HexMetrics.GetFirstCorner(direction), 
-                center + HexMetrics.GetSecondCorner(direction));
+                center + HexMetrics.GetFirstSolidCorner(direction), 
+                center + HexMetrics.GetSecondSolidCorner(direction));
 
             HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
             HexCell neighbor = cell.GetNeighbor(direction) ?? cell;
