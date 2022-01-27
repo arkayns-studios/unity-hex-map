@@ -52,15 +52,22 @@ namespace Arkayns.HM {
         /// <summary> Get the direction and add the Triangle and Color </summary>
         private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.transform.localPosition;
-            AddTriangle(center, 
-                center + HexMetrics.GetFirstSolidCorner(direction), 
-                center + HexMetrics.GetSecondSolidCorner(direction));
+            Vector3 v1 = center + HexMetrics.GetFirstSolidCorner(direction);
+            Vector3 v2 = center + HexMetrics.GetSecondSolidCorner(direction);
+            
+            AddTriangle(center, v1, v2);
+            AddTriangleColor(cell.color);
+            
+            Vector3 v3 = center + HexMetrics.GetFirstCorner(direction);
+            Vector3 v4 = center + HexMetrics.GetSecondCorner(direction);
 
+            AddQuad(v1, v2, v3, v4);
+            
             HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
             HexCell neighbor = cell.GetNeighbor(direction) ?? cell;
             HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
             
-            AddTriangleColor(cell.color,
+            AddQuadColor(cell.color, cell.color,
                 (cell.color + prevNeighbor.color + neighbor.color) / 3f, 
                 (cell.color + neighbor.color + nextNeighbor.color) / 3f);
         } // Triangulate
@@ -77,11 +84,32 @@ namespace Arkayns.HM {
         } // AddTriangle
 
         /// <summary> Add color data for each triangle </summary>
-        private void AddTriangleColor(Color c1, Color c2, Color c3) {
+        private void AddTriangleColor(Color color) {
+            m_colors.Add(color);
+            m_colors.Add(color);
+            m_colors.Add(color);
+        } // AddTriangleColor
+
+        private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
+            int vertexIndex = m_vertices.Count;
+            m_vertices.Add(v1);
+            m_vertices.Add(v2);
+            m_vertices.Add(v3);
+            m_vertices.Add(v4);
+            m_triangles.Add(vertexIndex);
+            m_triangles.Add(vertexIndex + 2);
+            m_triangles.Add(vertexIndex + 1);
+            m_triangles.Add(vertexIndex + 1);
+            m_triangles.Add(vertexIndex + 2);
+            m_triangles.Add(vertexIndex + 3);
+        } // AddQuad
+
+        private void AddQuadColor(Color c1, Color c2, Color c3, Color c4) {
             m_colors.Add(c1);
             m_colors.Add(c2);
             m_colors.Add(c3);
-        } // AddTriangleColor
+            m_colors.Add(c4);
+        } // AddQuadColor
         
     } // Class HexMesh
     
