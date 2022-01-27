@@ -52,9 +52,17 @@ namespace Arkayns.HM {
         /// <summary> Get the direction and add the Triangle and Color </summary>
         private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.transform.localPosition;
-            AddTriangle(center, center + HexMetrics.GetFirstCorner(direction), center + HexMetrics.GetSecondCorner(direction));
+            AddTriangle(center, 
+                center + HexMetrics.GetFirstCorner(direction), 
+                center + HexMetrics.GetSecondCorner(direction));
+
+            HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
             HexCell neighbor = cell.GetNeighbor(direction) ?? cell;
-            AddTriangleColor(cell.color, neighbor.color, neighbor.color);
+            HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
+            
+            AddTriangleColor(cell.color,
+                (cell.color + prevNeighbor.color + neighbor.color) / 3f, 
+                (cell.color + neighbor.color + nextNeighbor.color) / 3f);
         } // Triangulate
 
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
