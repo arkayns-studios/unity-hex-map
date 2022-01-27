@@ -19,6 +19,10 @@ namespace Arkayns.HM {
             new Vector3(0f, 0f, OuterRadius)
         };
 
+        public static Vector3 GetBridge(HexDirection direction) {
+            return (Corners[(int)direction] + Corners[(int)direction + 1]) * 0.5f * BlendFactor;
+        } // Static GetBridge
+        
         public static Vector3 GetFirstCorner(HexDirection direction) {
             return Corners[(int) direction];
         } // Static GetFirstCorner

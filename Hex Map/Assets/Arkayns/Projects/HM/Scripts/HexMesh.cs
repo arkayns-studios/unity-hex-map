@@ -57,9 +57,10 @@ namespace Arkayns.HM {
             
             AddTriangle(center, v1, v2);
             AddTriangleColor(cell.color);
-            
-            Vector3 v3 = center + HexMetrics.GetFirstCorner(direction);
-            Vector3 v4 = center + HexMetrics.GetSecondCorner(direction);
+
+            Vector3 bridge = HexMetrics.GetBridge(direction);
+            Vector3 v3 = v1 + bridge;
+            Vector3 v4 = v2 + bridge;
 
             AddQuad(v1, v2, v3, v4);
             
@@ -67,9 +68,7 @@ namespace Arkayns.HM {
             HexCell neighbor = cell.GetNeighbor(direction) ?? cell;
             HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
             
-            AddQuadColor(cell.color, cell.color,
-                (cell.color + prevNeighbor.color + neighbor.color) / 3f, 
-                (cell.color + neighbor.color + nextNeighbor.color) / 3f);
+            AddQuadColor(cell.color, (cell.color + neighbor.color) * 0.5f);
         } // Triangulate
 
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
@@ -109,6 +108,13 @@ namespace Arkayns.HM {
             m_colors.Add(c2);
             m_colors.Add(c3);
             m_colors.Add(c4);
+        } // AddQuadColor
+
+        private void AddQuadColor(Color c1, Color c2) {
+            m_colors.Add(c1);
+            m_colors.Add(c1);
+            m_colors.Add(c2);
+            m_colors.Add(c2);
         } // AddQuadColor
         
     } // Class HexMesh
