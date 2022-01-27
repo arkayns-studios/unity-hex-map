@@ -53,7 +53,8 @@ namespace Arkayns.HM {
         private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.transform.localPosition;
             AddTriangle(center, center + HexMetrics.GetFirstCorner(direction), center + HexMetrics.GetSecondCorner(direction));
-            AddTriangleColor(cell.color);
+            HexCell neighbor = cell.GetNeighbor(direction) ?? cell;
+            AddTriangleColor(cell.color, neighbor.color, neighbor.color);
         } // Triangulate
 
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
@@ -68,10 +69,10 @@ namespace Arkayns.HM {
         } // AddTriangle
 
         /// <summary> Add color data for each triangle </summary>
-        private void AddTriangleColor(Color color) {
-            m_colors.Add(color);
-            m_colors.Add(color);
-            m_colors.Add(color);
+        private void AddTriangleColor(Color c1, Color c2, Color c3) {
+            m_colors.Add(c1);
+            m_colors.Add(c2);
+            m_colors.Add(c3);
         } // AddTriangleColor
         
     } // Class HexMesh
