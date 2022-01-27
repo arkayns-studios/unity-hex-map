@@ -52,32 +52,30 @@ namespace Arkayns.HM {
         /// <summary> Get the direction and add the Triangle and Color </summary>
         private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.transform.localPosition;
-            Vector3 bridge = HexMetrics.GetBridge(direction);
 
             Vector3 v1 = center + HexMetrics.GetFirstSolidCorner(direction);
             Vector3 v2 = center + HexMetrics.GetSecondSolidCorner(direction);
-            Vector3 v3 = v1 + bridge;
-            Vector3 v4 = v2 + bridge;
             
-            HexCell prevNeighbor = cell.GetNeighbor(direction.Previous()) ?? cell;
-            HexCell neighbor = cell.GetNeighbor(direction) ?? cell;
-            HexCell nextNeighbor = cell.GetNeighbor(direction.Next()) ?? cell;
-            
-            Color bridgeColor = (cell.color + neighbor.color) * 0.5f;
-
             AddTriangle(center, v1, v2);
             AddTriangleColor(cell.color);
-           
-            AddQuad(v1, v2, v3, v4);
-            AddQuadColor(cell.color, bridgeColor);
             
-            AddTriangle(v1, center + HexMetrics.GetFirstCorner(direction), v3);
-            AddTriangleColor(cell.color, (cell.color + prevNeighbor.color + neighbor.color) / 3f, bridgeColor);
-            
-            AddTriangle(v2, v4, center + HexMetrics.GetSecondCorner(direction));
-            AddTriangleColor(cell.color, bridgeColor, (cell.color + neighbor.color + nextNeighbor.color) / 3f);
+            if (direction <= HexDirection.SE)
+                TriangulateConnection(direction, cell, v1, v2);
         } // Triangulate
 
+        private void TriangulateConnection(HexDirection direction, HexCell cell, Vector3 v1, Vector3 v2) {
+            HexCell neighbor = cell.GetNeighbor(direction);
+            if(neighbor == null) return;
+		
+            Vector3 bridge = HexMetrics.GetBridge(direction);
+            Vector3 v3 = v1 + bridge;
+            Vector3 v4 = v2 + bridge;
+
+            AddQuad(v1, v2, v3, v4);
+            AddQuadColor(cell.color, neighbor.color);
+        } // TriangulateConnection
+        
+        
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
         private void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
             int vertexIndex = m_vertices.Count;
@@ -103,6 +101,7 @@ namespace Arkayns.HM {
             m_colors.Add(c3);
         } // AddTriangleColor
 
+        
         private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
             int vertexIndex = m_vertices.Count;
             m_vertices.Add(v1);
