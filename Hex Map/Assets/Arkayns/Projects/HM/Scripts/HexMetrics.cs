@@ -8,6 +8,10 @@ namespace Arkayns.HM {
         public const float SolidFactor = 0.75f;
         public const float BlendFactor = 1F - SolidFactor;
         public const float ElevationStep = 5f;
+        public const int TerracesPerSlope = 2;
+        public const int TerraceSteps = TerracesPerSlope * 2 + 1;
+        public const float HorizontalTerraceStepSize = 1f / TerraceSteps;
+        public const float VerticalTerraceStepSize = 1f / (TerraceSteps + 1);
         
         private static readonly Vector3[] Corners = {
             new Vector3(0f, 0f, OuterRadius), 
@@ -38,6 +42,21 @@ namespace Arkayns.HM {
         public static Vector3 GetSecondSolidCorner (HexDirection direction) {
             return Corners[(int)direction + 1] * SolidFactor;
         } // Static GetSecondSolidCorner
+
+        public static Vector3 TerraceLerp(Vector3 a, Vector3 b, int step) {
+            float h = step * HexMetrics.HorizontalTerraceStepSize;
+            a.x += (b.x - a.x) * h;
+            a.z += (b.z - a.z) * h;
+
+            float v = ((step + 1) / 2) * HexMetrics.VerticalTerraceStepSize;
+            a.y += (b.y - a.y) * v;
+            return a;
+        } // TerraceLerp
+
+        public static Color TerraceLerp(Color a, Color b, int step) {
+            float h = step * HexMetrics.HorizontalTerraceStepSize;
+            return Color.Lerp(a, b, h);
+        } // TerraceLerp
         
     } // Class HexMetrics
     
