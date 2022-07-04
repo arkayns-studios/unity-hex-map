@@ -63,14 +63,16 @@ namespace Arkayns.HM {
             label.text = cell.coordinates.ToStringOnSeparateLines();
         } // CreateCell
 
-        public void ColorCell (Vector3 position, Color color) {
+        public HexCell GetCell (Vector3 position) {
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
             int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
-            HexCell cell = m_cells[index];
-            cell.color = color;
+            return m_cells[index];
+        } // GetCell
+
+        public void Refresh() {
             m_hexMesh.Triangulate(m_cells);
-        } // ColorCell
+        } // Refresh
         
     } // Class HexGrid
     

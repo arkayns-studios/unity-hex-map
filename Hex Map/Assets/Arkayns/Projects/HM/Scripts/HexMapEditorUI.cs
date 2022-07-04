@@ -6,9 +6,10 @@ namespace Arkayns.HM {
     public class HexMapEditorUI : MonoBehaviour {
 
         public HexGrid hexGrid;
-        
         public Color[] colors;
+        
         private Color m_activeColor;
+        private int m_activeElevation;
 
 
         private void Awake() {
@@ -22,9 +23,19 @@ namespace Arkayns.HM {
         
         private void HandleInput () {
             Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(inputRay, out RaycastHit hit)) hexGrid.ColorCell(hit.point, m_activeColor);
+            if(Physics.Raycast(inputRay, out RaycastHit hit)) EditCell(hexGrid.GetCell(hit.point));
         } // HandleInput
 
+        private void EditCell(HexCell cell) {
+            cell.color = m_activeColor;
+            cell.elevation = m_activeElevation;
+            hexGrid.Refresh();
+        } // EditCell
+        
+        public void SetElevation (float elevation) {
+            m_activeElevation = (int)elevation;
+        } // SetElevation
+        
         public void SelectColor(int index) {
             m_activeColor = colors[index];
         } // SelectColor
