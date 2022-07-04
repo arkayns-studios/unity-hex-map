@@ -8,6 +8,17 @@ namespace Arkayns.HM {
         public int elevation;
         [SerializeField] private HexCell[] m_neighbors;
 
+        public int Elevation {
+            get => elevation;
+            set {
+                elevation = value;
+                var transformVar = transform;
+                var position = transformVar.localPosition;
+                position.y = value * HexMetrics.ElevationStep;
+                transformVar.localPosition = position;
+            }
+        } // Elevation
+
         public HexCell GetNeighbor(HexDirection direction) {
             return m_neighbors[(int) direction];
         } // GetNeighbor

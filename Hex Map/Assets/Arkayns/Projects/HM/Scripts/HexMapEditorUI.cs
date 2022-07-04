@@ -22,13 +22,14 @@ namespace Arkayns.HM {
 
         
         private void HandleInput () {
+            if (Camera.main == null) return;
             Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             if(Physics.Raycast(inputRay, out RaycastHit hit)) EditCell(hexGrid.GetCell(hit.point));
         } // HandleInput
 
         private void EditCell(HexCell cell) {
             cell.color = m_activeColor;
-            cell.elevation = m_activeElevation;
+            cell.Elevation = m_activeElevation;
             hexGrid.Refresh();
         } // EditCell
         
