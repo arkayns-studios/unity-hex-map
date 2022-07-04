@@ -6,6 +6,7 @@ namespace Arkayns.HM {
         public HexCoordinates coordinates;
         public Color color;
         public int elevation;
+        public RectTransform uiRect;
         [SerializeField] private HexCell[] m_neighbors;
 
         public int Elevation {
@@ -16,6 +17,10 @@ namespace Arkayns.HM {
                 var position = transformVar.localPosition;
                 position.y = value * HexMetrics.ElevationStep;
                 transformVar.localPosition = position;
+
+                var uiPosition = uiRect.localPosition;
+                uiPosition.z = elevation * -HexMetrics.ElevationStep;
+                uiRect.localPosition = uiPosition;
             }
         } // Elevation
 
