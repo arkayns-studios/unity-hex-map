@@ -1,4 +1,3 @@
-using UnityEditor;
 using UnityEngine;
 
 namespace Arkayns.HM {
@@ -8,6 +7,7 @@ namespace Arkayns.HM {
         public const float InnerRadius = OuterRadius * 0.866025404f; // √e2−(e2)2 = √3e24 = e√32 ≈ 0.886e
         public const float SolidFactor = 0.75f;
         public const float BlendFactor = 1F - SolidFactor;
+        public const float ElevationStep = 5f;
         
         private static readonly Vector3[] Corners = {
             new Vector3(0f, 0f, OuterRadius), 

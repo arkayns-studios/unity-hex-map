@@ -5,6 +5,7 @@ namespace Arkayns.HM {
     public class HexCell : MonoBehaviour {
         public HexCoordinates coordinates;
         public Color color;
+        public int elevation;
         [SerializeField] private HexCell[] m_neighbors;
 
         public HexCell GetNeighbor(HexDirection direction) {
