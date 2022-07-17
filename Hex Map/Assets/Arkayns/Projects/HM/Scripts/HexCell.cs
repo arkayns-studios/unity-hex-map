@@ -37,6 +37,10 @@ namespace Arkayns.HM {
             return HexMetrics.GetEdgeType(elevation, m_neighbors[(int)direction].elevation);
         } // GetEdgeType
         
+        public HexEdgeType GetEdgeType (HexCell otherCell) {
+            return HexMetrics.GetEdgeType(elevation, otherCell.elevation);
+        } // GetEdgeType
+        
     } // Class HexCell
     
 } // Namespace Arkayns HM
