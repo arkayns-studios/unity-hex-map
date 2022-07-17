@@ -80,7 +80,12 @@ namespace Arkayns.HM {
                 AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
             }
 
-            TriangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor);
+            if (cell.GetEdgeType(direction) == HexEdgeType.Slope) {
+                TriangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor);
+            } else {
+                AddQuad(v1, v2, v3, v4);
+                AddQuadColor(cell.color, neighbor.color);
+            }
         } // TriangulateConnection
 
         private void TriangulateEdgeTerraces(Vector3 beginLeft, Vector3 beginRight, HexCell beginCell, Vector3 endLeft, Vector3 endRight, HexCell endCell) {
