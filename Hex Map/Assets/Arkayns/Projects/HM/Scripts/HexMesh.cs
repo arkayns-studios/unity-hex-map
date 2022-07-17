@@ -212,12 +212,25 @@ namespace Arkayns.HM {
             Vector3 boundary = Vector3.Lerp(begin, right, b);
             Color boundaryColor = Color.Lerp(beginCell.color, rightCell.color, b);
             
+            TriangulateBoundaryTriangle(begin, beginCell, left, leftCell, boundary, boundaryColor);
+            
+            if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
+                TriangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
+            }
+            else {
+                AddTriangle(left, right, boundary);
+                AddTriangleColor(leftCell.color, rightCell.color, boundaryColor);
+            }
+        } // TriangulateCornerTerracesCliff
+        
+        
+        private void TriangulateBoundaryTriangle (Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 boundary, Color boundaryColor) {
             Vector3 v2 = HexMetrics.TerraceLerp(begin, left, 1);
             Color c2 = HexMetrics.TerraceLerp(beginCell.color, leftCell.color, 1);
-            
+
             AddTriangle(begin, v2, boundary);
             AddTriangleColor(beginCell.color, c2, boundaryColor);
-            
+
             for (int i = 2; i < HexMetrics.TerraceSteps; i++) {
                 Vector3 v1 = v2;
                 Color c1 = c2;
@@ -226,11 +239,10 @@ namespace Arkayns.HM {
                 AddTriangle(v1, v2, boundary);
                 AddTriangleColor(c1, c2, boundaryColor);
             }
-            
+
             AddTriangle(v2, left, boundary);
             AddTriangleColor(c2, leftCell.color, boundaryColor);
-        } // TriangulateCornerTerracesCliff
-        
+        } // TriangulateBoundaryTriangle
         
         private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
             int vertexIndex = m_vertices.Count;
