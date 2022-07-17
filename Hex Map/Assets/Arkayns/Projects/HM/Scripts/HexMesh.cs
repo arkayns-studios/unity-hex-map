@@ -157,9 +157,20 @@ namespace Arkayns.HM {
             HexEdgeType rightEdgeType = bottomCell.GetEdgeType(rightCell);
             
             if (leftEdgeType == HexEdgeType.Slope) {
-                if (rightEdgeType == HexEdgeType.Slope) {
+                switch (rightEdgeType) {
+                    case HexEdgeType.Slope:
+                        TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
+                        return;
+                    case HexEdgeType.Flat:
+                        TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
+                        return;
+                }
+            }
+            
+            if (rightEdgeType == HexEdgeType.Slope) {
+                if (leftEdgeType == HexEdgeType.Flat) {
                     TriangulateCornerTerraces(
-                            bottom, bottomCell, left, leftCell, right, rightCell
+                            right, rightCell, bottom, bottomCell, left, leftCell
                     );
                     return;
                 }
