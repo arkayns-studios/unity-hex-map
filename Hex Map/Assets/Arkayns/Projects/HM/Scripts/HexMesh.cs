@@ -76,6 +76,20 @@ namespace Arkayns.HM {
             if (direction <= HexDirection.E && nextNeighbor != null) {
                 Vector3 v5 = v2 + HexMetrics.GetBridge(direction.Next());
                 v5.y = nextNeighbor.Elevation * HexMetrics.ElevationStep;
+                
+                if (cell.Elevation <= neighbor.Elevation) {
+                    if (cell.Elevation <= nextNeighbor.Elevation) {
+                        TriangulateCorner(v2, cell, v4, neighbor, v5, nextNeighbor);
+                    } else {
+                        TriangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor);
+                    }
+                } else if (neighbor.Elevation <= nextNeighbor.Elevation) {
+                    TriangulateCorner(v4, neighbor, v5, nextNeighbor, v2, cell);
+                }
+                else {
+                    TriangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor);
+                }
+                
                 AddTriangle(v2, v4, v5);
                 AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
             }
@@ -137,7 +151,12 @@ namespace Arkayns.HM {
             m_colors.Add(c2);
             m_colors.Add(c3);
         } // AddTriangleColor
-
+        
+        private void TriangulateCorner (Vector3 bottom, HexCell bottomCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
+            AddTriangle(bottom, left, right);
+            AddTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
+        } // TriangulateCorner
+        
         
         private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
             int vertexIndex = m_vertices.Count;
