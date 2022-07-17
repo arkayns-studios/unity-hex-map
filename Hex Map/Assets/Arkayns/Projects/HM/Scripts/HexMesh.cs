@@ -165,13 +165,14 @@ namespace Arkayns.HM {
                         TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
                         return;
                 }
+                
+                TriangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell);
+                return;
             }
             
             if (rightEdgeType == HexEdgeType.Slope) {
                 if (leftEdgeType == HexEdgeType.Flat) {
-                    TriangulateCornerTerraces(
-                            right, rightCell, bottom, bottomCell, left, leftCell
-                    );
+                    TriangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
                     return;
                 }
             }
@@ -205,6 +206,10 @@ namespace Arkayns.HM {
             AddQuad(v3, v4, left, right);
             AddQuadColor(c3, c4, leftCell.color, rightCell.color);
         } // TriangulateCornerTerraces
+        
+        private void TriangulateCornerTerracesCliff (Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
+		
+        } // TriangulateCornerTerracesCliff
         
         
         private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
