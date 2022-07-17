@@ -33,6 +33,10 @@ namespace Arkayns.HM {
             cell.m_neighbors[(int) direction.Opposite()] = this;
         } // GetNeighbor
         
+        public HexEdgeType GetEdgeType (HexDirection direction) {
+            return HexMetrics.GetEdgeType(elevation, m_neighbors[(int)direction].elevation);
+        } // GetEdgeType
+        
     } // Class HexCell
     
 } // Namespace Arkayns HM
