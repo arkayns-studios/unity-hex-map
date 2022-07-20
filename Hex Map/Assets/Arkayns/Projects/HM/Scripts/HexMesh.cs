@@ -157,37 +157,29 @@ namespace Arkayns.HM {
             HexEdgeType rightEdgeType = bottomCell.GetEdgeType(rightCell);
             
             if (leftEdgeType == HexEdgeType.Slope) {
-                switch (rightEdgeType) {
-                    case HexEdgeType.Slope:
-                        TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
-                        return;
-                    case HexEdgeType.Flat:
-                        TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
-                        return;
-                }
+                if (rightEdgeType == HexEdgeType.Slope) 
+                    TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
+                else if (rightEdgeType == HexEdgeType.Flat)
+                    TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
+                else 
+                    TriangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell);
                 
-                TriangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell);
-                return;
-            }
-            
-            if (rightEdgeType == HexEdgeType.Slope) {
-                if (leftEdgeType == HexEdgeType.Flat) {
+            } else if (rightEdgeType == HexEdgeType.Slope) {
+                if (leftEdgeType == HexEdgeType.Flat)
                     TriangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
-                    return;
-                }
+                else
+                    TriangulateCornerCliffTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
                 
-                TriangulateCornerCliffTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
-                return;
+            } else if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
+                if (leftCell.Elevation < rightCell.Elevation) 
+                    TriangulateCornerCliffTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+                else 
+                    TriangulateCornerTerracesCliff(left, leftCell, right, rightCell, bottom, bottomCell);
+            } else {
+                AddTriangle(bottom, left, right);
+                AddTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
             }
             
-            if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
-                if (leftCell.Elevation < rightCell.Elevation) TriangulateCornerCliffTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
-                else TriangulateCornerTerracesCliff(left, leftCell, right, rightCell, bottom, bottomCell);
-                return;
-            }
-            
-            AddTriangle(bottom, left, right);
-            AddTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
         } // TriangulateCorner
         
         private void TriangulateCornerTerraces (Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
