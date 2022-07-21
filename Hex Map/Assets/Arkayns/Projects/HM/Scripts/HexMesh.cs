@@ -13,7 +13,7 @@ namespace Arkayns.HM {
         private List<int> m_triangles;
         private List<Color> m_colors;
 
-
+        
         private void Awake() {
             GetComponent<MeshFilter>().mesh = m_hexMesh = new Mesh();
             m_meshCollider = GetComponent<MeshCollider>();
@@ -296,9 +296,9 @@ namespace Arkayns.HM {
         
         private Vector3 Perturb (Vector3 position) {
             Vector4 sample = HexMetrics.SampleNoise(position);
-            position.x += sample.x * 2f - 1f;
-            position.y += sample.y * 2f - 1f;
-            position.z += sample.z * 2f - 1f;
+            position.x += (sample.x * 2f - 1f) * HexMetrics.CellPerturbStrength;
+            position.y += (sample.y * 2f - 1f) * HexMetrics.CellPerturbStrength;
+            position.z += (sample.z * 2f - 1f) * HexMetrics.CellPerturbStrength;
             return position;
         } // Perturb
         

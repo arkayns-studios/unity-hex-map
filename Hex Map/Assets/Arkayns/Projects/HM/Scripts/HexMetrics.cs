@@ -12,7 +12,10 @@ namespace Arkayns.HM {
         public const int TerraceSteps = TerracesPerSlope * 2 + 1;
         public const float HorizontalTerraceStepSize = 1f / TerraceSteps;
         public const float VerticalTerraceStepSize = 1f / (TerraceSteps + 1);
+        
         public static Texture2D NoiseSource;
+        public const float CellPerturbStrength = 5f;
+
         
         private static readonly Vector3[] Corners = {
             new Vector3(0f, 0f, OuterRadius), 
