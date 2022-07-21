@@ -130,9 +130,10 @@ namespace Arkayns.HM {
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
         private void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
             int vertexIndex = m_vertices.Count;
-            m_vertices.Add(v1);
-            m_vertices.Add(v2);
-            m_vertices.Add(v3);
+            m_vertices.Add(Perturb(v1));
+            m_vertices.Add(Perturb(v2));
+            m_vertices.Add(Perturb(v3));
+            
             m_triangles.Add(vertexIndex);
             m_triangles.Add(vertexIndex + 1);
             m_triangles.Add(vertexIndex + 2);
@@ -263,10 +264,11 @@ namespace Arkayns.HM {
         
         private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
             int vertexIndex = m_vertices.Count;
-            m_vertices.Add(v1);
-            m_vertices.Add(v2);
-            m_vertices.Add(v3);
-            m_vertices.Add(v4);
+            m_vertices.Add(Perturb(v1));
+            m_vertices.Add(Perturb(v2));
+            m_vertices.Add(Perturb(v3));
+            m_vertices.Add(Perturb(v4));
+            
             m_triangles.Add(vertexIndex);
             m_triangles.Add(vertexIndex + 2);
             m_triangles.Add(vertexIndex + 1);
@@ -290,6 +292,15 @@ namespace Arkayns.HM {
             m_colors.Add(c2);
             m_colors.Add(c2);
         } // AddQuadColor
+        
+        
+        private Vector3 Perturb (Vector3 position) {
+            Vector4 sample = HexMetrics.SampleNoise(position);
+            position.x += sample.x * 2f - 1f;
+            position.y += sample.y * 2f - 1f;
+            position.z += sample.z * 2f - 1f;
+            return position;
+        } // Perturb
         
     } // Class HexMesh
     
