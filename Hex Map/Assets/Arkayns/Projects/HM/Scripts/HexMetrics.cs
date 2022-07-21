@@ -16,6 +16,7 @@ namespace Arkayns.HM {
         public static Texture2D NoiseSource;
         public const float CellPerturbStrength = 5f;
         public const float NoiseScale = 0.003f;
+        public const float ElevationPerturbStrength = 1.5f;
         
         
         private static readonly Vector3[] Corners = {

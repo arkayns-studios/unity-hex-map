@@ -16,10 +16,13 @@ namespace Arkayns.HM {
                 var transformVar = transform;
                 var position = transformVar.localPosition;
                 position.y = value * HexMetrics.ElevationStep;
+                position.y +=
+                        (HexMetrics.SampleNoise(position).y * 2f - 1f) *
+                        HexMetrics.ElevationPerturbStrength;
                 transformVar.localPosition = position;
 
                 var uiPosition = uiRect.localPosition;
-                uiPosition.z = elevation * -HexMetrics.ElevationStep;
+                uiPosition.z = -position.y;
                 uiRect.localPosition = uiPosition;
             }
         } // Elevation

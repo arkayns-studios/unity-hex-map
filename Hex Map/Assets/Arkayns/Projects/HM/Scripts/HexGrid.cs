@@ -69,6 +69,7 @@ namespace Arkayns.HM {
             label.text = cell.coordinates.ToStringOnSeparateLines();
 
             cell.uiRect = label.rectTransform;
+            cell.Elevation = 0;
         } // CreateCell
 
         public HexCell GetCell (Vector3 position) {
