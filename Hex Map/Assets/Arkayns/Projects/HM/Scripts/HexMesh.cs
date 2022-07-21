@@ -53,62 +53,38 @@ namespace Arkayns.HM {
         private void Triangulate(HexDirection direction, HexCell cell) {
             Vector3 center = cell.Position;
 
-            Vector3 v1 = center + HexMetrics.GetFirstSolidCorner(direction);
-            Vector3 v2 = center + HexMetrics.GetSecondSolidCorner(direction);
+            EdgeVertices e = new EdgeVertices(center + HexMetrics.GetFirstSolidCorner(direction), center + HexMetrics.GetSecondSolidCorner(direction));
             
-            Vector3 e1 = Vector3.Lerp(v1, v2, 1f / 3f);
-            Vector3 e2 = Vector3.Lerp(v1, v2, 2f / 3f);
-            
-            AddTriangle(center, v1, e1);
-            AddTriangleColor(cell.color);
-            
-            AddTriangle(center, e1, e2);
-            AddTriangleColor(cell.color);
-            
-            AddTriangle(center, e2, v2);
-            AddTriangleColor(cell.color);
+            TriangulateEdgeFan(center, e, cell.color);
             
             if (direction <= HexDirection.SE)
-                TriangulateConnection(direction, cell, v1, e1, e2, v2);
+                TriangulateConnection(direction, cell, e);
         } // Triangulate
 
-        private void TriangulateConnection(HexDirection direction, HexCell cell, Vector3 v1, Vector3 e1, Vector3 e2, Vector3 v2) {
+        private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices e1) {
             HexCell neighbor = cell.GetNeighbor(direction);
             if(neighbor == null) return;
 		
             Vector3 bridge = HexMetrics.GetBridge(direction);
-            Vector3 v3 = v1 + bridge;
-            Vector3 v4 = v2 + bridge;
-            v3.y = v4.y = neighbor.Position.y;
+            bridge.y = neighbor.Position.y - cell.Position.y;
+            EdgeVertices e2 = new EdgeVertices(e1.v1 + bridge, e1.v4 + bridge);
             
-            Vector3 e3 = Vector3.Lerp(v3, v4, 1f / 3f);
-            Vector3 e4 = Vector3.Lerp(v3, v4, 2f / 3f);
+            if (cell.GetEdgeType(direction) == HexEdgeType.Slope) TriangulateEdgeTerraces(e1.v1, e1.v4, cell, e2.v1, e2.v4, neighbor);
+            else TriangulateEdgeStrip(e1, cell.color, e2, neighbor.color);
             
             HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
             if (direction <= HexDirection.E && nextNeighbor != null) {
-                Vector3 v5 = v2 + HexMetrics.GetBridge(direction.Next());
+                Vector3 v5 = e1.v4 + HexMetrics.GetBridge(direction.Next());
                 v5.y = nextNeighbor.Position.y;
                 
                 if (cell.Elevation <= neighbor.Elevation) {
-                    if (cell.Elevation <= nextNeighbor.Elevation) TriangulateCorner(v2, cell, v4, neighbor, v5, nextNeighbor);
-                    else TriangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor);
-                } else if (neighbor.Elevation <= nextNeighbor.Elevation) TriangulateCorner(v4, neighbor, v5, nextNeighbor, v2, cell);
-                else TriangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor);
-                
-                AddTriangle(v2, v4, v5);
-                AddTriangleColor(cell.color, neighbor.color, nextNeighbor.color);
+                    if (cell.Elevation <= nextNeighbor.Elevation) TriangulateCorner(e1.v4, cell, e2.v4, neighbor, v5, nextNeighbor);
+                    else TriangulateCorner(v5, nextNeighbor, e1.v4, cell, e2.v4, neighbor);
+                } else if (neighbor.Elevation <= nextNeighbor.Elevation) TriangulateCorner(e1.v4, neighbor, v5, nextNeighbor, e2.v4, cell);
+                else TriangulateCorner(v5, nextNeighbor, e2.v4, cell, e1.v4, neighbor);
             }
 
-            if (cell.GetEdgeType(direction) == HexEdgeType.Slope) {
-                TriangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor);
-            } else {
-                AddQuad(v1, e1, v3, e3);
-                AddQuadColor(cell.color, neighbor.color);
-                AddQuad(e1, e2, e3, e4);
-                AddQuadColor(cell.color, neighbor.color);
-                AddQuad(e2, v2, e4, v4);
-                AddQuadColor(cell.color, neighbor.color);
-            }
+            
         } // TriangulateConnection
 
         private void TriangulateEdgeTerraces(Vector3 beginLeft, Vector3 beginRight, HexCell beginCell, Vector3 endLeft, Vector3 endRight, HexCell endCell) {
@@ -135,6 +111,25 @@ namespace Arkayns.HM {
             AddQuad(v3, v4, endLeft, endRight);
             AddQuadColor(c2, endCell.color);
         } // TriangulateEdgeTerraces
+        
+        private void TriangulateEdgeFan (Vector3 center, EdgeVertices edge, Color color) {
+            AddTriangle(center, edge.v1, edge.v2);
+            AddTriangleColor(color);
+            AddTriangle(center, edge.v2, edge.v3);
+            AddTriangleColor(color);
+            AddTriangle(center, edge.v3, edge.v4);
+            AddTriangleColor(color);
+        } // TriangulateEdgeFan
+        
+        private void TriangulateEdgeStrip (EdgeVertices e1, Color c1, EdgeVertices e2, Color c2) {
+            AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+            AddQuadColor(c1, c2);
+            AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+            AddQuadColor(c1, c2);
+            AddQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+            AddQuadColor(c1, c2);
+        } // TriangulateEdgeStrip
+        
         
         /// <summary> Add vertices in order, it also adds the indices of those vertices to form a triangle </summary>
         private void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
