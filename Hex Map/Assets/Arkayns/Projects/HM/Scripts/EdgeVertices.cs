@@ -14,6 +14,16 @@ namespace Arkayns.HM {
             v4 = corner2;
         } // Constructor EdgeVertices
         
+        // Methods
+        public static EdgeVertices TerraceLerp (EdgeVertices a, EdgeVertices b, int step) {
+            EdgeVertices result;
+            result.v1 = HexMetrics.TerraceLerp(a.v1, b.v1, step);
+            result.v2 = HexMetrics.TerraceLerp(a.v2, b.v2, step);
+            result.v3 = HexMetrics.TerraceLerp(a.v3, b.v3, step);
+            result.v4 = HexMetrics.TerraceLerp(a.v4, b.v4, step);
+            return result;
+        } // TerraceLerp
+        
     } // Struct EdgeVertices
 
 } // Namespace Arkayns HM

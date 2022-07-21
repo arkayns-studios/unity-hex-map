@@ -69,7 +69,7 @@ namespace Arkayns.HM {
             bridge.y = neighbor.Position.y - cell.Position.y;
             EdgeVertices e2 = new EdgeVertices(e1.v1 + bridge, e1.v4 + bridge);
             
-            if (cell.GetEdgeType(direction) == HexEdgeType.Slope) TriangulateEdgeTerraces(e1.v1, e1.v4, cell, e2.v1, e2.v4, neighbor);
+            if (cell.GetEdgeType(direction) == HexEdgeType.Slope) TriangulateEdgeTerraces(e1, cell, e2, neighbor);
             else TriangulateEdgeStrip(e1, cell.color, e2, neighbor.color);
             
             HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
@@ -87,29 +87,20 @@ namespace Arkayns.HM {
             
         } // TriangulateConnection
 
-        private void TriangulateEdgeTerraces(Vector3 beginLeft, Vector3 beginRight, HexCell beginCell, Vector3 endLeft, Vector3 endRight, HexCell endCell) {
-            Vector3 v3 = HexMetrics.TerraceLerp(beginLeft, endLeft, 1);
-            Vector3 v4 = HexMetrics.TerraceLerp(beginRight, endRight, 1);
+        private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell) {
+            EdgeVertices e2 = EdgeVertices.TerraceLerp(begin, end, 1);
             Color c2 = HexMetrics.TerraceLerp(beginCell.color, endCell.color, 1);
             
-            AddQuad(beginLeft, beginRight, v3, v4);
-            AddQuadColor(beginCell.color, c2);
-
+            TriangulateEdgeStrip(begin, beginCell.color, e2, c2);
+            
             for (int i = 0; i < HexMetrics.TerraceSteps; i++) {
-                Vector3 v1 = v3;
-                Vector3 v2 = v4;
+                EdgeVertices e1 = e2;
                 Color c1 = c2;
-                
-                v3 = HexMetrics.TerraceLerp(beginLeft, endLeft, i);
-                v4 = HexMetrics.TerraceLerp(beginRight, endRight, i);
-                c2 = HexMetrics.TerraceLerp(beginCell.color, endCell.color, i);
-                
-                AddQuad(v1, v2, v3, v4);
-                AddQuadColor(c1, c2);
+                e2 = EdgeVertices.TerraceLerp(begin, end, i);
+                TriangulateEdgeStrip(e1, c1, e2, c2);
             }
             
-            AddQuad(v3, v4, endLeft, endRight);
-            AddQuadColor(c2, endCell.color);
+            TriangulateEdgeStrip(e2, c2, end, endCell.color);
         } // TriangulateEdgeTerraces
         
         private void TriangulateEdgeFan (Vector3 center, EdgeVertices edge, Color color) {
