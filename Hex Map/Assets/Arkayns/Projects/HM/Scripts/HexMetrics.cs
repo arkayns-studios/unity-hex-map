@@ -12,6 +12,7 @@ namespace Arkayns.HM {
         public const int TerraceSteps = TerracesPerSlope * 2 + 1;
         public const float HorizontalTerraceStepSize = 1f / TerraceSteps;
         public const float VerticalTerraceStepSize = 1f / (TerraceSteps + 1);
+        public static Texture2D NoiseSource;
         
         private static readonly Vector3[] Corners = {
             new Vector3(0f, 0f, OuterRadius), 
@@ -68,6 +69,10 @@ namespace Arkayns.HM {
             
             return HexEdgeType.Cliff;
         } // GetEdgeType
+        
+        public static Vector4 SampleNoise (Vector3 position) {
+            return NoiseSource.GetPixelBilinear(position.x, position.z);
+        } // SampleNoise
         
     } // Class HexMetrics
     

@@ -16,9 +16,11 @@ namespace Arkayns.HM {
         private HexCell[] m_cells;
         private Canvas m_gridCanvas;
         private HexMesh m_hexMesh;
-
+        
+        public Texture2D noiseSource;
         
         private void Awake() {
+            HexMetrics.NoiseSource = noiseSource;
             m_gridCanvas = GetComponentInChildren<Canvas>();
             m_hexMesh = GetComponentInChildren<HexMesh>();
             m_cells = new HexCell[height * width];
@@ -33,6 +35,10 @@ namespace Arkayns.HM {
             m_hexMesh.Triangulate(m_cells);
         } // Start
 
+        private void OnEnable () {
+            HexMetrics.NoiseSource = noiseSource;
+        } // OnEnable
+        
         private void CreateCell(int x, int z, int i) {
             Vector3 position;
             
