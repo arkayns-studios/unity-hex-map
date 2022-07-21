@@ -27,6 +27,10 @@ namespace Arkayns.HM {
             }
         } // Elevation
 
+        public Vector3 Position {
+            get => transform.localPosition;
+        } // Position
+        
         public HexCell GetNeighbor(HexDirection direction) {
             return m_neighbors[(int) direction];
         } // GetNeighbor
