@@ -15,7 +15,8 @@ namespace Arkayns.HM {
         
         public static Texture2D NoiseSource;
         public const float CellPerturbStrength = 5f;
-
+        public const float NoiseScale = 0.003f;
+        
         
         private static readonly Vector3[] Corners = {
             new Vector3(0f, 0f, OuterRadius), 
@@ -74,7 +75,7 @@ namespace Arkayns.HM {
         } // GetEdgeType
         
         public static Vector4 SampleNoise (Vector3 position) {
-            return NoiseSource.GetPixelBilinear(position.x, position.z);
+            return NoiseSource.GetPixelBilinear(position.x * NoiseScale, position.z * NoiseScale);
         } // SampleNoise
         
     } // Class HexMetrics
