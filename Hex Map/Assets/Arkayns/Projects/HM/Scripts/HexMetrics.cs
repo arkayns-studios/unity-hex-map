@@ -18,6 +18,7 @@ namespace Arkayns.HM {
         public const float NoiseScale = 0.003f;
         public const float ElevationPerturbStrength = 1.5f;
         
+        public const int chunkSizeX = 5, chunkSizeZ = 5;
         
         private static readonly Vector3[] Corners = {
             new Vector3(0f, 0f, OuterRadius), 

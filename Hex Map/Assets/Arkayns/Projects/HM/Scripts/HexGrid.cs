@@ -5,9 +5,12 @@ namespace Arkayns.HM {
     
     public class HexGrid : MonoBehaviour {
 
-        public int width = 6;
-        public int height = 6;
+        private int m_cellCountX = 6;
+        private int m_cellCountZ = 6;
 
+        public int chunkCountX = 4;
+        public int chunkCountZ = 3;
+        
         public Color defaultColor = Color.white;
         
         public HexCell cellPrefab;
@@ -19,16 +22,16 @@ namespace Arkayns.HM {
         
         public Texture2D noiseSource;
         
+        
         private void Awake() {
             HexMetrics.NoiseSource = noiseSource;
             m_gridCanvas = GetComponentInChildren<Canvas>();
             m_hexMesh = GetComponentInChildren<HexMesh>();
-            m_cells = new HexCell[height * width];
 
-            for (int z = 0, i = 0; z < height; z++) {
-                for (int x = 0; x < width; x++) 
-                    CreateCell(x, z, i++);
-            }
+            m_cellCountX = chunkCountX * HexMetrics.chunkSizeX;
+            m_cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
+
+            CreateCells();
         } // Awake
 
         private void Start() {
@@ -39,6 +42,15 @@ namespace Arkayns.HM {
             HexMetrics.NoiseSource = noiseSource;
         } // OnEnable
         
+        
+        private void CreateCells() {
+            m_cells = new HexCell[m_cellCountZ * m_cellCountX];
+            for (int z = 0, i = 0; z < m_cellCountZ; z++) {
+                for (int x = 0; x < m_cellCountX; x++) 
+                    CreateCell(x, z, i++);
+            }
+        } // CreateCells
+
         private void CreateCell(int x, int z, int i) {
             Vector3 position;
             
@@ -56,11 +68,11 @@ namespace Arkayns.HM {
             if(x > 0) cell.SetNeighbor(HexDirection.W, m_cells[i -1]);
             if(z > 0) {
                 if((z & 1) == 0) {
-                    cell.SetNeighbor(HexDirection.SE, m_cells[i - width]);
-                    if(x > 0) cell.SetNeighbor(HexDirection.SW, m_cells[i - width - 1]);
+                    cell.SetNeighbor(HexDirection.SE, m_cells[i - m_cellCountX]);
+                    if(x > 0) cell.SetNeighbor(HexDirection.SW, m_cells[i - m_cellCountX - 1]);
                 } else {
-                    cell.SetNeighbor(HexDirection.SW, m_cells[i - width]);
-                    if (x < width - 1) cell.SetNeighbor(HexDirection.SE, m_cells[i - width + 1]);
+                    cell.SetNeighbor(HexDirection.SW, m_cells[i - m_cellCountX]);
+                    if (x < m_cellCountX - 1) cell.SetNeighbor(HexDirection.SE, m_cells[i - m_cellCountX + 1]);
                 }
             }
 
@@ -75,7 +87,7 @@ namespace Arkayns.HM {
         public HexCell GetCell (Vector3 position) {
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
-            int index = coordinates.X + coordinates.Z * width + coordinates.Z / 2;
+            int index = coordinates.X + coordinates.Z * m_cellCountX + coordinates.Z / 2;
             return m_cells[index];
         } // GetCell
 
