@@ -134,6 +134,16 @@ namespace Arkayns.HM {
             m_triangles.Add(vertexIndex + 2);
         } // AddTriangle
 
+        private void AddTriangleUnperturbed (Vector3 v1, Vector3 v2, Vector3 v3) {
+            int vertexIndex = m_vertices.Count;
+            m_vertices.Add(v1);
+            m_vertices.Add(v2);
+            m_vertices.Add(v3);
+            m_triangles.Add(vertexIndex);
+            m_triangles.Add(vertexIndex + 1);
+            m_triangles.Add(vertexIndex + 2);
+        } // AddTriangleUnperturbed
+        
         /// <summary> Add color data for each triangle </summary>
         private void AddTriangleColor(Color color) {
             m_colors.Add(color);
@@ -207,7 +217,7 @@ namespace Arkayns.HM {
         private void TriangulateCornerTerracesCliff (Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
             float b = 1f / (rightCell.Elevation - beginCell.Elevation);
             if (b < 0) b = -b;
-            Vector3 boundary = Vector3.Lerp(begin, right, b);
+            Vector3 boundary = Vector3.Lerp(Perturb(begin), Perturb(right), b);
             Color boundaryColor = Color.Lerp(beginCell.color, rightCell.color, b);
             
             TriangulateBoundaryTriangle(begin, beginCell, left, leftCell, boundary, boundaryColor);
@@ -223,7 +233,7 @@ namespace Arkayns.HM {
         private void TriangulateCornerCliffTerraces (Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
             float b = 1f / (leftCell.Elevation - beginCell.Elevation);
             if (b < 0) b = -b;
-            Vector3 boundary = Vector3.Lerp(begin, left, b);
+            Vector3 boundary = Vector3.Lerp(Perturb(begin), Perturb(left), b);
             Color boundaryColor = Color.Lerp(beginCell.color, leftCell.color, b);
             
             TriangulateBoundaryTriangle(right, rightCell, begin, beginCell, boundary, boundaryColor);
@@ -237,22 +247,22 @@ namespace Arkayns.HM {
         } // TriangulateCornerCliffTerraces
         
         private void TriangulateBoundaryTriangle (Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 boundary, Color boundaryColor) {
-            Vector3 v2 = HexMetrics.TerraceLerp(begin, left, 1);
+            Vector3 v2 = Perturb(HexMetrics.TerraceLerp(begin, left, 1));
             Color c2 = HexMetrics.TerraceLerp(beginCell.color, leftCell.color, 1);
 
-            AddTriangle(begin, v2, boundary);
+            AddTriangleUnperturbed(Perturb(begin), v2, boundary);
             AddTriangleColor(beginCell.color, c2, boundaryColor);
 
             for (int i = 2; i < HexMetrics.TerraceSteps; i++) {
                 Vector3 v1 = v2;
                 Color c1 = c2;
-                v2 = HexMetrics.TerraceLerp(begin, left, i);
+                v2 = Perturb(HexMetrics.TerraceLerp(begin, left, i));
                 c2 = HexMetrics.TerraceLerp(beginCell.color, leftCell.color, i);
-                AddTriangle(v1, v2, boundary);
+                AddTriangleUnperturbed(v1, v2, boundary);
                 AddTriangleColor(c1, c2, boundaryColor);
             }
 
-            AddTriangle(v2, left, boundary);
+            AddTriangleUnperturbed(v2, Perturb(left), boundary);
             AddTriangleColor(c2, leftCell.color, boundaryColor);
         } // TriangulateBoundaryTriangle
         
