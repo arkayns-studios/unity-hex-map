@@ -225,7 +225,7 @@ namespace Arkayns.HM {
             if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
                 TriangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
             } else {
-                AddTriangle(left, right, boundary);
+                AddTriangleUnperturbed(Perturb(left), Perturb(right), boundary);
                 AddTriangleColor(leftCell.color, rightCell.color, boundaryColor);
             }
         } // TriangulateCornerTerracesCliff
@@ -241,7 +241,7 @@ namespace Arkayns.HM {
             if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
                 TriangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
             } else {
-                AddTriangle(left, right, boundary);
+                AddTriangleUnperturbed(Perturb(left), Perturb(right), boundary);
                 AddTriangleColor(leftCell.color, rightCell.color, boundaryColor);
             }
         } // TriangulateCornerCliffTerraces
