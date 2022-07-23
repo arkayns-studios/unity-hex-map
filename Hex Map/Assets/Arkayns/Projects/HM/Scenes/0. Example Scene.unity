@@ -2012,11 +2012,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d49b2d0411624d22ab19dc31ad251c36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 6
-  height: 6
+  chunkCountX: 4
+  chunkCountZ: 3
   defaultColor: {r: 1, g: 1, b: 1, a: 1}
   cellPrefab: {fileID: 5776280694864960985}
   cellLabelPrefab: {fileID: 706694021}
+  chunkPrefab: {fileID: 901287470695794624, guid: cb1890b72967f7e45b266f3060f9abdf, type: 3}
   noiseSource: {fileID: 2800000, guid: ba19a0d61a4949949bf02fd49b8d6f4d, type: 3}
 --- !u!4 &1637657164
 Transform:

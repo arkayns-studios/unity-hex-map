@@ -20,6 +20,9 @@ namespace Arkayns.HM {
         private Canvas m_gridCanvas;
         private HexMesh m_hexMesh;
         
+        public HexGridChunk chunkPrefab;
+        private HexGridChunk[] m_chunks;
+        
         public Texture2D noiseSource;
         
         
@@ -31,6 +34,7 @@ namespace Arkayns.HM {
             m_cellCountX = chunkCountX * HexMetrics.chunkSizeX;
             m_cellCountZ = chunkCountZ * HexMetrics.chunkSizeZ;
 
+            CreateChunks();
             CreateCells();
         } // Awake
 
@@ -41,7 +45,16 @@ namespace Arkayns.HM {
         private void OnEnable () {
             HexMetrics.NoiseSource = noiseSource;
         } // OnEnable
-        
+
+        private void CreateChunks() {
+            m_chunks = new HexGridChunk[chunkCountX * chunkCountZ];
+            for (int z = 0, i = 0; z < chunkCountZ; z++) {
+                for (int x = 0; x < chunkCountX; x++) {
+                    HexGridChunk chunk = m_chunks[i++] = Instantiate(chunkPrefab);
+                    chunk.transform.SetParent(transform);
+                }
+            }
+        } // CreateChunks
         
         private void CreateCells() {
             m_cells = new HexCell[m_cellCountZ * m_cellCountX];
