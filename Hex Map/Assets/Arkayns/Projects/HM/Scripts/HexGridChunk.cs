@@ -21,6 +21,12 @@ namespace Arkayns.HM {
             m_hexMesh.Triangulate(m_cells);
         } // Start
         
+        public void AddCell (int index, HexCell cell) {
+            m_cells[index] = cell;
+            cell.transform.SetParent(transform, false);
+            cell.uiRect.SetParent(m_gridCanvas.transform, false);
+        } // AddCell
+        
     } // Class HexGridChunk
     
 } // Namespace Arkayns HM

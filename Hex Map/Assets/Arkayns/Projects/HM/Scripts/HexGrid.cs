@@ -56,6 +56,7 @@ namespace Arkayns.HM {
             }
         } // CreateChunks
         
+        
         private void CreateCells() {
             m_cells = new HexCell[m_cellCountZ * m_cellCountX];
             for (int z = 0, i = 0; z < m_cellCountZ; z++) {
@@ -74,7 +75,7 @@ namespace Arkayns.HM {
             position.z = z * (HexMetrics.OuterRadius * 1.5f);
 
             HexCell cell = m_cells[i] = Instantiate<HexCell>(cellPrefab, transform, false);
-            cell.transform.localPosition = position;
+            // cell.transform.localPosition = position;
             cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
             cell.color = defaultColor;
 
@@ -90,13 +91,26 @@ namespace Arkayns.HM {
             }
 
             Text label = Instantiate<Text>(cellLabelPrefab, m_gridCanvas.transform, false);
-            label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
+            // label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
             label.text = cell.coordinates.ToStringOnSeparateLines();
 
             cell.uiRect = label.rectTransform;
             cell.Elevation = 0;
+
+            AddCellToChunk(x, z, cell);
         } // CreateCell
 
+        private void AddCellToChunk (int x, int z, HexCell cell) {
+            int chunkX = x / HexMetrics.chunkSizeX;
+            int chunkZ = z / HexMetrics.chunkSizeZ;
+            HexGridChunk chunk = m_chunks[chunkX + chunkZ * chunkCountX];
+            
+            int localX = x - chunkX * HexMetrics.chunkSizeX;
+            int localZ = z - chunkZ * HexMetrics.chunkSizeZ;
+            chunk.AddCell(localX + localZ * HexMetrics.chunkSizeX, cell);
+        } // AddCellToChunk
+        
+        
         public HexCell GetCell (Vector3 position) {
             position = transform.InverseTransformPoint(position);
             HexCoordinates coordinates = HexCoordinates.FromPosition(position);
