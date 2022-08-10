@@ -5,8 +5,8 @@ namespace Arkayns.HM {
     
     public class HexGrid : MonoBehaviour {
 
-        private int m_cellCountX = 6;
-        private int m_cellCountZ = 6;
+        private int m_cellCountX;
+        private int m_cellCountZ;
 
         public int chunkCountX = 4;
         public int chunkCountZ = 3;
