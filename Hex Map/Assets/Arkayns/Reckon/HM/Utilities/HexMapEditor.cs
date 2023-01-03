@@ -73,6 +73,10 @@ namespace Arkayns.Reckon.HM {
 			if (applyElevation) cell.Elevation = m_activeElevation;
 		} // EditCell ()
 		
+		public void ShowUI(bool visible) {
+			hexGrid.ShowUI(visible);
+		} // ShowUI ()
+		
 	} // Class HexMapEditor
 	
 } // Namespace Arkayns Reckon HexMap

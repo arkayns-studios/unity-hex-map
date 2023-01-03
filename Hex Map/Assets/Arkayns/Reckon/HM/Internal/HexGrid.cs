@@ -18,7 +18,6 @@ namespace Arkayns.Reckon.HM {
 		private HexGridChunk[] m_chunks;
 		private HexCell[] m_cells;
 		private int m_cellCountX, m_cellCountZ;
-
 		
 		// -- Built-In Methods --
 		private void Awake () {
@@ -34,7 +33,6 @@ namespace Arkayns.Reckon.HM {
 		private void OnEnable () {
 			HexMetrics.NoiseSource = noiseSource;
 		} // OnEnable
-		
 		
 		// -- Methods --
 		private void CreateChunks () {
@@ -110,6 +108,10 @@ namespace Arkayns.Reckon.HM {
 			var localZ = z - chunkZ * HexMetrics.chunkSizeZ;
 			chunk.AddCell(localX + localZ * HexMetrics.chunkSizeX, cell);
 		} // AddCellToChunk
+
+		public void ShowUI(bool visible) {
+			foreach (var chunk in m_chunks) chunk.ShowUI(visible);
+		} // ShowUI ()
 		
 	} // Class HexGrid
 	
