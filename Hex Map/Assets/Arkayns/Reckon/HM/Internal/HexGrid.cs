@@ -59,6 +59,14 @@ namespace Arkayns.Reckon.HM {
 			var index = coordinates.X + coordinates.Z * m_cellCountX + coordinates.Z / 2;
 			return m_cells[index];
 		} // GetCell
+		
+		public HexCell GetCell (HexCoordinates coordinates) {
+			var z = coordinates.Z;
+			if (z < 0 || z >= m_cellCountZ) return null;
+			var x = coordinates.X + z / 2;
+			if (x < 0 || x >= m_cellCountX) return null;
+			return m_cells[x + z * m_cellCountX];
+		} // GetCell
 
 		private void CreateCell (int x, int z, int i) {
 			Vector3 position;
