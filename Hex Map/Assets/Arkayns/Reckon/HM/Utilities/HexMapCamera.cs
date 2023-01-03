@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Arkayns.Reckon.HM {
     
@@ -9,10 +8,12 @@ namespace Arkayns.Reckon.HM {
         private Transform m_swivel, m_stick;
         public float m_stickMinZoom, m_stickMaxZoom;
         public float m_swivelMinZoom, m_swivelMaxZoom;
+        private float m_zoom = 1f;
         public float moveSpeedMinZoom;
         public float moveSpeedMaxZoom;
+        public float rotationSpeed;
+        private float rotationAngle = 0f;
         public HexGrid grid;
-        private float m_zoom = 1f;
 
         // -- Built-In Methods --
         private void Awake() {
@@ -24,14 +25,16 @@ namespace Arkayns.Reckon.HM {
             var zoomDelta = Input.GetAxis("Mouse ScrollWheel");
             var xDelta = Input.GetAxis("Horizontal");
             var zDelta = Input.GetAxis("Vertical");
+            var rotationDelta = Input.GetAxis("Rotation");
             
-            if (zoomDelta != 0) AdjustZoom(zoomDelta);
-            if (xDelta != 0 || zDelta != 0) AdjustPosition(xDelta, zDelta);
+            if (zoomDelta != 0f) HandleZoom(zoomDelta);
+            if (xDelta != 0f || zDelta != 0f) HandlePosition(xDelta, zDelta);
+            if (rotationDelta != 0f) HandleRotation(rotationDelta);
 
         } // Update ()
         
         // -- Methods --
-        private void AdjustZoom(float _delta) {
+        private void HandleZoom(float _delta) {
             m_zoom = Mathf.Clamp01(m_zoom + _delta);
             
             var distance = Mathf.Lerp(m_stickMinZoom, m_stickMaxZoom, m_zoom);
@@ -39,18 +42,27 @@ namespace Arkayns.Reckon.HM {
             
             var angle = Mathf.Lerp(m_swivelMinZoom, m_swivelMaxZoom, m_zoom);
             m_swivel.localRotation = Quaternion.Euler(angle, 0f, 0f);
-        } // AdjustZoom ()
+        } // HandleZoom ()
 
-        private void AdjustPosition(float _xDelta, float _zDelta) {
-            var direction = new Vector3(_xDelta, 0f, _zDelta).normalized;
+        private void HandlePosition(float _xDelta, float _zDelta) {
+            var direction = transform.localRotation * new Vector3(_xDelta, 0f, _zDelta).normalized;
             var damping = Mathf.Max(Mathf.Abs(_xDelta), Mathf.Abs(_zDelta));
             var distance = Mathf.Lerp(moveSpeedMinZoom, moveSpeedMaxZoom, m_zoom) * damping * Time.deltaTime;
             
             var position = transform.localPosition;
             position += direction * distance;
             transform.localPosition = ClampPosition(position);
-        } // AdjustPosition ()
+        } // HandlePosition ()
 
+        private void HandleRotation(float _delta) {
+            rotationAngle += _delta * rotationSpeed * Time.deltaTime;
+            switch (rotationAngle) {
+                case < 0f: rotationAngle += 360f; break;
+                case >= 360f: rotationAngle -= 360f; break;
+            }
+            transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
+        } // HandleRotation ()
+        
         private Vector3 ClampPosition(Vector3 _position) {
             const float halfCell = 0.5f; const float fullCell = 1f;
             var xMax = (grid.chunkCountX * HexMetrics.chunkSizeX - halfCell) * (2f * HexMetrics.innerRadius);
