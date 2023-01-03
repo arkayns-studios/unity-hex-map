@@ -9,9 +9,9 @@ namespace Arkayns.Reckon.HM {
 		public HexGrid hexGrid;
 		private int m_activeElevation;
 		private Color m_activeColor;
-		private bool applyColor;
-		private bool applyElevation;
-		private int brushSize;
+		private bool m_applyColor;
+		private bool m_applyElevation;
+		private int m_brushSize;
 
 		// -- Built-In Methods --
 		private void Awake () {
@@ -25,42 +25,40 @@ namespace Arkayns.Reckon.HM {
 
 		// -- Methods --
 		public void SelectColor(int index) {
-			applyColor = index >= 0;
-			if (applyColor) m_activeColor = colors[index];
+			m_applyColor = index >= 0;
+			if (m_applyColor) m_activeColor = colors[index];
 		} // SelectColor ()
 		
 		public void SetApplyElevation(bool toggle) {
-			applyElevation = toggle;
+			m_applyElevation = toggle;
 		} // SetApplyElevation ()
 
 		public void SetElevation(float elevation) {
-			if (applyElevation) m_activeElevation = (int)elevation;
+			if (m_applyElevation) m_activeElevation = (int)elevation;
 		} // SetElevation ()
 
 		public void SetBrushSize(float size) {
-			brushSize = (int)size;
+			m_brushSize = (int)size;
 		} // SetBrushSize ()
 		
 		private void HandleInput () {
+			if (Camera.main == null) return;
 			var inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			if (Physics.Raycast(inputRay, out hit)) {
-				EditCells(hexGrid.GetCell(hit.point));
-			}
+			if (Physics.Raycast(inputRay, out var hit)) EditCells(hexGrid.GetCell(hit.point));
 		} // HandleInput ()
 
 		private void EditCells(HexCell center) {
 			var centerX = center.coordinates.X;
 			var centerZ = center.coordinates.Z;
 
-			for (int r = 0, z = centerZ - brushSize; z <= centerZ; z++, r++) {
-				for (var x = centerX - r; x <= centerX + brushSize; x++) {
+			for (int r = 0, z = centerZ - m_brushSize; z <= centerZ; z++, r++) {
+				for (var x = centerX - r; x <= centerX + m_brushSize; x++) {
 					EditCell(hexGrid.GetCell(new HexCoordinates(x, z)));
 				}
 			}
 			
-			for (int r = 0, z = centerZ + brushSize; z > centerZ; z--, r++) {
-				for (var x = centerX - brushSize; x <= centerX + r; x++) {
+			for (int r = 0, z = centerZ + m_brushSize; z > centerZ; z--, r++) {
+				for (var x = centerX - m_brushSize; x <= centerX + r; x++) {
 					EditCell(hexGrid.GetCell(new HexCoordinates(x, z)));
 				}
 			}
@@ -69,8 +67,8 @@ namespace Arkayns.Reckon.HM {
 		
 		private void EditCell (HexCell cell) {
 			if (!cell) return;
-			if (applyColor) cell.Color = m_activeColor;
-			if (applyElevation) cell.Elevation = m_activeElevation;
+			if (m_applyColor) cell.Color = m_activeColor;
+			if (m_applyElevation) cell.Elevation = m_activeElevation;
 		} // EditCell ()
 		
 		public void ShowUI(bool visible) {
