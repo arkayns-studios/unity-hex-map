@@ -733,7 +733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
+  m_sendNavigationEvents: 0
   m_DragThreshold: 5
 --- !u!4 &576920446
 Transform:
@@ -1588,6 +1588,9 @@ MonoBehaviour:
   m_stickMaxZoom: -45
   m_swivelMinZoom: 90
   m_swivelMaxZoom: 45
+  moveSpeedMinZoom: 400
+  moveSpeedMaxZoom: 100
+  grid: {fileID: 1571186511}
 --- !u!1 &1476618642
 GameObject:
   m_ObjectHideFlags: 0
