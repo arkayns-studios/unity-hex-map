@@ -46,7 +46,8 @@ namespace Arkayns.Reckon.HM {
             if (cell.HasRiver) {
                 if (cell.HasRiverThroughEdge(direction)) {
                     e.v3.y = cell.StreamBedY;
-                    TriangulateWithRiver(direction, cell, center, e);
+                    if(cell.HasRiverBeginOrEnd) TriangulateWithRiverBeginOrEnd(direction, cell, center, e);
+                    else TriangulateWithRiver(direction, cell, center, e);
                 }
             } else TriangulateEdgeFan(center, e, cell.Color);
             
@@ -70,6 +71,14 @@ namespace Arkayns.Reckon.HM {
             AddTriangle(centerR, m.v4, m.v5);
             AddTriangleColor(cell.Color);
         } // TriangulateWithRiver ()
+
+        private void TriangulateWithRiverBeginOrEnd(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
+            var m = new EdgeVertices(Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f));
+            m.v3.y = e.v3.y;
+            
+            TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
+            TriangulateEdgeFan(center, m, cell.Color);
+        } // TriangulateWithRiverBeginOrEnd ()
         
         private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices e1) {
             var neighbor = cell.GetNeighbor(direction);
