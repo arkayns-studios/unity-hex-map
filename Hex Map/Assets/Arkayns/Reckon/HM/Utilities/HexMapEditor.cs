@@ -96,6 +96,11 @@ namespace Arkayns.Reckon.HM {
 			if (!cell) return;
 			if (m_applyColor) cell.Color = m_activeColor;
 			if (m_applyElevation) cell.Elevation = m_activeElevation;
+			if(m_riverMode == OptionalToggle.No) cell.RemoveRiver();
+			else if(m_isDrag && m_riverMode == OptionalToggle.Yes) {
+				var otherCell = cell.GetNeighbor(m_dragDirection.Opposite());
+				if(otherCell) otherCell.SetOutgoingRiver(m_dragDirection);
+			}
 		} // EditCell ()
 		
 		public void ShowUI(bool visible) {
