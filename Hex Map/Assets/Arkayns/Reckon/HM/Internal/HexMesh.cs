@@ -43,12 +43,20 @@ namespace Arkayns.Reckon.HM {
             var center = cell.Position;
             var e = new EdgeVertices(center + HexMetrics.GetFirstSolidCorner(direction), center + HexMetrics.GetSecondSolidCorner(direction));
 
-            if (cell.HasRiverThroughEdge(direction)) e.v3.y = cell.StreamBedY;
+            if (cell.HasRiver) {
+                if (cell.HasRiverThroughEdge(direction)) {
+                    e.v3.y = cell.StreamBedY;
+                    TriangulateWithRiver(direction, cell, center, e);
+                }
+            } else TriangulateEdgeFan(center, e, cell.Color);
             
-            TriangulateEdgeFan(center, e, cell.Color);
             if (direction <= HexDirection.SE) TriangulateConnection(direction, cell, e);
-        } // Triangulate
+        } // Triangulate ()
 
+        private void TriangulateWithRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
+            
+        } // TriangulateWithRiver ()
+        
         private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices e1) {
             var neighbor = cell.GetNeighbor(direction);
             if (neighbor == null) return;

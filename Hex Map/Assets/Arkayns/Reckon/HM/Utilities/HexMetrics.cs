@@ -20,7 +20,7 @@ namespace Arkayns.Reckon.HM {
 
 		public const float horizontalTerraceStepSize = 1f / terraceSteps;
 		public const float verticalTerraceStepSize = 1f / (terracesPerSlope + 1);
-		public const float cellPerturbStrength = 4f;
+		public const float cellPerturbStrength = 0f; // 4f;
 
 		public const float noiseScale = 0.003f;
 		public const int chunkSizeX = 5, chunkSizeZ = 5;
