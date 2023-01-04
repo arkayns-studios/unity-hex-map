@@ -16,6 +16,15 @@ namespace Arkayns.Reckon.HM {
 			v5 = corner2;
 		} // Constructors EdgeVertices
 
+		public EdgeVertices(Vector3 corner1, Vector3 corner2, float outerStep) {
+			v1 = corner1;
+			v2 = Vector3.Lerp(corner1, corner2, outerStep);
+			v3 = Vector3.Lerp(corner1, corner2, 0.5f);
+			v4 = Vector3.Lerp(corner1, corner2, 1f - outerStep);
+			v5 = corner2;
+		} // Constructors EdgeVertices
+		
+		// -- Methods --
 		public static EdgeVertices TerraceLerp (EdgeVertices a, EdgeVertices b, int step) {
 			EdgeVertices result;
 			result.v1 = HexMetrics.TerraceLerp(a.v1, b.v1, step);
@@ -24,7 +33,7 @@ namespace Arkayns.Reckon.HM {
 			result.v4 = HexMetrics.TerraceLerp(a.v4, b.v4, step);
 			result.v5 = HexMetrics.TerraceLerp(a.v5, b.v5, step);
 			return result;
-		} // EdgeVertices
+		} // EdgeVertices ()
 		
 	} // Struct EdgeVertices
 	

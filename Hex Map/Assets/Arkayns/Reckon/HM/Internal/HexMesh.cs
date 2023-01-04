@@ -54,7 +54,21 @@ namespace Arkayns.Reckon.HM {
         } // Triangulate ()
 
         private void TriangulateWithRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
+            var centerL = center + HexMetrics.GetFirstSolidCorner(direction.Next()) * 0.25f;
+            var centerR = center + HexMetrics.GetSecondSolidCorner(direction.Next()) * 0.25f;
+            var m = new EdgeVertices(Vector3.Lerp(centerL, e.v1, 0.5f), Vector3.Lerp(centerR, e.v5, 0.5f), 1f / 6f);
+            m.v3.y = center.y = e.v3.y;
             
+            TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
+            
+            AddTriangle(centerL, m.v1, m.v2);
+            AddTriangleColor(cell.Color);
+            AddQuad(centerL, center, m.v2, m.v3);
+            AddQuadColor(cell.Color);
+            AddQuad(center, centerR, m.v3, m.v4);
+            AddQuadColor(cell.Color);
+            AddTriangle(centerR, m.v4, m.v5);
+            AddTriangleColor(cell.Color);
         } // TriangulateWithRiver ()
         
         private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices e1) {
@@ -302,6 +316,13 @@ namespace Arkayns.Reckon.HM {
             m_colors.Add(c4);
         } //AddQuadColor
 
+        private void AddQuadColor(Color color) {
+            m_colors.Add(color);
+            m_colors.Add(color);
+            m_colors.Add(color);
+            m_colors.Add(color);
+        } // AddQuadColor ()
+        
         private Vector3 Perturb(Vector3 position) {
             var sample = HexMetrics.SampleNoise(position);
             position.x += (sample.x * 2f - 1f) * HexMetrics.cellPerturbStrength;
