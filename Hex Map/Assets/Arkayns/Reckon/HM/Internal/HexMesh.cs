@@ -14,15 +14,35 @@ namespace Arkayns.Reckon.HM {
 
         private Mesh m_hexMesh;
         private MeshCollider m_meshCollider;
+
+        public bool useCollider;
         
         // -- Built-In Methods --
         private void Awake() {
             GetComponent<MeshFilter>().mesh = m_hexMesh = new Mesh();
-            m_meshCollider = gameObject.AddComponent<MeshCollider>();
+            if(useCollider) m_meshCollider = gameObject.AddComponent<MeshCollider>();
             m_hexMesh.name = "Hex Mesh";
         } // Awake ()
         
         // -- Methods --
+        public void Apply() {
+            m_hexMesh.SetVertices(m_vertices);
+            ListPool<Vector3>.Add(m_vertices);
+            m_hexMesh.SetColors(m_colors);
+            ListPool<Color>.Add(m_colors);
+            m_hexMesh.SetTriangles(m_triangles, 0);
+            ListPool<int>.Add(m_triangles);
+            m_hexMesh.RecalculateNormals();
+            if (useCollider) m_meshCollider.sharedMesh = m_hexMesh;
+        } // Apply ()
+        
+        public void Clear() {
+            m_hexMesh.Clear();
+            m_vertices = ListPool<Vector3>.Get();
+            m_colors = ListPool<Color>.Get();
+            m_triangles = ListPool<int>.Get();
+        } // Clear ()
+        
         public void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
             var vertexIndex = m_vertices.Count;
             m_vertices.Add(HexMetrics.Perturb(v1));
@@ -89,24 +109,6 @@ namespace Arkayns.Reckon.HM {
             m_colors.Add(color);
             m_colors.Add(color);
         } // AddQuadColor ()
-
-        public void Clear() {
-            m_hexMesh.Clear();
-            m_vertices = ListPool<Vector3>.Get();
-            m_colors = ListPool<Color>.Get();
-            m_triangles = ListPool<int>.Get();
-        } // Clear ()
-
-        public void Apply() {
-            m_hexMesh.SetVertices(m_vertices);
-            ListPool<Vector3>.Add(m_vertices);
-            m_hexMesh.SetColors(m_colors);
-            ListPool<Color>.Add(m_colors);
-            m_hexMesh.SetTriangles(m_triangles, 0);
-            ListPool<int>.Add(m_triangles);
-            m_hexMesh.RecalculateNormals();
-            m_meshCollider.sharedMesh = m_hexMesh;
-        } // Apply ()
 
     } // Class HexMesh
     
