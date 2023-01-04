@@ -222,7 +222,7 @@ namespace Arkayns.Reckon.HM {
                 b = -b;
             }
 
-            var boundary = Vector3.Lerp(Perturb(begin), Perturb(right), b);
+            var boundary = Vector3.Lerp(HexMetrics.Perturb(begin), HexMetrics.Perturb(right), b);
             var boundaryColor = Color.Lerp(beginCell.Color, rightCell.Color, b);
 
             TriangulateBoundaryTriangle(begin, beginCell, left, leftCell, boundary, boundaryColor);
@@ -230,7 +230,7 @@ namespace Arkayns.Reckon.HM {
             if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
                 TriangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
             }else {
-                AddTriangleUnperturbed(Perturb(left), Perturb(right), boundary);
+                AddTriangleUnperturbed(HexMetrics.Perturb(left), HexMetrics.Perturb(right), boundary);
                 AddTriangleColor(leftCell.Color, rightCell.Color, boundaryColor);
             }
         } // TriangulateCornerTerracesCliff
@@ -241,7 +241,7 @@ namespace Arkayns.Reckon.HM {
                 b = -b;
             }
 
-            var boundary = Vector3.Lerp(Perturb(begin), Perturb(left), b);
+            var boundary = Vector3.Lerp(HexMetrics.Perturb(begin), HexMetrics.Perturb(left), b);
             var boundaryColor = Color.Lerp(beginCell.Color, leftCell.Color, b);
 
             TriangulateBoundaryTriangle(right, rightCell, begin, beginCell, boundary, boundaryColor);
@@ -249,28 +249,28 @@ namespace Arkayns.Reckon.HM {
             if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
                 TriangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
             } else {
-                AddTriangleUnperturbed(Perturb(left), Perturb(right), boundary);
+                AddTriangleUnperturbed(HexMetrics.Perturb(left), HexMetrics.Perturb(right), boundary);
                 AddTriangleColor(leftCell.Color, rightCell.Color, boundaryColor);
             }
         } // TriangulateCornerCliffTerraces
 
         private void TriangulateBoundaryTriangle(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 boundary, Color boundaryColor) {
-            var v2 = Perturb(HexMetrics.TerraceLerp(begin, left, 1));
+            var v2 = HexMetrics.Perturb(HexMetrics.TerraceLerp(begin, left, 1));
             var c2 = HexMetrics.TerraceLerp(beginCell.Color, leftCell.Color, 1);
 
-            AddTriangleUnperturbed(Perturb(begin), v2, boundary);
+            AddTriangleUnperturbed(HexMetrics.Perturb(begin), v2, boundary);
             AddTriangleColor(beginCell.Color, c2, boundaryColor);
 
             for (var i = 2; i < HexMetrics.terraceSteps; i++) {
                 var v1 = v2;
                 var c1 = c2;
-                v2 = Perturb(HexMetrics.TerraceLerp(begin, left, i));
+                v2 = HexMetrics.Perturb(HexMetrics.TerraceLerp(begin, left, i));
                 c2 = HexMetrics.TerraceLerp(beginCell.Color, leftCell.Color, i);
                 AddTriangleUnperturbed(v1, v2, boundary);
                 AddTriangleColor(c1, c2, boundaryColor);
             }
 
-            AddTriangleUnperturbed(v2, Perturb(left), boundary);
+            AddTriangleUnperturbed(v2, HexMetrics.Perturb(left), boundary);
             AddTriangleColor(c2, leftCell.Color, boundaryColor);
         } // TriangulateBoundaryTriangle
 
@@ -298,9 +298,9 @@ namespace Arkayns.Reckon.HM {
 
         private void AddTriangle(Vector3 v1, Vector3 v2, Vector3 v3) {
             var vertexIndex = m_vertices.Count;
-            m_vertices.Add(Perturb(v1));
-            m_vertices.Add(Perturb(v2));
-            m_vertices.Add(Perturb(v3));
+            m_vertices.Add(HexMetrics.Perturb(v1));
+            m_vertices.Add(HexMetrics.Perturb(v2));
+            m_vertices.Add(HexMetrics.Perturb(v3));
             m_triangles.Add(vertexIndex);
             m_triangles.Add(vertexIndex + 1);
             m_triangles.Add(vertexIndex + 2);
@@ -330,10 +330,10 @@ namespace Arkayns.Reckon.HM {
 
         private void AddQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
             var vertexIndex = m_vertices.Count;
-            m_vertices.Add(Perturb(v1));
-            m_vertices.Add(Perturb(v2));
-            m_vertices.Add(Perturb(v3));
-            m_vertices.Add(Perturb(v4));
+            m_vertices.Add(HexMetrics.Perturb(v1));
+            m_vertices.Add(HexMetrics.Perturb(v2));
+            m_vertices.Add(HexMetrics.Perturb(v3));
+            m_vertices.Add(HexMetrics.Perturb(v4));
             m_triangles.Add(vertexIndex);
             m_triangles.Add(vertexIndex + 2);
             m_triangles.Add(vertexIndex + 1);
@@ -362,14 +362,7 @@ namespace Arkayns.Reckon.HM {
             m_colors.Add(color);
             m_colors.Add(color);
         } // AddQuadColor ()
-        
-        private Vector3 Perturb(Vector3 position) {
-            var sample = HexMetrics.SampleNoise(position);
-            position.x += (sample.x * 2f - 1f) * HexMetrics.cellPerturbStrength;
-            position.z += (sample.z * 2f - 1f) * HexMetrics.cellPerturbStrength;
-            return position;
-        } // Perturb
-        
+
     } // Class HexMesh
     
 } // Namespace Arkayns Reckon HexMap

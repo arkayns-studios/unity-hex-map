@@ -55,7 +55,7 @@ namespace Arkayns.Reckon.HM {
 
 		public static Vector3 GetSolidEdgeMiddle(HexDirection direction) {
 			return (m_corners[(int)direction] + m_corners[(int)direction + 1]) * (0.5f * solidFactor);
-		} // GetSolidEdgeMiddle ()
+		} // GetSolidEdgeMiddle () ()
 		
 		public static Vector3 GetBridge (HexDirection direction) => (m_corners[(int)direction] + m_corners[(int)direction + 1]) * blendFactor;
 
@@ -66,18 +66,25 @@ namespace Arkayns.Reckon.HM {
 			var v = ((step + 1) / 2) * verticalTerraceStepSize;
 			a.y += (b.y - a.y) * v;
 			return a;
-		} // TerraceLerp
+		} // TerraceLerp ()
 
 		public static Color TerraceLerp (Color a, Color b, int step) {
 			var h = step * horizontalTerraceStepSize;
 			return Color.Lerp(a, b, h);
-		} // TerraceLerp
+		} // TerraceLerp ()
 
 		public static HexEdgeType GetEdgeType (int elevation1, int elevation2) {
 			if (elevation1 == elevation2) return HexEdgeType.Flat;
 			var delta = elevation2 - elevation1;
 			return delta is 1 or -1 ? HexEdgeType.Slope : HexEdgeType.Cliff;
-		} // GetEdgeType
+		} // GetEdgeType ()
+		
+		public static Vector3 Perturb(Vector3 position) {
+			var sample = SampleNoise(position);
+			position.x += (sample.x * 2f - 1f) * cellPerturbStrength;
+			position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
+			return position;
+		} // Perturb ()
 		
 	} // Class HexMetrics
 	
