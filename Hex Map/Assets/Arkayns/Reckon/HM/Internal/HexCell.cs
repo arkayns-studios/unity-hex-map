@@ -13,6 +13,9 @@ namespace Arkayns.Reckon.HM {
 		private int m_elevation = int.MinValue;
 		[SerializeField] private HexCell[] neighbors;
 		
+		private bool m_hasIncomingRiver, m_hasOutgoingRiver;
+		private HexDirection m_incomingRiver, m_outgoingRiver;
+		
 		// -- Properties --
 		public Color Color {
 			get => m_color;
@@ -22,7 +25,6 @@ namespace Arkayns.Reckon.HM {
 				Refresh();
 			}
 		} // Color
-
 		public int Elevation {
 			get => m_elevation;
 			set {
@@ -43,7 +45,12 @@ namespace Arkayns.Reckon.HM {
 
 		public Vector3 Position => transform.localPosition;
 
-
+		public bool HasIncomingRiver => m_hasIncomingRiver;
+		public bool HasOutgoingRiver => m_hasOutgoingRiver;
+		public HexDirection IncomingRiver => m_incomingRiver;
+		public HexDirection OutgoingRiver => m_outgoingRiver;
+		public bool HasRiver => m_hasIncomingRiver || m_hasOutgoingRiver;
+		
 		// -- Methods --
 		public HexCell GetNeighbor (HexDirection direction) => neighbors[(int)direction];
 
@@ -56,6 +63,10 @@ namespace Arkayns.Reckon.HM {
 
 		public HexEdgeType GetEdgeType (HexCell otherCell) => HexMetrics.GetEdgeType(m_elevation, otherCell.m_elevation);
 
+		public bool HasRiverThroughEdge(HexDirection direction) {
+			return m_hasIncomingRiver && m_incomingRiver == direction || m_hasOutgoingRiver && m_outgoingRiver == direction;
+		} // HasRiverThroughEdge ()
+		
 		private void Refresh () {
 			if (!chunk) return;
 			chunk.Refresh();
