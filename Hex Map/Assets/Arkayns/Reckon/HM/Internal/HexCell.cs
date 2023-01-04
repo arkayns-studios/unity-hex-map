@@ -66,12 +66,41 @@ namespace Arkayns.Reckon.HM {
 		public bool HasRiverThroughEdge(HexDirection direction) {
 			return m_hasIncomingRiver && m_incomingRiver == direction || m_hasOutgoingRiver && m_outgoingRiver == direction;
 		} // HasRiverThroughEdge ()
+
+		public void RemoveOutgoingRiver() {
+			if (!m_hasOutgoingRiver) return;
+			m_hasOutgoingRiver = false;
+			RefreshSelfOnly();
+
+			var neighbor = GetNeighbor(m_outgoingRiver);
+			neighbor.m_hasIncomingRiver = false;
+			neighbor.RefreshSelfOnly();
+		} // RemoveOutgoingRiver ()
+
+		public void RemoveIncomingRiver() {
+			if(!m_hasIncomingRiver) return;
+			m_hasIncomingRiver = false;
+			RefreshSelfOnly();
+
+			var neighbor = GetNeighbor(m_incomingRiver);
+			neighbor.m_hasOutgoingRiver = false;
+			neighbor.RefreshSelfOnly();
+		} // RemoveIncomingRiver ()
+
+		public void RemoveRiver() {
+			RemoveOutgoingRiver();
+			RemoveIncomingRiver();
+		} // RemoveRiver ()
 		
 		private void Refresh () {
 			if (!chunk) return;
 			chunk.Refresh();
 			foreach (var neighbor in neighbors) if (neighbor != null && neighbor.chunk != chunk) neighbor.chunk.Refresh();
 		} // Refresh
+
+		private void RefreshSelfOnly() {
+			chunk.Refresh();
+		} // RefreshSelfOnly ()
 		
 	} // Class HexCell
 	
