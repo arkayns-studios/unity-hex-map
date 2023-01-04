@@ -37,6 +37,7 @@ namespace Arkayns.Reckon.HM {
 			new (0f, 0f, outerRadius)
 		};
 
+		public const float streamBedElevationOffset = -1f;
 
 		// -- Methods --
 		public static Vector4 SampleNoise (Vector3 position) => NoiseSource.GetPixelBilinear(position.x * noiseScale, position.z * noiseScale);

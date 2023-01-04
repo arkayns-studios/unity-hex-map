@@ -50,6 +50,8 @@ namespace Arkayns.Reckon.HM {
 		public HexDirection IncomingRiver => m_incomingRiver;
 		public HexDirection OutgoingRiver => m_outgoingRiver;
 		public bool HasRiver => m_hasIncomingRiver || m_hasOutgoingRiver;
+
+		public float StreamBedY => (m_elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
 		
 		// -- Methods --
 		public HexCell GetNeighbor (HexDirection direction) => neighbors[(int)direction];
