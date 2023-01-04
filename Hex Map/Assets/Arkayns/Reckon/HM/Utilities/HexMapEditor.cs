@@ -13,6 +13,9 @@ namespace Arkayns.Reckon.HM {
 		private bool m_applyElevation;
 		private int m_brushSize;
 		private OptionalToggle m_riverMode;
+		private bool m_isDrag;
+		private HexDirection m_dragDirection;
+		private HexCell m_previousCell;
 		
 		// -- Built-In Methods --
 		private void Awake () {
@@ -22,6 +25,7 @@ namespace Arkayns.Reckon.HM {
 
 		private void Update () {
 			if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) HandleInput();
+			else m_previousCell = null;
 		} // Update ()
 
 		// -- Methods --
@@ -49,9 +53,27 @@ namespace Arkayns.Reckon.HM {
 		private void HandleInput () {
 			if (Camera.main == null) return;
 			var inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-			if (Physics.Raycast(inputRay, out var hit)) EditCells(hexGrid.GetCell(hit.point));
+			if (Physics.Raycast(inputRay, out var hit)) {
+				var currentCell = hexGrid.GetCell(hit.point);
+
+				if (m_previousCell && m_previousCell != currentCell) ValidateDrag(currentCell);
+				else m_isDrag = false;
+				
+				EditCells(currentCell);
+				m_previousCell = currentCell;
+			} else m_previousCell = null;
 		} // HandleInput ()
 
+		private void ValidateDrag(HexCell currentCell) {
+			for (m_dragDirection = HexDirection.NE; m_dragDirection <= HexDirection.NW; m_dragDirection++) {
+				if (m_previousCell.GetNeighbor(m_dragDirection) != currentCell) continue;
+				m_isDrag = true;
+				return;
+			}
+
+			m_isDrag = false;
+		} // ValidateDrag
+		
 		private void EditCells(HexCell center) {
 			var centerX = center.coordinates.X;
 			var centerZ = center.coordinates.Z;
