@@ -55,8 +55,19 @@ namespace Arkayns.Reckon.HM {
         } // Triangulate ()
 
         private void TriangulateWithRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
-            var centerL = center + HexMetrics.GetFirstSolidCorner(direction.Next()) * 0.25f;
-            var centerR = center + HexMetrics.GetSecondSolidCorner(direction.Next()) * 0.25f;
+            Vector3 centerL, centerR;
+            if (cell.HasRiverThroughEdge(direction.Opposite())) {
+                centerL = center + HexMetrics.GetFirstSolidCorner(direction.Next()) * 0.25f;
+                centerR = center + HexMetrics.GetSecondSolidCorner(direction.Next()) * 0.25f;
+                center = Vector3.Lerp(centerL, centerR, 0.5f);
+            } else if (cell.HasRiverThroughEdge(direction.Next())) {
+                centerL = center;
+                centerR = Vector3.Lerp(center, e.v5, 2f / 3f);
+            } else if (cell.HasRiverThroughEdge(direction.Previous())) {
+                centerL = Vector3.Lerp(center, e.v1, 2f / 3f);
+                centerR = center;
+            } else centerL = centerR = center;
+            
             var m = new EdgeVertices(Vector3.Lerp(centerL, e.v1, 0.5f), Vector3.Lerp(centerR, e.v5, 0.5f), 1f / 6f);
             m.v3.y = center.y = e.v3.y;
             
