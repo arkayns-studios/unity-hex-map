@@ -43,6 +43,8 @@ namespace Arkayns.Reckon.HM {
             var center = cell.Position;
             var e = new EdgeVertices(center + HexMetrics.GetFirstSolidCorner(direction), center + HexMetrics.GetSecondSolidCorner(direction));
 
+            if (cell.HasRiverThroughEdge(direction)) e.v3.y = cell.StreamBedY;
+            
             TriangulateEdgeFan(center, e, cell.Color);
             if (direction <= HexDirection.SE) TriangulateConnection(direction, cell, e);
         } // Triangulate
@@ -55,6 +57,8 @@ namespace Arkayns.Reckon.HM {
             bridge.y = neighbor.Position.y - cell.Position.y;
             var e2 = new EdgeVertices(e1.v1 + bridge, e1.v5 + bridge);
 
+            if (cell.HasRiverThroughEdge(direction)) e2.v3.y = neighbor.StreamBedY;
+            
             if (cell.GetEdgeType(direction) == HexEdgeType.Slope) TriangulateEdgeTerraces(e1, cell, e2, neighbor);
             else TriangulateEdgeStrip(e1, cell.Color, e2, neighbor.Color);
 
