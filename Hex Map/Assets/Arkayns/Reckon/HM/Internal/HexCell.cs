@@ -50,7 +50,7 @@ namespace Arkayns.Reckon.HM {
 		public HexDirection IncomingRiver => m_incomingRiver;
 		public HexDirection OutgoingRiver => m_outgoingRiver;
 		public bool HasRiver => m_hasIncomingRiver || m_hasOutgoingRiver;
-		public bool HasRiverBeginOrEnd { get; } // TO Do: Incomplete
+		public bool HasRiverBeginOrEnd => m_hasIncomingRiver != m_hasOutgoingRiver;
 
 		public float StreamBedY => (m_elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
 		
