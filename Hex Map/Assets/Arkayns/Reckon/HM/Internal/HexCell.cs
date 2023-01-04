@@ -91,6 +91,25 @@ namespace Arkayns.Reckon.HM {
 			RemoveOutgoingRiver();
 			RemoveIncomingRiver();
 		} // RemoveRiver ()
+
+		public void SetOutgoingRiver(HexDirection direction) {
+			if (m_hasOutgoingRiver && m_outgoingRiver == direction) return;
+
+			var neighbor = GetNeighbor(direction);
+			if (!neighbor || m_elevation < neighbor.m_elevation) return;
+			
+			RemoveOutgoingRiver();
+			if(m_hasIncomingRiver && m_incomingRiver == direction) RemoveIncomingRiver();
+
+			m_hasOutgoingRiver = true;
+			m_outgoingRiver = direction;
+			RefreshSelfOnly();
+			
+			neighbor.RemoveIncomingRiver();
+			neighbor.m_hasIncomingRiver = true;
+			neighbor.m_incomingRiver = direction.Opposite();
+			neighbor.RefreshSelfOnly();
+		} // SetOutgoingRiver ()
 		
 		private void Refresh () {
 			if (!chunk) return;
