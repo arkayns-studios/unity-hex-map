@@ -7,8 +7,11 @@ namespace Arkayns.Reckon.HM {
 	public static class HexMetrics {
 		
 		// -- Variables --
+		public const float outerToInner = 0.866025404f;
+		public const float innerToOuter = 1f / outerToInner;
+		
 		public const float outerRadius = 10f;
-		public const float innerRadius = outerRadius * 0.866025404f;
+		public const float innerRadius = outerRadius * outerToInner;
 
 		public const float solidFactor = 0.8f;
 		public const float blendFactor = 1f - solidFactor;
@@ -50,6 +53,10 @@ namespace Arkayns.Reckon.HM {
 
 		public static Vector3 GetSecondSolidCorner (HexDirection direction) => m_corners[(int)direction + 1] * solidFactor;
 
+		public static Vector3 GetSolidEdgeMiddle(HexDirection direction) {
+			return (m_corners[(int)direction] + m_corners[(int)direction + 1]) * (0.5f * solidFactor);
+		} // GetSolidEdgeMiddle ()
+		
 		public static Vector3 GetBridge (HexDirection direction) => (m_corners[(int)direction] + m_corners[(int)direction + 1]) * blendFactor;
 
 		public static Vector3 TerraceLerp (Vector3 a, Vector3 b, int step) {

@@ -66,7 +66,13 @@ namespace Arkayns.Reckon.HM {
             } else if (cell.HasRiverThroughEdge(direction.Previous())) {
                 centerL = Vector3.Lerp(center, e.v1, 2f / 3f);
                 centerR = center;
-            } else centerL = centerR = center;
+            } else if (cell.HasRiverThroughEdge(direction.Next2())) {
+                centerL = center;
+                centerR = center + HexMetrics.GetSolidEdgeMiddle(direction.Next()) * (0.5f * HexMetrics.innerToOuter);
+            } else {
+                centerL = center + HexMetrics.GetSolidEdgeMiddle(direction.Previous()) * (0.5f * HexMetrics.innerToOuter);
+                centerR = center;
+            }
             
             var m = new EdgeVertices(Vector3.Lerp(centerL, e.v1, 0.5f), Vector3.Lerp(centerR, e.v5, 0.5f), 1f / 6f);
             m.v3.y = center.y = e.v3.y;
