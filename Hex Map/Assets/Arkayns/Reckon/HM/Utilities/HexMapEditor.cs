@@ -12,7 +12,8 @@ namespace Arkayns.Reckon.HM {
 		private bool m_applyColor;
 		private bool m_applyElevation;
 		private int m_brushSize;
-
+		private OptionalToggle m_riverMode;
+		
 		// -- Built-In Methods --
 		private void Awake () {
 			SelectColor(-1);
@@ -40,6 +41,10 @@ namespace Arkayns.Reckon.HM {
 		public void SetBrushSize(float size) {
 			m_brushSize = (int)size;
 		} // SetBrushSize ()
+
+		public void SetRiverMode(int mode) {
+			m_riverMode = (OptionalToggle)mode;
+		} // SetRiverMode ()
 		
 		private void HandleInput () {
 			if (Camera.main == null) return;
