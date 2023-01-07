@@ -65,6 +65,12 @@ namespace Arkayns.Reckon.HM {
             if (direction <= HexDirection.SE) TriangulateConnection(direction, cell, e);
         } // Triangulate ()
 
+        private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y) {
+            v1.y = v2.y = v3.y = v4.y = y;
+            rivers.AddQuad(v1, v2, v3, v4);
+            rivers.AddQuadUV(0f, 1f, 0f, 1f);
+        } // TriangulateRiverQuad ()
+        
         private void TriangulateWithRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
             Vector3 centerL, centerR;
             if (cell.HasRiverThroughEdge(direction.Opposite())) {
@@ -98,6 +104,9 @@ namespace Arkayns.Reckon.HM {
             terrain.AddQuadColor(cell.Color);
             terrain.AddTriangle(centerR, m.v4, m.v5);
             terrain.AddTriangleColor(cell.Color);
+            
+            TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY);
+            TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY);
         } // TriangulateWithRiver ()
 
         private void TriangulateWithRiverBeginOrEnd(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
