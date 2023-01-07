@@ -6,7 +6,7 @@ namespace Arkayns.Reckon.HM {
 
 		// -- Variables --
 		private HexCell[] m_cells;
-		public HexMesh terrain;
+        public HexMesh terrain, rivers;
 		private Canvas m_gridCanvas;
 		
 		// -- Built-In Methods --
@@ -40,8 +40,10 @@ namespace Arkayns.Reckon.HM {
 		// -- Triangulate --
         public void Triangulate() {
             terrain.Clear();
+            rivers.Clear();
             foreach (var cell in m_cells) Triangulate(cell);
             terrain.Apply();
+            rivers.Apply();
         } // Triangulate ()
 
         private void Triangulate(HexCell cell) {
