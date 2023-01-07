@@ -15,7 +15,7 @@ namespace Arkayns.Reckon.HM {
         public static void Add(List<T> list) {
             list.Clear();
             m_stack.Push(list);
-        } // Add
+        } // Add ()
         
     } // Class ListPool
 

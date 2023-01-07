@@ -65,10 +65,10 @@ namespace Arkayns.Reckon.HM {
         
         private Vector3 ClampPosition(Vector3 _position) {
             const float halfCell = 0.5f; const float fullCell = 1f;
-            var xMax = (grid.chunkCountX * HexMetrics.chunkSizeX - halfCell) * (2f * HexMetrics.innerRadius);
+            var xMax = (grid.chunkCountX * HexMetrics.ChunkSizeX - halfCell) * (2f * HexMetrics.InnerRadius);
             _position.x = Mathf.Clamp(_position.x, 0f, xMax);
             
-            var zMax = (grid.chunkCountZ * HexMetrics.chunkSizeZ - fullCell) * (2f * HexMetrics.outerRadius);
+            var zMax = (grid.chunkCountZ * HexMetrics.ChunkSizeZ - fullCell) * (2f * HexMetrics.OuterRadius);
             _position.z = Mathf.Clamp(_position.z, 0f, zMax);
             
             return _position;
