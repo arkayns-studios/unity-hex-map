@@ -79,7 +79,7 @@ namespace Arkayns.Reckon.HM {
             if (m_applyElevation) cell.Elevation = m_activeElevation;
 
             if (m_riverMode == OptionalToggle.No) cell.RemoveRiver();
-            if (m_riverMode == OptionalToggle.No) cell.RemoveRoads();
+            if (m_roadMode == OptionalToggle.No) cell.RemoveRoads();
 
             if (isDrag) {
                 var otherCell = cell.GetNeighbor(m_dragDirection.Opposite());
