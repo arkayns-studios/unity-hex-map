@@ -55,33 +55,25 @@ namespace Arkayns.Reckon.HM {
         } // Triangulate ()
 
         private void Triangulate(HexDirection direction, HexCell cell) {
-            Vector3 center = cell.Position;
-            EdgeVertices e = new EdgeVertices(
-                center + HexMetrics.GetFirstSolidCorner(direction),
-                center + HexMetrics.GetSecondSolidCorner(direction)
-            );
+            var center = cell.Position;
+            var e = new EdgeVertices(center + HexMetrics.GetFirstSolidCorner(direction), center + HexMetrics.GetSecondSolidCorner(direction));
 
             if (cell.HasRiver) {
                 if (cell.HasRiverThroughEdge(direction)) {
                     e.v3.y = cell.StreamBedY;
                     if (cell.HasRiverBeginOrEnd) {
                         TriangulateWithRiverBeginOrEnd(direction, cell, center, e);
-                    }
-                    else {
+                    } else {
                         TriangulateWithRiver(direction, cell, center, e);
                     }
-                }
-                else {
+                } else {
                     TriangulateAdjacentToRiver(direction, cell, center, e);
                 }
-            }
-            else {
-                TriangulateEdgeFan(center, e, cell.Color);
+            } else {
+                TriangulateWithoutRiver(direction, cell, center, e);
             }
 
-            if (direction <= HexDirection.SE) {
-                TriangulateConnection(direction, cell, e);
-            }
+            if (direction <= HexDirection.SE) TriangulateConnection(direction, cell, e);
         } // Triangulate ()
 
         private void TriangulateAdjacentToRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
@@ -200,12 +192,27 @@ namespace Arkayns.Reckon.HM {
             );
         } // TriangulateWithRiver ()
 
+        private void TriangulateWithoutRiver (HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
+            TriangulateEdgeFan(center, e, cell.Color);
+            if (cell.HasRoadThroughEdge(direction)) 
+                TriangulateRoad(center, Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f), e);
+        } // TriangulateWithoutRiver ()
+        
         private void TriangulateRoadSegment (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6) {
             roads.AddQuad(v1, v2, v4, v5);
             roads.AddQuad(v2, v3, v5, v6);
             roads.AddQuadUV(0f, 1f, 0f, 0f);
             roads.AddQuadUV(1f, 0f, 0f, 0f);
         } // TriangulateRoadSegment ()
+        
+        private void TriangulateRoad (Vector3 center, Vector3 mL, Vector3 mR, EdgeVertices e) {
+            var mC = Vector3.Lerp(mL, mR, 0.5f);
+            TriangulateRoadSegment(mL, mC, mR, e.v2, e.v3, e.v4);
+            roads.AddTriangle(center, mL, mC);
+            roads.AddTriangle(center, mC, mR);
+            roads.AddTriangleUV(new Vector2(1f, 0f), new Vector2(0f, 0f), new Vector2(1f, 0f));
+            roads.AddTriangleUV(new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f));
+        } // TriangulateRoad ()
         
         private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices e1) {
             var neighbor = cell.GetNeighbor(direction);
