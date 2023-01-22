@@ -200,18 +200,20 @@ namespace Arkayns.Reckon.HM {
             );
         } // TriangulateWithRiver ()
 
+        private void TriangulateRoadSegment (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6) {
+            roads.AddQuad(v1, v2, v4, v5);
+            roads.AddQuad(v2, v3, v5, v6);
+            roads.AddQuadUV(0f, 1f, 0f, 0f);
+            roads.AddQuadUV(1f, 0f, 0f, 0f);
+        } // TriangulateRoadSegment ()
+        
         private void TriangulateConnection(HexDirection direction, HexCell cell, EdgeVertices e1) {
-            HexCell neighbor = cell.GetNeighbor(direction);
-            if (neighbor == null) {
-                return;
-            }
+            var neighbor = cell.GetNeighbor(direction);
+            if (neighbor == null) return;
 
-            Vector3 bridge = HexMetrics.GetBridge(direction);
+            var bridge = HexMetrics.GetBridge(direction);
             bridge.y = neighbor.Position.y - cell.Position.y;
-            EdgeVertices e2 = new EdgeVertices(
-                e1.v1 + bridge,
-                e1.v5 + bridge
-            );
+            var e2 = new EdgeVertices(e1.v1 + bridge, e1.v5 + bridge);
 
             if (cell.HasRiverThroughEdge(direction)) {
                 e2.v3.y = neighbor.StreamBedY;
@@ -223,38 +225,26 @@ namespace Arkayns.Reckon.HM {
             }
 
             if (cell.GetEdgeType(direction) == HexEdgeType.Slope) {
-                TriangulateEdgeTerraces(e1, cell, e2, neighbor);
-            }
-            else {
-                TriangulateEdgeStrip(e1, cell.Color, e2, neighbor.Color);
+                TriangulateEdgeTerraces(e1, cell, e2, neighbor, cell.HasRoadThroughEdge(direction));
+            } else {
+                TriangulateEdgeStrip(e1, cell.Color, e2, neighbor.Color, cell.HasRoadThroughEdge(direction));
             }
 
-            HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
+            var nextNeighbor = cell.GetNeighbor(direction.Next());
             if (direction <= HexDirection.E && nextNeighbor != null) {
-                Vector3 v5 = e1.v5 + HexMetrics.GetBridge(direction.Next());
+                var v5 = e1.v5 + HexMetrics.GetBridge(direction.Next());
                 v5.y = nextNeighbor.Position.y;
 
                 if (cell.Elevation <= neighbor.Elevation) {
                     if (cell.Elevation <= nextNeighbor.Elevation) {
-                        TriangulateCorner(
-                            e1.v5, cell, e2.v5, neighbor, v5, nextNeighbor
-                        );
+                        TriangulateCorner(e1.v5, cell, e2.v5, neighbor, v5, nextNeighbor);
+                    } else {
+                        TriangulateCorner(v5, nextNeighbor, e1.v5, cell, e2.v5, neighbor);
                     }
-                    else {
-                        TriangulateCorner(
-                            v5, nextNeighbor, e1.v5, cell, e2.v5, neighbor
-                        );
-                    }
-                }
-                else if (neighbor.Elevation <= nextNeighbor.Elevation) {
-                    TriangulateCorner(
-                        e2.v5, neighbor, v5, nextNeighbor, e1.v5, cell
-                    );
-                }
-                else {
-                    TriangulateCorner(
-                        v5, nextNeighbor, e1.v5, cell, e2.v5, neighbor
-                    );
+                } else if (neighbor.Elevation <= nextNeighbor.Elevation) {
+                    TriangulateCorner(e2.v5, neighbor, v5, nextNeighbor, e1.v5, cell);
+                } else {
+                    TriangulateCorner(v5, nextNeighbor, e1.v5, cell, e2.v5, neighbor);
                 }
             }
         } // TriangulateConnection ()
@@ -312,21 +302,21 @@ namespace Arkayns.Reckon.HM {
             }
         } // TriangulateCorner ()
 
-        private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell) {
-            EdgeVertices e2 = EdgeVertices.TerraceLerp(begin, end, 1);
-            Color c2 = HexMetrics.TerraceLerp(beginCell.Color, endCell.Color, 1);
+        private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell, bool hasRoad) {
+            var e2 = EdgeVertices.TerraceLerp(begin, end, 1);
+            var c2 = HexMetrics.TerraceLerp(beginCell.Color, endCell.Color, 1);
 
-            TriangulateEdgeStrip(begin, beginCell.Color, e2, c2);
+            TriangulateEdgeStrip(begin, beginCell.Color, e2, c2, hasRoad);
 
-            for (int i = 2; i < HexMetrics.TerraceSteps; i++) {
-                EdgeVertices e1 = e2;
-                Color c1 = c2;
+            for (var i = 2; i < HexMetrics.TerraceSteps; i++) {
+                var e1 = e2;
+                var c1 = c2;
                 e2 = EdgeVertices.TerraceLerp(begin, end, i);
                 c2 = HexMetrics.TerraceLerp(beginCell.Color, endCell.Color, i);
-                TriangulateEdgeStrip(e1, c1, e2, c2);
+                TriangulateEdgeStrip(e1, c1, e2, c2, hasRoad);
             }
 
-            TriangulateEdgeStrip(e2, c2, end, endCell.Color);
+            TriangulateEdgeStrip(e2, c2, end, endCell.Color, hasRoad);
         } // TriangulateEdgeTerraces ()
 
         private void TriangulateCornerTerraces(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
@@ -446,7 +436,7 @@ namespace Arkayns.Reckon.HM {
             terrain.AddTriangleColor(color);
         } // TriangulateEdgeFan ()
 
-        private void TriangulateEdgeStrip(EdgeVertices e1, Color c1, EdgeVertices e2, Color c2) {
+        private void TriangulateEdgeStrip(EdgeVertices e1, Color c1, EdgeVertices e2, Color c2, bool hasRoad = false) {
             terrain.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
             terrain.AddQuadColor(c1, c2);
             terrain.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
@@ -455,6 +445,8 @@ namespace Arkayns.Reckon.HM {
             terrain.AddQuadColor(c1, c2);
             terrain.AddQuad(e1.v4, e1.v5, e2.v4, e2.v5);
             terrain.AddQuadColor(c1, c2);
+            
+            if (hasRoad) TriangulateRoadSegment(e1.v2, e1.v3, e1.v4, e2.v2, e2.v3, e2.v4);
         } // TriangulateEdgeStrip ()
 
         private void TriangulateRiverQuad(Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y, float v, bool reversed) {
