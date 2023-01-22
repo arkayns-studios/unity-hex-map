@@ -88,6 +88,8 @@ namespace Arkayns.Reckon.HM {
         } // Triangulate ()
 
         private void TriangulateAdjacentToRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
+            if (cell.HasRoads) TriangulateRoadAdjacentToRiver(direction, cell, center, e);
+            
             if (cell.HasRiverThroughEdge(direction.Next())) {
                 if (cell.HasRiverThroughEdge(direction.Previous())) {
                     center += HexMetrics.GetSolidEdgeMiddle(direction) *
@@ -213,14 +215,7 @@ namespace Arkayns.Reckon.HM {
                     e, cell.HasRoadThroughEdge(direction));
             }
         } // TriangulateWithoutRiver ()
-        
-        private void TriangulateRoadSegment (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6) {
-            roads.AddQuad(v1, v2, v4, v5);
-            roads.AddQuad(v2, v3, v5, v6);
-            roads.AddQuadUV(0f, 1f, 0f, 0f);
-            roads.AddQuadUV(1f, 0f, 0f, 0f);
-        } // TriangulateRoadSegment ()
-        
+
         private void TriangulateRoad (Vector3 center, Vector3 mL, Vector3 mR, EdgeVertices e, bool hasRoadThroughCellEdge) {
             if (hasRoadThroughCellEdge) {
                 var mC = Vector3.Lerp(mL, mR, 0.5f);
@@ -231,6 +226,22 @@ namespace Arkayns.Reckon.HM {
                 roads.AddTriangleUV(new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(0f, 0f));
             } else TriangulateRoadEdge(center, mL, mR);
         } // TriangulateRoad ()
+        
+        private void TriangulateRoadSegment (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6) {
+            roads.AddQuad(v1, v2, v4, v5);
+            roads.AddQuad(v2, v3, v5, v6);
+            roads.AddQuadUV(0f, 1f, 0f, 0f);
+            roads.AddQuadUV(1f, 0f, 0f, 0f);
+        } // TriangulateRoadSegment ()
+        
+        private void TriangulateRoadAdjacentToRiver (HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
+            var hasRoadThroughEdge = cell.HasRoadThroughEdge(direction);
+            var interpolators = GetRoadInterpolators(direction, cell);
+            var roadCenter = center;
+            var mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
+            var mR = Vector3.Lerp(roadCenter, e.v5, interpolators.y);
+            TriangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge);
+        } // TriangulateRoadAdjacentToRiver ()
         
         private void TriangulateRoadEdge (Vector3 center, Vector3 mL, Vector3 mR) {
             roads.AddTriangle(center, mL, mR);
