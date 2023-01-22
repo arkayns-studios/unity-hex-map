@@ -21,6 +21,7 @@
 
 		struct Input {
 			float2 uv_MainTex;
+			float3 worldPos;
 		};
 
 		half _Glossiness;
@@ -28,8 +29,10 @@
 		fixed4 _Color;
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
-			fixed4 c = _Color;
+			float4 noise = tex2D(_MainTex, IN.worldPos.xz * 0.025);
+			fixed4 c = _Color * (noise.y * 0.75 + 0.25);
 			float blend = IN.uv_MainTex.x;
+			blend *= noise.x + 0.5;
 			blend = smoothstep(0.4, 0.7, blend);
 			
 			o.Albedo = c.rgb;
