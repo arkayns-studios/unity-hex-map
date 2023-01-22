@@ -5,7 +5,7 @@ namespace Arkayns.Reckon.HM {
     public class HexGridChunk : MonoBehaviour {
 
         // -- Variables --
-        public HexMesh terrain, rivers;
+        public HexMesh terrain, rivers, roads;
         private HexCell[] cells;
         private Canvas gridCanvas;
 
@@ -41,9 +41,11 @@ namespace Arkayns.Reckon.HM {
         public void Triangulate() {
             terrain.Clear();
             rivers.Clear();
+            roads.Clear();
             foreach (var t in cells) Triangulate(t);
             terrain.Apply();
             rivers.Apply();
+            roads.Apply();
         } // Triangulate ()
 
         private void Triangulate(HexCell cell) {
