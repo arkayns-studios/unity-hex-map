@@ -236,14 +236,30 @@ namespace Arkayns.Reckon.HM {
         
         private void TriangulateRoadAdjacentToRiver (HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
             var hasRoadThroughEdge = cell.HasRoadThroughEdge(direction);
+            var previousHasRiver = cell.HasRiverThroughEdge(direction.Previous());
+            var nextHasRiver = cell.HasRiverThroughEdge(direction.Next());
             var interpolators = GetRoadInterpolators(direction, cell);
+            
             var roadCenter = center;
-            if (cell.HasRiverBeginOrEnd) 
+            if (cell.HasRiverBeginOrEnd) {
                 roadCenter += HexMetrics.GetSolidEdgeMiddle(cell.RiverBeginOrEndDirection.Opposite()) * (1f / 3f);
+            } else if (cell.IncomingRiver == cell.OutgoingRiver.Opposite()) {
+                Vector3 corner;
+                if (previousHasRiver) {
+                    if (!hasRoadThroughEdge && !cell.HasRoadThroughEdge(direction.Next())) return;
+                    corner = HexMetrics.GetSecondSolidCorner(direction);
+                } else {
+                    if (!hasRoadThroughEdge && !cell.HasRoadThroughEdge(direction.Previous())) return;
+                    corner = HexMetrics.GetFirstSolidCorner(direction);
+                }
+                roadCenter += corner * 0.5f;
+                center += corner * 0.25f;
+            }
+            
             var mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
             var mR = Vector3.Lerp(roadCenter, e.v5, interpolators.y);
-            if (cell.HasRiverThroughEdge(direction.Previous())) TriangulateRoadEdge(roadCenter, center, mL);
-            if (cell.HasRiverThroughEdge(direction.Next())) TriangulateRoadEdge(roadCenter, mR, center);
+            if (previousHasRiver) TriangulateRoadEdge(roadCenter, center, mL);
+            if (nextHasRiver) TriangulateRoadEdge(roadCenter, mR, center);
             TriangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge);
         } // TriangulateRoadAdjacentToRiver ()
         
