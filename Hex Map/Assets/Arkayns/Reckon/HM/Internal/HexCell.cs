@@ -140,6 +140,16 @@ namespace Arkayns.Reckon.HM {
         public bool HasRoadThroughEdge(HexDirection direction) {
             return roads[(int)direction];
         } // HasRoadThroughEdge ()
+
+        public void RemoveRoads() {
+            for (var i = 0; i < neighbors.Length; i++) {
+                if (!roads[i]) continue;
+                roads[i] = false;
+                neighbors[i].roads[(int)((HexDirection)i).Opposite()] = false;
+                neighbors[i].RefreshSelfOnly();
+                RefreshSelfOnly();
+            }
+        } // RemoveRoads ()
         
         private void Refresh() {
             if (!chunk) return;
