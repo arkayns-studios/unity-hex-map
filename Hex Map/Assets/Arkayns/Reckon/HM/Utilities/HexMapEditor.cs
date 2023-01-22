@@ -16,7 +16,7 @@ namespace Arkayns.Reckon.HM {
         private bool m_applyColor;
         private bool m_applyElevation = true;
 
-        private OptionalToggle m_riverMode;
+        private OptionalToggle m_riverMode, m_roadMode;
 
         private bool isDrag;
         private HexDirection m_dragDirection;
@@ -78,12 +78,16 @@ namespace Arkayns.Reckon.HM {
             if (m_applyColor) cell.Color = m_activeColor;
             if (m_applyElevation) cell.Elevation = m_activeElevation;
 
-            if (m_riverMode == OptionalToggle.No) {
-                cell.RemoveRiver();
-            } else if (isDrag && m_riverMode == OptionalToggle.Yes) {
+            if (m_riverMode == OptionalToggle.No) cell.RemoveRiver();
+            if (m_riverMode == OptionalToggle.No) cell.RemoveRoads();
+
+            if (isDrag) {
                 var otherCell = cell.GetNeighbor(m_dragDirection.Opposite());
-                if (otherCell) otherCell.SetOutgoingRiver(m_dragDirection);
+                if (!otherCell) return;
+                if(m_riverMode == OptionalToggle.Yes) otherCell.SetOutgoingRiver(m_dragDirection);
+                if (m_roadMode == OptionalToggle.Yes) otherCell.AddRoad(m_dragDirection);
             }
+            
         } // EditCell ()
 
         public void SelectColor(int index) {
@@ -107,6 +111,10 @@ namespace Arkayns.Reckon.HM {
             m_riverMode = (OptionalToggle)mode;
         } // SetRiverMode ()
 
+        public void SetRoadMode(int mode) {
+            m_roadMode = (OptionalToggle)mode;
+        } // SetRoadMode ()
+        
         public void ShowUI(bool visible) {
             hexGrid.ShowUI(visible);
         } // ShowUI ()
