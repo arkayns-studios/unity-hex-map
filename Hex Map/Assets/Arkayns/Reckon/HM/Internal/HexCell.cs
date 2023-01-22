@@ -141,15 +141,29 @@ namespace Arkayns.Reckon.HM {
             return roads[(int)direction];
         } // HasRoadThroughEdge ()
 
+        public void AddRoad(HexDirection direction) {
+            if (!roads[(int)direction] && !HasRiverThroughEdge(direction) && GetElevationDifference(direction) <= 1) 
+                SetRoad((int)direction, true);
+        } // AddRoad ()
+        
         public void RemoveRoads() {
             for (var i = 0; i < neighbors.Length; i++) {
                 if (!roads[i]) continue;
-                roads[i] = false;
-                neighbors[i].roads[(int)((HexDirection)i).Opposite()] = false;
-                neighbors[i].RefreshSelfOnly();
-                RefreshSelfOnly();
+                SetRoad(i, false);
             }
         } // RemoveRoads ()
+
+        private void SetRoad(int index, bool state) {
+            roads[index] = state;
+            neighbors[index].roads[(int)((HexDirection)index).Opposite()] = state;
+            neighbors[index].RefreshSelfOnly();
+            RefreshSelfOnly();
+        } // SetRoad ()
+
+        public int GetElevationDifference(HexDirection direction) {
+            var difference = elevation - GetNeighbor(direction).elevation;
+            return difference >= 0 ? difference : -difference;
+        } // GetElevationDifference ()
         
         private void Refresh() {
             if (!chunk) return;
