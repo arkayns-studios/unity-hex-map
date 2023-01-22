@@ -254,6 +254,10 @@ namespace Arkayns.Reckon.HM {
                 }
                 roadCenter += corner * 0.5f;
                 center += corner * 0.25f;
+            } else if (cell.IncomingRiver == cell.OutgoingRiver.Previous()) {
+                roadCenter -= HexMetrics.GetSecondCorner(cell.IncomingRiver) * 0.2f;
+            } else if (cell.IncomingRiver == cell.OutgoingRiver.Next()) {
+                roadCenter -= HexMetrics.GetFirstCorner(cell.IncomingRiver) * 0.2f;
             }
             
             var mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
