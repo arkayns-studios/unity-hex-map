@@ -238,8 +238,12 @@ namespace Arkayns.Reckon.HM {
             var hasRoadThroughEdge = cell.HasRoadThroughEdge(direction);
             var interpolators = GetRoadInterpolators(direction, cell);
             var roadCenter = center;
+            if (cell.HasRiverBeginOrEnd) 
+                roadCenter += HexMetrics.GetSolidEdgeMiddle(cell.RiverBeginOrEndDirection.Opposite()) * (1f / 3f);
             var mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
             var mR = Vector3.Lerp(roadCenter, e.v5, interpolators.y);
+            if (cell.HasRiverThroughEdge(direction.Previous())) TriangulateRoadEdge(roadCenter, center, mL);
+            if (cell.HasRiverThroughEdge(direction.Next())) TriangulateRoadEdge(roadCenter, mR, center);
             TriangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge);
         } // TriangulateRoadAdjacentToRiver ()
         

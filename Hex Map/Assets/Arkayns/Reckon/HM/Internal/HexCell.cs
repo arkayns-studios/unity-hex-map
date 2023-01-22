@@ -19,6 +19,8 @@ namespace Arkayns.Reckon.HM {
         [SerializeField] private bool[] roads;
         
         // -- Properties --
+        
+        /// <summary> Gets or Sets the color of the hex, it updates and refresh the hex cell if the value is different </summary>
         public Color Color {
             get => color;
             set {
@@ -28,6 +30,7 @@ namespace Arkayns.Reckon.HM {
             }
         } // Color
 
+        /// <summary> Gets or Sets the elevation of the hex cell and updates the position, river and road accordingly </summary>
         public int Elevation {
             get => elevation;
             set {
@@ -55,24 +58,37 @@ namespace Arkayns.Reckon.HM {
             }
         } // Elevation
 
+        /// <summary> Returns true if the hex cell has an incoming river </summary>
         public bool HasIncomingRiver => hasIncomingRiver;
 
+        /// <summary> Returns true if the hex cell has an outgoing river </summary>
         public bool HasOutgoingRiver => hasOutgoingRiver;
 
+        /// <summary>The HasRiver property returns true if the hex has either an incoming or outgoing river </summary>
         public bool HasRiver => hasIncomingRiver || hasOutgoingRiver;
 
+        /// <summary> Returns true if the hex cell has either an incoming or outgoing river but not both </summary>
         public bool HasRiverBeginOrEnd => hasIncomingRiver != hasOutgoingRiver;
 
+        /// <summary> Returns the direction of the river at the beginning or end of the hex cell depending on whether it has an incoming or outgoing river </summary>
+        public HexDirection RiverBeginOrEndDirection => hasIncomingRiver ? incomingRiver : outgoingRiver;
+
+        /// <summary> Returns the direction of the incoming river in the hex cell </summary>
         public HexDirection IncomingRiver => incomingRiver;
 
+        /// <summary> Returns the direction of the outgoing river in the hex cell </summary>
         public HexDirection OutgoingRiver => outgoingRiver;
 
+        /// <summary> Returns the local position of the hex cell </summary>
         public Vector3 Position => transform.localPosition;
 
+        /// <summary> Returns the y-coordinate of the river surface calculated by adding elevation, river surface elevation offset and elevation step </summary>
         public float RiverSurfaceY => (elevation + HexMetrics.RiverSurfaceElevationOffset) * HexMetrics.ElevationStep;
 
+        /// <summary> Returns the y-coordinate of the stream bed, which is calculated by adding the elevation of the hex cell and the stream bed elevation offset to the elevation step </summary>
         public float StreamBedY => (elevation + HexMetrics.StreamBedElevationOffset) * HexMetrics.ElevationStep;
 
+        /// <summary> Returns true if the hex cell has at least one road </summary>
         public bool HasRoads => roads.Any(road => road);
         
         // -- Methods --
