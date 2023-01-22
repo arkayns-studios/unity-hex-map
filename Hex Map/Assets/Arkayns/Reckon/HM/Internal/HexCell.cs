@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace Arkayns.Reckon.HM {
 
@@ -15,6 +16,7 @@ namespace Arkayns.Reckon.HM {
         private HexDirection incomingRiver, outgoingRiver;
 
         [SerializeField] private HexCell[] neighbors;
+        [SerializeField] private bool[] roads;
         
         // -- Properties --
         public Color Color {
@@ -64,6 +66,8 @@ namespace Arkayns.Reckon.HM {
         public float RiverSurfaceY => (elevation + HexMetrics.RiverSurfaceElevationOffset) * HexMetrics.ElevationStep;
 
         public float StreamBedY => (elevation + HexMetrics.StreamBedElevationOffset) * HexMetrics.ElevationStep;
+
+        public bool HasRoads => roads.Any(road => road);
         
         // -- Methods --
         public HexCell GetNeighbor(HexDirection direction) {
@@ -133,6 +137,10 @@ namespace Arkayns.Reckon.HM {
             neighbor.RefreshSelfOnly();
         } // SetOutgoingRiver ()
 
+        public bool HasRoadThroughEdge(HexDirection direction) {
+            return roads[(int)direction];
+        } // HasRoadThroughEdge ()
+        
         private void Refresh() {
             if (!chunk) return;
             chunk.Refresh();
