@@ -29,6 +29,17 @@ namespace Arkayns.Reckon.HM {
             cell.uiRect.SetParent(gridCanvas.transform, false);
         } // AddCell ()
 
+        private Vector2 GetRoadInterpolators (HexDirection direction, HexCell cell) {
+            Vector2 interpolators;
+            if (cell.HasRoadThroughEdge(direction)) {
+                interpolators.x = interpolators.y = 0.5f;
+            } else {
+                interpolators.x = cell.HasRoadThroughEdge(direction.Previous()) ? 0.5f : 0.25f;
+                interpolators.y = cell.HasRoadThroughEdge(direction.Next()) ? 0.5f : 0.25f;
+            }
+            return interpolators;
+        } // GetRoadInterpolators ()
+        
         public void Refresh() {
             enabled = true;
         } // Refresh ()
@@ -194,8 +205,13 @@ namespace Arkayns.Reckon.HM {
 
         private void TriangulateWithoutRiver (HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
             TriangulateEdgeFan(center, e, cell.Color);
-            if (cell.HasRoads) 
-                TriangulateRoad(center, Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f), e, cell.HasRoadThroughEdge(direction));
+            if (cell.HasRoads) {
+                var interpolators = GetRoadInterpolators(direction, cell);
+                TriangulateRoad(center, 
+                    Vector3.Lerp(center, e.v1, interpolators.x), 
+                    Vector3.Lerp(center, e.v5, interpolators.y), 
+                    e, cell.HasRoadThroughEdge(direction));
+            }
         } // TriangulateWithoutRiver ()
         
         private void TriangulateRoadSegment (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, Vector3 v5, Vector3 v6) {
