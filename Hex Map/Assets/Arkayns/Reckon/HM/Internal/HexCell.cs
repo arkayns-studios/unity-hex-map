@@ -45,6 +45,12 @@ namespace Arkayns.Reckon.HM {
 
                 if (hasOutgoingRiver && elevation < GetNeighbor(outgoingRiver).elevation) RemoveOutgoingRiver();
                 if (hasIncomingRiver && elevation > GetNeighbor(incomingRiver).elevation) RemoveIncomingRiver();
+
+                for (var i = 0; i < roads.Length; i++) {
+                    if (roads[i] && GetElevationDifference((HexDirection)i) > 1) 
+                        SetRoad(i, false);
+                }
+                
                 Refresh();
             }
         } // Elevation
@@ -129,12 +135,12 @@ namespace Arkayns.Reckon.HM {
 
             hasOutgoingRiver = true;
             outgoingRiver = direction;
-            RefreshSelfOnly();
 
             neighbor.RemoveIncomingRiver();
             neighbor.hasIncomingRiver = true;
             neighbor.incomingRiver = direction.Opposite();
-            neighbor.RefreshSelfOnly();
+
+            SetRoad((int)direction, false);
         } // SetOutgoingRiver ()
 
         public bool HasRoadThroughEdge(HexDirection direction) {
