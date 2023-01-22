@@ -24,7 +24,7 @@ namespace Arkayns.Reckon.HM {
 
         // -- Built-In Methods --
         private void Awake() {
-            SelectColor(0);
+            SelectColor(-1);
         } // Awake ()
 
         private void Update() {
