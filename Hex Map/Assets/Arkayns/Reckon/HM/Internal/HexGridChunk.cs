@@ -258,6 +258,11 @@ namespace Arkayns.Reckon.HM {
                 roadCenter -= HexMetrics.GetSecondCorner(cell.IncomingRiver) * 0.2f;
             } else if (cell.IncomingRiver == cell.OutgoingRiver.Next()) {
                 roadCenter -= HexMetrics.GetFirstCorner(cell.IncomingRiver) * 0.2f;
+            } else if (previousHasRiver && nextHasRiver) {
+                if (!hasRoadThroughEdge) return;
+                var offset = HexMetrics.GetSolidEdgeMiddle(direction) * HexMetrics.InnerToOuter;
+                roadCenter += offset * 0.7f;
+                center += offset * 0.5f;
             }
             
             var mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
