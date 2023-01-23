@@ -69,6 +69,9 @@ namespace Arkayns.Reckon.HM {
             }
         } // WaterLevel
         
+        /// <summary> Returns true if the water level of the hex cell is greater than its elevation </summary>
+        public bool IsUnderwater => waterLevel > elevation;
+
         /// <summary> Returns true if the hex cell has an incoming river </summary>
         public bool HasIncomingRiver => hasIncomingRiver;
 
@@ -94,7 +97,10 @@ namespace Arkayns.Reckon.HM {
         public Vector3 Position => transform.localPosition;
 
         /// <summary> Returns the y-coordinate of the river surface calculated by adding elevation, river surface elevation offset and elevation step </summary>
-        public float RiverSurfaceY => (elevation + HexMetrics.RiverSurfaceElevationOffset) * HexMetrics.ElevationStep;
+        public float RiverSurfaceY => (elevation + HexMetrics.WaterElevationOffset) * HexMetrics.ElevationStep;
+
+        /// <summary> Returns the y-coordinate of the water surface, which is calculated by adding the water level of the hex cell and the water elevation offset to the elevation step </summary>
+        public float WaterSurfaceY => (waterLevel + HexMetrics.WaterElevationOffset) * HexMetrics.ElevationStep;
 
         /// <summary> Returns the y-coordinate of the stream bed, which is calculated by adding the elevation of the hex cell and the stream bed elevation offset to the elevation step </summary>
         public float StreamBedY => (elevation + HexMetrics.StreamBedElevationOffset) * HexMetrics.ElevationStep;
