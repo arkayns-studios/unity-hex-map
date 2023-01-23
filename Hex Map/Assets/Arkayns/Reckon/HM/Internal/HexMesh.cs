@@ -8,11 +8,11 @@ namespace Arkayns.Reckon.HM {
 	public class HexMesh : MonoBehaviour {
 
 		// -- Variables --
-		public bool useCollider, useColors, useUVCoordinates;
+		public bool useCollider, useColors, useUVCoordinates, useUV2Coordinates;
 
 		[NonSerialized] private List<Vector3> m_vertices;
 		[NonSerialized] private List<Color> m_colors;
-		[NonSerialized] private List<Vector2> m_uvs;
+		[NonSerialized] private List<Vector2> m_uvs, m_uv2s;
 		[NonSerialized] private List<int> m_triangles;
 
 		private Mesh m_hexMesh;
@@ -31,6 +31,7 @@ namespace Arkayns.Reckon.HM {
 			m_vertices = ListPool<Vector3>.Get();
 			if (useColors) m_colors = ListPool<Color>.Get();
 			if (useUVCoordinates) m_uvs = ListPool<Vector2>.Get();
+			if (useUV2Coordinates) m_uv2s = ListPool<Vector2>.Get();
 			m_triangles = ListPool<int>.Get();
 		} // Clear ()
 
@@ -44,6 +45,10 @@ namespace Arkayns.Reckon.HM {
 			if (useUVCoordinates) {
 				m_hexMesh.SetUVs(0, m_uvs);
 				ListPool<Vector2>.Add(m_uvs);
+			}
+			if (useUV2Coordinates) {
+				m_hexMesh.SetUVs(0, m_uv2s);
+				ListPool<Vector2>.Add(m_uv2s);
 			}
 			m_hexMesh.SetTriangles(m_triangles, 0);
 			ListPool<int>.Add(m_triangles);
@@ -90,6 +95,12 @@ namespace Arkayns.Reckon.HM {
 			m_uvs.Add(uv2);
 			m_uvs.Add(uv3);
 		} // AddTriangleUV ()
+		
+		public void AddTriangleUV2 (Vector2 uv1, Vector2 uv2, Vector3 uv3) {
+			m_uv2s.Add(uv1);
+			m_uv2s.Add(uv2);
+			m_uv2s.Add(uv3);
+		} // AddTriangleUV2 ()
 
 		public void AddQuad (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
 			var vertexIndex = m_vertices.Count;
@@ -152,6 +163,20 @@ namespace Arkayns.Reckon.HM {
 			m_uvs.Add(new Vector2(uMax, vMin));
 			m_uvs.Add(new Vector2(uMin, vMax));
 			m_uvs.Add(new Vector2(uMax, vMax));
+		} // AddQuadUV ()
+		
+		public void AddQuadUV2 (Vector2 uv1, Vector2 uv2, Vector3 uv3, Vector3 uv4) {
+			m_uv2s.Add(uv1);
+			m_uv2s.Add(uv2);
+			m_uv2s.Add(uv3);
+			m_uv2s.Add(uv4);
+		} // AddQuadUV ()
+
+		public void AddQuadUV2 (float uMin, float uMax, float vMin, float vMax) {
+			m_uv2s.Add(new Vector2(uMin, vMin));
+			m_uv2s.Add(new Vector2(uMax, vMin));
+			m_uv2s.Add(new Vector2(uMin, vMax));
+			m_uv2s.Add(new Vector2(uMax, vMax));
 		} // AddQuadUV ()
 		
 	} // Class HexMesh

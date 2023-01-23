@@ -5,7 +5,7 @@ namespace Arkayns.Reckon.HM {
     public class HexGridChunk : MonoBehaviour {
 
         // -- Variables --
-        public HexMesh terrain, rivers, roads, water, waterShore;
+        public HexMesh terrain, rivers, roads, water, waterShore, estuaries;
         private HexCell[] cells;
         private Canvas gridCanvas;
 
@@ -55,12 +55,14 @@ namespace Arkayns.Reckon.HM {
             roads.Clear();
             water.Clear();
             waterShore.Clear();
+            estuaries.Clear();
             foreach (var t in cells) Triangulate(t);
             terrain.Apply();
             rivers.Apply();
             roads.Apply();
             water.Apply();
             waterShore.Apply();
+            estuaries.Apply();
         } // Triangulate ()
 
         private void Triangulate(HexCell cell) {
@@ -161,6 +163,18 @@ namespace Arkayns.Reckon.HM {
             waterShore.AddTriangle(e2.v5, e1.v5, e1.v4);
             waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
             waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+            
+            estuaries.AddQuad(e2.v1, e1.v2, e2.v2, e1.v3);
+            estuaries.AddTriangle(e1.v3, e2.v2, e2.v4);
+            estuaries.AddQuad(e1.v3, e1.v4, e2.v4, e2.v5);
+            
+            estuaries.AddQuadUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 0f));
+            estuaries.AddTriangleUV(new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(1f, 1f));
+            estuaries.AddQuadUV(new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(0f, 1f));
+            
+            estuaries.AddQuadUV2(new Vector2(1.5f, 1f), new Vector2(0.7f, 1.15f), new Vector2(1f, 0.8f), new Vector2(0.5f, 1.1f));
+            estuaries.AddTriangleUV2(new Vector2(0.5f, 1.1f), new Vector2(1f, 0.8f), new Vector2(0f, 0.8f));
+            estuaries.AddQuadUV2(new Vector2(0.5f, 1.1f), new Vector2(0.3f, 1.15f), new Vector2(0f, 0.8f), new Vector2(-0.5f, 1f));
         } // TriangulateEstuary ()
         
         private void TriangulateWaterfallInWater (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float waterY) {

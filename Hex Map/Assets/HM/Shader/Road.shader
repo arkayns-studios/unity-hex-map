@@ -6,9 +6,9 @@
 		_Metallic ("Metallic", Range(0,1)) = 0.0
 	}
 	SubShader {
-		Tags { 
+		Tags {
 			"RenderType"="Opaque"
-			"Queue" = "Geometry+1" 
+			"Queue" = "Geometry+1"
 		}
 		LOD 200
 		Offset -1, -1
@@ -34,7 +34,7 @@
 			float blend = IN.uv_MainTex.x;
 			blend *= noise.x + 0.5;
 			blend = smoothstep(0.4, 0.7, blend);
-			
+
 			o.Albedo = c.rgb;
 			o.Metallic = _Metallic;
 			o.Smoothness = _Glossiness;
