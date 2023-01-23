@@ -105,6 +105,20 @@ namespace Arkayns.Reckon.HM {
 			m_triangles.Add(vertexIndex + 3);
 		} // AddQuad ()
 
+		public void AddQuadUnperturbed (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
+			var vertexIndex = m_vertices.Count;
+			m_vertices.Add(v1);
+			m_vertices.Add(v2);
+			m_vertices.Add(v3);
+			m_vertices.Add(v4);
+			m_triangles.Add(vertexIndex);
+			m_triangles.Add(vertexIndex + 2);
+			m_triangles.Add(vertexIndex + 1);
+			m_triangles.Add(vertexIndex + 1);
+			m_triangles.Add(vertexIndex + 2);
+			m_triangles.Add(vertexIndex + 3);
+		} // AddQuadUnperturbed ()
+		
 		public void AddQuadColor (Color color) {
 			m_colors.Add(color);
 			m_colors.Add(color);
