@@ -96,6 +96,23 @@ namespace Arkayns.Reckon.HM {
             var c2 = center + HexMetrics.GetSecondSolidCorner(direction);
 
             water.AddTriangle(center, c1, c2);
+            
+            if (direction <= HexDirection.SE) {
+                var neighbor = cell.GetNeighbor(direction);
+                if (neighbor == null || !neighbor.IsUnderwater) return;
+
+                var bridge = HexMetrics.GetBridge(direction);
+                var e1 = c1 + bridge;
+                var e2 = c2 + bridge;
+
+                water.AddQuad(c1, c2, e1, e2);
+                
+                if (direction <= HexDirection.E) {
+                    var nextNeighbor = cell.GetNeighbor(direction.Next());
+                    if (nextNeighbor == null || !nextNeighbor.IsUnderwater) return;
+                    water.AddTriangle(c2, e2, c2 + HexMetrics.GetBridge(direction.Next()));
+                }
+            }
         } // TriangulateWater ()
         
         private void TriangulateAdjacentToRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
