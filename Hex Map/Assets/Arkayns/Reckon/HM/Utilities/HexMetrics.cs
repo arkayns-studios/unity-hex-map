@@ -34,6 +34,10 @@ namespace Arkayns.Reckon.HM {
 
 		public const float WaterElevationOffset = -0.5f;
 
+		public const float WaterFactor = 0.6f;
+		
+		public const float WaterBlendFactor = 1f - WaterFactor;
+		
 		public const float NoiseScale = 0.003f;
 
 		public const int ChunkSizeX = 5, ChunkSizeZ = 5;
@@ -75,6 +79,18 @@ namespace Arkayns.Reckon.HM {
 			return (m_corners[(int)direction] + m_corners[(int)direction + 1]) * (0.5f * SolidFactor);
 		} // GetSolidEdgeMiddle ()
 
+		public static Vector3 GetFirstWaterCorner (HexDirection direction) {
+			return m_corners[(int)direction] * WaterFactor;
+		} // GetFirstWaterCorner ()
+
+		public static Vector3 GetSecondWaterCorner (HexDirection direction) {
+			return m_corners[(int)direction + 1] * WaterFactor;
+		} // GetSecondWaterCorner ()
+		
+		public static Vector3 GetWaterBridge (HexDirection direction) {
+			return (m_corners[(int)direction] + m_corners[(int)direction + 1]) * WaterBlendFactor;
+		} // GetWaterBridge ()
+		
 		public static Vector3 GetBridge (HexDirection direction) {
 			return (m_corners[(int)direction] + m_corners[(int)direction + 1]) * BlendFactor;
 		} // GetBridge ()
