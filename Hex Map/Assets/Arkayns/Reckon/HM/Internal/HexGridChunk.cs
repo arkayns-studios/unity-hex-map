@@ -130,8 +130,7 @@ namespace Arkayns.Reckon.HM {
             water.AddTriangle(center, e1.v3, e1.v4);
             water.AddTriangle(center, e1.v4, e1.v5);
             
-            
-            Vector3 center2 = neighbor.Position;
+            var center2 = neighbor.Position;
             center2.y = center.y;
             var e2 = new EdgeVertices(center2  + HexMetrics.GetSecondSolidCorner(direction.Opposite()), center2  + HexMetrics.GetFirstSolidCorner(direction.Opposite()));
             waterShore.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
@@ -157,97 +156,63 @@ namespace Arkayns.Reckon.HM {
             
             if (cell.HasRiverThroughEdge(direction.Next())) {
                 if (cell.HasRiverThroughEdge(direction.Previous())) {
-                    center += HexMetrics.GetSolidEdgeMiddle(direction) *
-                              (HexMetrics.InnerToOuter * 0.5f);
-                }
-                else if (
-                    cell.HasRiverThroughEdge(direction.Previous2())
-                ) {
+                    center += HexMetrics.GetSolidEdgeMiddle(direction) * (HexMetrics.InnerToOuter * 0.5f);
+                } else if (cell.HasRiverThroughEdge(direction.Previous2())) {
                     center += HexMetrics.GetFirstSolidCorner(direction) * 0.25f;
                 }
             }
-            else if (
-                cell.HasRiverThroughEdge(direction.Previous()) &&
-                cell.HasRiverThroughEdge(direction.Next2())
-            ) {
+            else if (cell.HasRiverThroughEdge(direction.Previous()) && cell.HasRiverThroughEdge(direction.Next2())) {
                 center += HexMetrics.GetSecondSolidCorner(direction) * 0.25f;
             }
 
-            EdgeVertices m = new EdgeVertices(
-                Vector3.Lerp(center, e.v1, 0.5f),
-                Vector3.Lerp(center, e.v5, 0.5f)
-            );
+            var m = new EdgeVertices(Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f));
 
             TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
             TriangulateEdgeFan(center, m, cell.Color);
         } // TriangulateAdjacentToRiver ()
 
         private void TriangulateWithRiverBeginOrEnd(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
-            EdgeVertices m = new EdgeVertices(
-                Vector3.Lerp(center, e.v1, 0.5f),
-                Vector3.Lerp(center, e.v5, 0.5f)
-            );
+            var m = new EdgeVertices(Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f));
             m.v3.y = e.v3.y;
 
             TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
             TriangulateEdgeFan(center, m, cell.Color);
 
-            bool reversed = cell.HasIncomingRiver;
-            TriangulateRiverQuad(
-                m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed
-            );
-            center.y = m.v2.y = m.v4.y = cell.RiverSurfaceY;
-            rivers.AddTriangle(center, m.v2, m.v4);
-            if (reversed) {
-                rivers.AddTriangleUV(
-                    new Vector2(0.5f, 0.4f),
-                    new Vector2(1f, 0.2f), new Vector2(0f, 0.2f)
-                );
-            }
-            else {
-                rivers.AddTriangleUV(
-                    new Vector2(0.5f, 0.4f),
-                    new Vector2(0f, 0.6f), new Vector2(1f, 0.6f)
-                );
+            if (!cell.IsUnderwater) {
+                var reversed = cell.HasIncomingRiver;
+                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
+                center.y = m.v2.y = m.v4.y = cell.RiverSurfaceY;
+                rivers.AddTriangle(center, m.v2, m.v4);
+                if (reversed) {
+                    rivers.AddTriangleUV(new Vector2(0.5f, 0.4f), new Vector2(1f, 0.2f), new Vector2(0f, 0.2f));
+                } else {
+                    rivers.AddTriangleUV(new Vector2(0.5f, 0.4f), new Vector2(0f, 0.6f), new Vector2(1f, 0.6f));
+                }
             }
         } // TriangulateWithRiverBeginOrEnd ()
 
         private void TriangulateWithRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
             Vector3 centerL, centerR;
             if (cell.HasRiverThroughEdge(direction.Opposite())) {
-                centerL = center +
-                          HexMetrics.GetFirstSolidCorner(direction.Previous()) * 0.25f;
-                centerR = center +
-                          HexMetrics.GetSecondSolidCorner(direction.Next()) * 0.25f;
-            }
-            else if (cell.HasRiverThroughEdge(direction.Next())) {
+                centerL = center + HexMetrics.GetFirstSolidCorner(direction.Previous()) * 0.25f;
+                centerR = center + HexMetrics.GetSecondSolidCorner(direction.Next()) * 0.25f;
+            } else if (cell.HasRiverThroughEdge(direction.Next())) {
                 centerL = center;
                 centerR = Vector3.Lerp(center, e.v5, 2f / 3f);
-            }
-            else if (cell.HasRiverThroughEdge(direction.Previous())) {
+            } else if (cell.HasRiverThroughEdge(direction.Previous())) {
                 centerL = Vector3.Lerp(center, e.v1, 2f / 3f);
                 centerR = center;
-            }
-            else if (cell.HasRiverThroughEdge(direction.Next2())) {
+            } else if (cell.HasRiverThroughEdge(direction.Next2())) {
                 centerL = center;
-                centerR = center +
-                          HexMetrics.GetSolidEdgeMiddle(direction.Next()) *
-                          (0.5f * HexMetrics.InnerToOuter);
-            }
-            else {
-                centerL = center +
-                          HexMetrics.GetSolidEdgeMiddle(direction.Previous()) *
-                          (0.5f * HexMetrics.InnerToOuter);
+                centerR = center + HexMetrics.GetSolidEdgeMiddle(direction.Next()) * (0.5f * HexMetrics.InnerToOuter);
+            } else {
+                centerL = center + HexMetrics.GetSolidEdgeMiddle(direction.Previous()) * (0.5f * HexMetrics.InnerToOuter);
                 centerR = center;
             }
 
             center = Vector3.Lerp(centerL, centerR, 0.5f);
 
-            EdgeVertices m = new EdgeVertices(
-                Vector3.Lerp(centerL, e.v1, 0.5f),
-                Vector3.Lerp(centerR, e.v5, 0.5f),
-                1f / 6f
-            );
+            var m = new EdgeVertices(Vector3.Lerp(centerL, e.v1, 0.5f), Vector3.Lerp(centerR, e.v5, 0.5f), 1f / 6f);
             m.v3.y = center.y = e.v3.y;
 
             TriangulateEdgeStrip(m, cell.Color, e, cell.Color);
@@ -261,13 +226,11 @@ namespace Arkayns.Reckon.HM {
             terrain.AddTriangle(centerR, m.v4, m.v5);
             terrain.AddTriangleColor(cell.Color);
 
-            bool reversed = cell.IncomingRiver == direction;
-            TriangulateRiverQuad(
-                centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed
-            );
-            TriangulateRiverQuad(
-                m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed
-            );
+            if (!cell.IsUnderwater) {
+                var reversed = cell.IncomingRiver == direction;
+                TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed);
+                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
+            }
         } // TriangulateWithRiver ()
 
         private void TriangulateWithoutRiver (HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
@@ -363,11 +326,13 @@ namespace Arkayns.Reckon.HM {
 
             if (cell.HasRiverThroughEdge(direction)) {
                 e2.v3.y = neighbor.StreamBedY;
-                TriangulateRiverQuad(
-                    e1.v2, e1.v4, e2.v2, e2.v4,
-                    cell.RiverSurfaceY, neighbor.RiverSurfaceY, 0.8f,
-                    cell.HasIncomingRiver && cell.IncomingRiver == direction
-                );
+
+                if (!cell.IsUnderwater && !neighbor.IsUnderwater) {
+                    TriangulateRiverQuad(e1.v2, e1.v4, e2.v2, e2.v4,
+                        cell.RiverSurfaceY, neighbor.RiverSurfaceY, 0.8f,
+                        cell.HasIncomingRiver && cell.IncomingRiver == direction
+                    );
+                }
             }
 
             if (cell.GetEdgeType(direction) == HexEdgeType.Slope) {
