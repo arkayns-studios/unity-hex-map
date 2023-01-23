@@ -12,6 +12,7 @@ namespace Arkayns.Reckon.HM {
 
         private Color color;
         private int elevation = int.MinValue;
+        private int waterLevel;
         private bool hasIncomingRiver, hasOutgoingRiver;
         private HexDirection incomingRiver, outgoingRiver;
 
@@ -58,6 +59,16 @@ namespace Arkayns.Reckon.HM {
             }
         } // Elevation
 
+        /// <summary> Gets or Sets the water level of the hex cell and refresh it when its value is changed </summary>
+        public int WaterLevel {
+            get => waterLevel;
+            set {
+                if (waterLevel == value) return;
+                waterLevel = value;
+                Refresh();
+            }
+        } // WaterLevel
+        
         /// <summary> Returns true if the hex cell has an incoming river </summary>
         public bool HasIncomingRiver => hasIncomingRiver;
 
