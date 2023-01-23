@@ -133,14 +133,19 @@ namespace Arkayns.Reckon.HM {
             var center2 = neighbor.Position;
             center2.y = center.y;
             var e2 = new EdgeVertices(center2  + HexMetrics.GetSecondSolidCorner(direction.Opposite()), center2  + HexMetrics.GetFirstSolidCorner(direction.Opposite()));
-            waterShore.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
-            waterShore.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
-            waterShore.AddQuad(e1.v3, e1.v4, e2.v3, e2.v4);
-            waterShore.AddQuad(e1.v4, e1.v5, e2.v4, e2.v5);
-            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
-            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
-            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
-            waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+            
+            if (cell.HasRiverThroughEdge(direction)) {
+                TriangulateEstuary(e1, e2);
+            } else {
+                waterShore.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+                waterShore.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+                waterShore.AddQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+                waterShore.AddQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+                waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+                waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+                waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+                waterShore.AddQuadUV(0f, 0f, 0f, 1f);
+            }
 
             var nextNeighbor = cell.GetNeighbor(direction.Next());
             if (nextNeighbor != null) {
@@ -150,6 +155,13 @@ namespace Arkayns.Reckon.HM {
                 waterShore.AddTriangleUV(new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, nextNeighbor.IsUnderwater ? 0f : 1f));
             }
         } // Class TriangulateWaterShore
+        
+        private void TriangulateEstuary (EdgeVertices e1, EdgeVertices e2) {
+            waterShore.AddTriangle(e2.v1, e1.v2, e1.v1);
+            waterShore.AddTriangle(e2.v5, e1.v5, e1.v4);
+            waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+            waterShore.AddTriangleUV(new Vector2(0f, 1f), new Vector2(0f, 0f), new Vector2(0f, 0f));
+        } // TriangulateEstuary ()
         
         private void TriangulateWaterfallInWater (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4, float y1, float y2, float waterY) {
             v1.y = v2.y = y1;
