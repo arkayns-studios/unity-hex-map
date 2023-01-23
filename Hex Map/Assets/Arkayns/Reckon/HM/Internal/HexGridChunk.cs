@@ -5,7 +5,7 @@ namespace Arkayns.Reckon.HM {
     public class HexGridChunk : MonoBehaviour {
 
         // -- Variables --
-        public HexMesh terrain, rivers, roads;
+        public HexMesh terrain, rivers, roads, water;
         private HexCell[] cells;
         private Canvas gridCanvas;
 
@@ -53,10 +53,12 @@ namespace Arkayns.Reckon.HM {
             terrain.Clear();
             rivers.Clear();
             roads.Clear();
+            water.Clear();
             foreach (var t in cells) Triangulate(t);
             terrain.Apply();
             rivers.Apply();
             roads.Apply();
+            water.Apply();
         } // Triangulate ()
 
         private void Triangulate(HexCell cell) {
@@ -85,8 +87,17 @@ namespace Arkayns.Reckon.HM {
             }
 
             if (direction <= HexDirection.SE) TriangulateConnection(direction, cell, e);
+            if (cell.IsUnderwater) TriangulateWater(direction, cell, center);
         } // Triangulate ()
 
+        private void TriangulateWater (HexDirection direction, HexCell cell, Vector3 center) {
+            center.y = cell.WaterSurfaceY;
+            var c1 = center + HexMetrics.GetFirstSolidCorner(direction);
+            var c2 = center + HexMetrics.GetSecondSolidCorner(direction);
+
+            water.AddTriangle(center, c1, c2);
+        } // TriangulateWater ()
+        
         private void TriangulateAdjacentToRiver(HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
             if (cell.HasRoads) TriangulateRoadAdjacentToRiver(direction, cell, center, e);
             
