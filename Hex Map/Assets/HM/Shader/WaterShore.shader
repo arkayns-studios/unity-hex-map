@@ -26,7 +26,7 @@
 
 		void surf (Input IN, inout SurfaceOutputStandard o) {
 			float shore = IN.uv_MainTex.y;
-			shore = sqrt(shore);
+			shore = sqrt(shore) * 0.9;
 
 			float2 noiseUV = IN.worldPos.xz + _Time.y * 0.25;
 			float4 noise = tex2D(_MainTex, noiseUV * 0.015);
