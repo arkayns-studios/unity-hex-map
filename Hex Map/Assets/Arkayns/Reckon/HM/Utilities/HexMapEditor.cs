@@ -10,11 +10,13 @@ namespace Arkayns.Reckon.HM {
         public HexGrid hexGrid;
 
         private int m_activeElevation;
+        private int m_activeWaterLevel;
         private Color m_activeColor;
         private int m_brushSize;
 
         private bool m_applyColor;
         private bool m_applyElevation = true;
+        private bool m_applyWaterLevel = true;
 
         private OptionalToggle m_riverMode, m_roadMode;
 
@@ -77,6 +79,7 @@ namespace Arkayns.Reckon.HM {
             
             if (m_applyColor) cell.Color = m_activeColor;
             if (m_applyElevation) cell.Elevation = m_activeElevation;
+            if (m_applyWaterLevel) cell.WaterLevel = m_activeWaterLevel;
 
             if (m_riverMode == OptionalToggle.No) cell.RemoveRiver();
             if (m_roadMode == OptionalToggle.No) cell.RemoveRoads();
@@ -103,6 +106,14 @@ namespace Arkayns.Reckon.HM {
             m_activeElevation = (int)elevation;
         } // SetElevation ()
 
+        public void SetApplyWaterLevel (bool toggle) {
+            m_applyWaterLevel = toggle;
+        } // SetApplyWaterLevel ()
+	
+        public void SetWaterLevel (float level) {
+            m_activeWaterLevel = (int)level;
+        } // SetWaterLevel ()
+        
         public void SetBrushSize(float size) {
             m_brushSize = (int)size;
         } // SetBrushSize ()
