@@ -318,6 +318,7 @@ Transform:
   - {fileID: 4311800310347834142}
   - {fileID: 5623461021310515367}
   - {fileID: 4748232981992524520}
+  - {fileID: 2513395166084921213}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -339,6 +340,7 @@ MonoBehaviour:
   water: {fileID: 2220744622751038666}
   waterShore: {fileID: 5136405393168372795}
   estuaries: {fileID: 516221980511520821}
+  features: {fileID: 6823255678747320314}
 --- !u!1 &1391112931545622541
 GameObject:
   m_ObjectHideFlags: 0
@@ -639,6 +641,51 @@ MonoBehaviour:
   useColors: 0
   useUVCoordinates: 1
   useUV2Coordinates: 0
+--- !u!1 &7245731031321927000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2513395166084921213}
+  - component: {fileID: 6823255678747320314}
+  m_Layer: 0
+  m_Name: Features
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2513395166084921213
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245731031321927000}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4000012252666914}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6823255678747320314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7245731031321927000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9a6c1d9369542c98b528d0761e7dcef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  featurePrefab: {fileID: 2649275550026160008, guid: dd556761afe3c2e4c973174c1f2daa6a, type: 3}
 --- !u!1 &8420645073656922008
 GameObject:
   m_ObjectHideFlags: 0

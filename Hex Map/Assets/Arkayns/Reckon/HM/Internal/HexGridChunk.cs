@@ -6,6 +6,7 @@ namespace Arkayns.Reckon.HM {
 
         // -- Variables --
         public HexMesh terrain, rivers, roads, water, waterShore, estuaries;
+        public HexFeatureManager features;
         private HexCell[] cells;
         private Canvas gridCanvas;
 
@@ -56,6 +57,7 @@ namespace Arkayns.Reckon.HM {
             water.Clear();
             waterShore.Clear();
             estuaries.Clear();
+            features.Clear();
             foreach (var t in cells) Triangulate(t);
             terrain.Apply();
             rivers.Apply();
@@ -63,12 +65,13 @@ namespace Arkayns.Reckon.HM {
             water.Apply();
             waterShore.Apply();
             estuaries.Apply();
+            features.Apply();
         } // Triangulate ()
 
         private void Triangulate(HexCell cell) {
-            for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++) {
+            for (var d = HexDirection.NE; d <= HexDirection.NW; d++) 
                 Triangulate(d, cell);
-            }
+            features.AddFeature(cell.Position);
         } // Triangulate ()
 
         private void Triangulate(HexDirection direction, HexCell cell) {
