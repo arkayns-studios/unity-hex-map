@@ -15,7 +15,8 @@ namespace Arkayns.Reckon.HM {
         private int waterLevel;
         private bool hasIncomingRiver, hasOutgoingRiver;
         private HexDirection incomingRiver, outgoingRiver;
-
+        private int urbanLevel;
+        
         [SerializeField] private HexCell[] neighbors;
         [SerializeField] private bool[] roads;
         
@@ -105,6 +106,15 @@ namespace Arkayns.Reckon.HM {
 
         /// <summary> Returns true if the hex cell has at least one road </summary>
         public bool HasRoads => roads.Any(road => road);
+        
+        public int UrbanLevel {
+            get => urbanLevel;
+            set {
+                if (urbanLevel == value) return;
+                urbanLevel = value;
+                RefreshSelfOnly();
+            }
+        } // UrbanLevel
         
         // -- Methods --
         public HexCell GetNeighbor(HexDirection direction) {

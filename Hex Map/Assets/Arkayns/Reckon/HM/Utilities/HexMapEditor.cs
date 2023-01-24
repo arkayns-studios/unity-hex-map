@@ -13,10 +13,12 @@ namespace Arkayns.Reckon.HM {
         private int m_activeWaterLevel;
         private Color m_activeColor;
         private int m_brushSize;
+        private int m_activeUrbanLevel;
 
         private bool m_applyColor;
         private bool m_applyElevation = true;
         private bool m_applyWaterLevel = true;
+        private bool m_applyUrbanLevel;
 
         private OptionalToggle m_riverMode, m_roadMode;
 
@@ -59,6 +61,14 @@ namespace Arkayns.Reckon.HM {
             isDrag = false;
         } // ValidateDrag ()
 
+        public void SetApplyUrbanLevel (bool toggle) {
+            m_applyUrbanLevel = toggle;
+        } // SetApplyUrbanLevel ()
+	
+        public void SetUrbanLevel (float level) {
+            m_activeUrbanLevel = (int)level;
+        } // SetUrbanLevel ()
+        
         private void EditCells(HexCell center) {
             var centerX = center.coordinates.X;
             var centerZ = center.coordinates.Z;
@@ -80,6 +90,7 @@ namespace Arkayns.Reckon.HM {
             if (m_applyColor) cell.Color = m_activeColor;
             if (m_applyElevation) cell.Elevation = m_activeElevation;
             if (m_applyWaterLevel) cell.WaterLevel = m_activeWaterLevel;
+            if (m_applyUrbanLevel) cell.UrbanLevel = m_activeUrbanLevel;
 
             if (m_riverMode == OptionalToggle.No) cell.RemoveRiver();
             if (m_roadMode == OptionalToggle.No) cell.RemoveRoads();
