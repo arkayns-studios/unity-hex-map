@@ -25,7 +25,7 @@ float River (float2 riverUV, sampler2D noiseTex) {
 	uv2.x = uv2.x * 0.0625 - _Time.y * 0.0052;
 	uv2.y -= _Time.y * 0.23;
 	float4 noise2 = tex2D(noiseTex, uv2);
-	
+
 	return noise.r * noise2.w;
 }
 

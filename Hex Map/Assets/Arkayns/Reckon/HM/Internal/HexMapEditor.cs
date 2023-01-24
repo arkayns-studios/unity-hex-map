@@ -13,12 +13,12 @@ namespace Arkayns.Reckon.HM {
         private int m_activeWaterLevel;
         private Color m_activeColor;
         private int m_brushSize;
-        private int m_activeUrbanLevel;
+        private int m_activeUrbanLevel, m_activeFarmLevel, m_activePlantLevel;
 
         private bool m_applyColor;
         private bool m_applyElevation = true;
         private bool m_applyWaterLevel = true;
-        private bool m_applyUrbanLevel;
+        private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel;
 
         private OptionalToggle m_riverMode, m_roadMode;
 
@@ -69,6 +69,22 @@ namespace Arkayns.Reckon.HM {
             m_activeUrbanLevel = (int)level;
         } // SetUrbanLevel ()
         
+        public void SetApplyFarmLevel (bool toggle) {
+            m_applyFarmLevel = toggle;
+        } // SetApplyFarmLevel ()
+
+        public void SetFarmLevel (float level) {
+            m_activeFarmLevel = (int)level;
+        } // SetFarmLevel ()
+
+        public void SetApplyPlantLevel (bool toggle) {
+            m_applyPlantLevel = toggle;
+        } // SetApplyPlantLevel ()
+
+        public void SetPlantLevel (float level) {
+            m_activePlantLevel = (int)level;
+        } // SetPlantLevel ()
+        
         private void EditCells(HexCell center) {
             var centerX = center.coordinates.X;
             var centerZ = center.coordinates.Z;
@@ -91,6 +107,8 @@ namespace Arkayns.Reckon.HM {
             if (m_applyElevation) cell.Elevation = m_activeElevation;
             if (m_applyWaterLevel) cell.WaterLevel = m_activeWaterLevel;
             if (m_applyUrbanLevel) cell.UrbanLevel = m_activeUrbanLevel;
+            if (m_applyFarmLevel) cell.FarmLevel = m_activeFarmLevel;
+            if (m_applyPlantLevel) cell.PlantLevel = m_activePlantLevel;
 
             if (m_riverMode == OptionalToggle.No) cell.RemoveRiver();
             if (m_roadMode == OptionalToggle.No) cell.RemoveRoads();

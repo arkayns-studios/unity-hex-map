@@ -15,7 +15,7 @@ namespace Arkayns.Reckon.HM {
         private int waterLevel;
         private bool hasIncomingRiver, hasOutgoingRiver;
         private HexDirection incomingRiver, outgoingRiver;
-        private int urbanLevel;
+        private int urbanLevel, farmLevel, plantLevel;
         
         [SerializeField] private HexCell[] neighbors;
         [SerializeField] private bool[] roads;
@@ -115,6 +115,24 @@ namespace Arkayns.Reckon.HM {
                 RefreshSelfOnly();
             }
         } // UrbanLevel
+        
+        public int FarmLevel {
+            get => farmLevel;
+            set {
+                if (farmLevel == value) return;
+                farmLevel = value;
+                RefreshSelfOnly();
+            }
+        } // FarmLevel
+
+        public int PlantLevel {
+            get => plantLevel;
+            set {
+                if (plantLevel == value) return;
+                plantLevel = value;
+                RefreshSelfOnly();
+            }
+        } // PlantLevel
         
         // -- Methods --
         public HexCell GetNeighbor(HexDirection direction) {
