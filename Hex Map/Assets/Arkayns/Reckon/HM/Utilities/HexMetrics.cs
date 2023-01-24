@@ -54,7 +54,30 @@ namespace Arkayns.Reckon.HM {
 
 		public static Texture2D noiseSource;
 
+		public const int HashGridSize = 256;
+		public const float HashGridScale = 0.25f;
+		
+		private static HexHash[] m_hashGrid;
+		
 		// -- Methods --
+		public static void InitializeHashGrid (int seed) {
+			m_hashGrid = new HexHash[HashGridSize * HashGridSize];
+			var currentState = Random.state;
+			Random.InitState(seed);
+			for (var i = 0; i < m_hashGrid.Length; i++) m_hashGrid[i] = HexHash.Create();
+			Random.state = currentState;
+		} // InitializeHashGrid ()
+		
+		public static HexHash SampleHashGrid (Vector3 position) {
+			var x = (int)(position.x * HashGridScale) % HashGridSize;
+			if (x < 0) x += HashGridSize;
+			
+			var z = (int)(position.z * HashGridScale) % HashGridSize;
+			if (z < 0) z += HashGridSize;
+			
+			return m_hashGrid[x + z * HashGridSize];
+		} // SampleHashGrid ()
+		
 		public static Vector4 SampleNoise (Vector3 position) {
 			return noiseSource.GetPixelBilinear(position.x * NoiseScale, position.z * NoiseScale);
 		} // SampleNoise ()

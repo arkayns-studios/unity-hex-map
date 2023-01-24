@@ -19,10 +19,13 @@ namespace Arkayns.Reckon.HM {
 		private HexGridChunk[] m_gridChunks;
 		private HexCell[] m_cells;
 		private int m_cellCountX, m_cellCountZ;
+		
+		public int seed;
 
 		// -- Built-In Methods --
 		private void Awake () {
 			HexMetrics.noiseSource = noiseSource;
+			HexMetrics.InitializeHashGrid(seed);
 
 			m_cellCountX = chunkCountX * HexMetrics.ChunkSizeX;
 			m_cellCountZ = chunkCountZ * HexMetrics.ChunkSizeZ;
@@ -32,7 +35,10 @@ namespace Arkayns.Reckon.HM {
 		} // Awake ()
 		
 		private void OnEnable () {
-			HexMetrics.noiseSource = noiseSource;
+			if (!HexMetrics.noiseSource) {
+				HexMetrics.noiseSource = noiseSource;
+				HexMetrics.InitializeHashGrid(seed);
+			}
 		} // OnEnable ()
 
 		// -- Methods --
