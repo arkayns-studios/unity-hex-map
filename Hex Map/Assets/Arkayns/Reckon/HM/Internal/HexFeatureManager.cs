@@ -5,7 +5,7 @@ namespace Arkayns.Reckon.HM {
     public class HexFeatureManager : MonoBehaviour {
 
         // -- Variables --
-        public Transform featurePrefab;
+        public HexFeatureCollection[] urbanCollections;
         private Transform m_container;
         
         // -- Methods --
@@ -21,14 +21,24 @@ namespace Arkayns.Reckon.HM {
 
         public void AddFeature(HexCell cell, Vector3 position) {
             var hash = HexMetrics.SampleHashGrid(position);
-            if (hash.a >= cell.UrbanLevel * 0.25f) return;
-            var instance = Instantiate(featurePrefab);
+            var prefab = PickPrefab(cell.UrbanLevel, hash.a, hash.b);
+            if (!prefab) return;
+            var instance = Instantiate(prefab);
             position.y += instance.localScale.y * 0.5f;
             instance.localPosition = HexMetrics.Perturb(position);
-            instance.localRotation = Quaternion.Euler(0f, 360f * hash.b, 0f);
+            instance.localRotation = Quaternion.Euler(0f, 360f * hash.c, 0f);
             instance.SetParent(m_container, false);
         } // AddFeature ()
 
+        private Transform PickPrefab (int level, float hash, float choice) {
+            if (level <= 0) return null;
+            var thresholds = HexMetrics.GetFeatureThresholds(level - 1);
+            for (var i = 0; i < thresholds.Length; i++) {
+                if (hash < thresholds[i]) return urbanCollections[i].Pick(choice);
+            }
+            return null;
+        } // PickPrefab ()
+        
     } // Class HexFeatureManager
 
 } // Namespace Arkayns Reckon HM

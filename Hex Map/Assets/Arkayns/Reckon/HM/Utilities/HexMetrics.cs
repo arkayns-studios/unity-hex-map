@@ -42,6 +42,13 @@ namespace Arkayns.Reckon.HM {
 
 		public const int ChunkSizeX = 5, ChunkSizeZ = 5;
 
+		public static Texture2D noiseSource;
+
+		public const int HashGridSize = 256;
+		public const float HashGridScale = 0.25f;
+		
+		private static HexHash[] m_hashGrid;
+		
 		private static Vector3[] m_corners = {
 			new (0f, 0f, OuterRadius),
 			new (InnerRadius, 0f, 0.5f * OuterRadius),
@@ -52,13 +59,12 @@ namespace Arkayns.Reckon.HM {
 			new (0f, 0f, OuterRadius)
 		};
 
-		public static Texture2D noiseSource;
+		private static float[][] m_featureThresholds = {
+			new float[] {0.0f, 0.0f, 0.4f},
+			new float[] {0.0f, 0.4f, 0.6f},
+			new float[] {0.4f, 0.6f, 0.8f}
+		};
 
-		public const int HashGridSize = 256;
-		public const float HashGridScale = 0.25f;
-		
-		private static HexHash[] m_hashGrid;
-		
 		// -- Methods --
 		public static void InitializeHashGrid (int seed) {
 			m_hashGrid = new HexHash[HashGridSize * HashGridSize];
@@ -67,6 +73,10 @@ namespace Arkayns.Reckon.HM {
 			for (var i = 0; i < m_hashGrid.Length; i++) m_hashGrid[i] = HexHash.Create();
 			Random.state = currentState;
 		} // InitializeHashGrid ()
+		
+		public static float[] GetFeatureThresholds (int level) {
+			return m_featureThresholds[level];
+		} // GetFeatureThresholds ()
 		
 		public static HexHash SampleHashGrid (Vector3 position) {
 			var x = (int)(position.x * HashGridScale) % HashGridSize;
