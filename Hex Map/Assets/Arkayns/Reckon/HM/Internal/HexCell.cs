@@ -47,12 +47,9 @@ namespace Arkayns.Reckon.HM {
                 uiPosition.z = -position.y;
                 uiRect.localPosition = uiPosition;
 
-                if (hasOutgoingRiver && elevation < GetNeighbor(outgoingRiver).elevation) RemoveOutgoingRiver();
-                if (hasIncomingRiver && elevation > GetNeighbor(incomingRiver).elevation) RemoveIncomingRiver();
-
+                ValidateRivers();
                 for (var i = 0; i < roads.Length; i++) {
-                    if (roads[i] && GetElevationDifference((HexDirection)i) > 1) 
-                        SetRoad(i, false);
+                    if (roads[i] && GetElevationDifference((HexDirection)i) > 1) SetRoad(i, false);
                 }
                 
                 Refresh();
@@ -65,6 +62,7 @@ namespace Arkayns.Reckon.HM {
             set {
                 if (waterLevel == value) return;
                 waterLevel = value;
+                ValidateRivers();
                 Refresh();
             }
         } // WaterLevel
@@ -126,6 +124,15 @@ namespace Arkayns.Reckon.HM {
             return HexMetrics.GetEdgeType(elevation, otherCell.elevation);
         } // GetEdgeType ()
 
+        private bool IsValidRiverDestination (HexCell neighbor) {
+            return neighbor && (elevation >= neighbor.elevation || waterLevel == neighbor.elevation);
+        } // IsValidRiverDestination ()
+        
+        private void ValidateRivers () {
+            if (hasOutgoingRiver && !IsValidRiverDestination(GetNeighbor(outgoingRiver))) RemoveOutgoingRiver();
+            if (hasIncomingRiver && !GetNeighbor(incomingRiver).IsValidRiverDestination(this)) RemoveIncomingRiver();
+        } // ValidateRivers ()
+        
         public bool HasRiverThroughEdge(HexDirection direction) {
             return hasIncomingRiver && incomingRiver == direction || hasOutgoingRiver && outgoingRiver == direction;
         } // HasRiverThroughEdge ()
@@ -161,7 +168,7 @@ namespace Arkayns.Reckon.HM {
             if (hasOutgoingRiver && outgoingRiver == direction) return;
 
             var neighbor = GetNeighbor(direction);
-            if (!neighbor || elevation < neighbor.elevation) return;
+            if (!IsValidRiverDestination(neighbor)) return;
 
             RemoveOutgoingRiver();
             if (hasIncomingRiver && incomingRiver == direction) RemoveIncomingRiver();
