@@ -20,7 +20,7 @@ namespace Arkayns.Reckon.HM {
         private bool m_applyWaterLevel = true;
         private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel;
 
-        private OptionalToggle m_riverMode, m_roadMode;
+        private OptionalToggle m_riverMode, m_roadMode, m_walledMode;
 
         private bool isDrag;
         private HexDirection m_dragDirection;
@@ -61,30 +61,6 @@ namespace Arkayns.Reckon.HM {
             isDrag = false;
         } // ValidateDrag ()
 
-        public void SetApplyUrbanLevel (bool toggle) {
-            m_applyUrbanLevel = toggle;
-        } // SetApplyUrbanLevel ()
-	
-        public void SetUrbanLevel (float level) {
-            m_activeUrbanLevel = (int)level;
-        } // SetUrbanLevel ()
-        
-        public void SetApplyFarmLevel (bool toggle) {
-            m_applyFarmLevel = toggle;
-        } // SetApplyFarmLevel ()
-
-        public void SetFarmLevel (float level) {
-            m_activeFarmLevel = (int)level;
-        } // SetFarmLevel ()
-
-        public void SetApplyPlantLevel (bool toggle) {
-            m_applyPlantLevel = toggle;
-        } // SetApplyPlantLevel ()
-
-        public void SetPlantLevel (float level) {
-            m_activePlantLevel = (int)level;
-        } // SetPlantLevel ()
-        
         private void EditCells(HexCell center) {
             var centerX = center.coordinates.X;
             var centerZ = center.coordinates.Z;
@@ -112,6 +88,7 @@ namespace Arkayns.Reckon.HM {
 
             if (m_riverMode == OptionalToggle.No) cell.RemoveRiver();
             if (m_roadMode == OptionalToggle.No) cell.RemoveRoads();
+            if (m_walledMode != OptionalToggle.Ignore) cell.Walled = m_walledMode == OptionalToggle.Yes;
 
             if (isDrag) {
                 var otherCell = cell.GetNeighbor(m_dragDirection.Opposite());
@@ -154,6 +131,34 @@ namespace Arkayns.Reckon.HM {
         public void SetRoadMode(int mode) {
             m_roadMode = (OptionalToggle)mode;
         } // SetRoadMode ()
+        
+        public void SetApplyUrbanLevel (bool toggle) {
+            m_applyUrbanLevel = toggle;
+        } // SetApplyUrbanLevel ()
+	
+        public void SetUrbanLevel (float level) {
+            m_activeUrbanLevel = (int)level;
+        } // SetUrbanLevel ()
+        
+        public void SetApplyFarmLevel (bool toggle) {
+            m_applyFarmLevel = toggle;
+        } // SetApplyFarmLevel ()
+
+        public void SetFarmLevel (float level) {
+            m_activeFarmLevel = (int)level;
+        } // SetFarmLevel ()
+
+        public void SetApplyPlantLevel (bool toggle) {
+            m_applyPlantLevel = toggle;
+        } // SetApplyPlantLevel ()
+
+        public void SetPlantLevel (float level) {
+            m_activePlantLevel = (int)level;
+        } // SetPlantLevel ()
+        
+        public void SetWalledMode (int mode) {
+            m_walledMode = (OptionalToggle)mode;
+        } // SetWalledMode ()
         
         public void ShowUI(bool visible) {
             hexGrid.ShowUI(visible);
