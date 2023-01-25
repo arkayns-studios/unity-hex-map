@@ -66,11 +66,16 @@ namespace Arkayns.Reckon.HM {
             instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
         } // AddFeature ()
 
-        public void AddWall (EdgeVertices near, HexCell nearCell, EdgeVertices far, HexCell farCell) {
+        public void AddWall (EdgeVertices near, HexCell nearCell, EdgeVertices far, HexCell farCell, bool hasRiver, bool hasRoad) {
             if (nearCell.Walled != farCell.Walled) {
                 AddWallSegment(near.v1, far.v1, near.v2, far.v2);
-                AddWallSegment(near.v2, far.v2, near.v3, far.v3);
-                AddWallSegment(near.v3, far.v3, near.v4, far.v4);
+                if (hasRiver || hasRoad) {
+                    AddWallCap(near.v2, far.v2);
+                    AddWallCap(far.v4, near.v4);
+                } else {
+                    AddWallSegment(near.v2, far.v2, near.v3, far.v3);
+                    AddWallSegment(near.v3, far.v3, near.v4, far.v4);
+                }
                 AddWallSegment(near.v4, far.v4, near.v5, far.v5);
             }
         } // AddWall ()
@@ -133,6 +138,20 @@ namespace Arkayns.Reckon.HM {
             walls.AddQuadUnperturbed(t1, t2, v3, v4);
         } // AddWallSegment ()
 
+        private void AddWallCap (Vector3 near, Vector3 far) {
+            near = HexMetrics.Perturb(near);
+            far = HexMetrics.Perturb(far);
+
+            var center = HexMetrics.WallLerp(near, far);
+            var thickness = HexMetrics.WallThicknessOffset(near, far);
+
+            Vector3 v1, v2, v3, v4;
+            v1 = v3 = center - thickness;
+            v2 = v4 = center + thickness;
+            v3.y = v4.y = center.y + HexMetrics.WallHeight;
+            walls.AddQuadUnperturbed(v1, v2, v3, v4);
+        } // AddWallCap ()
+        
     } // Class HexFeatureManager
 
 } // Namespace Arkayns Reckon HM
