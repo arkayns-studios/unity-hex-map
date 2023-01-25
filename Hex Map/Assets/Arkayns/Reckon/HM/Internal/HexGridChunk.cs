@@ -398,6 +398,8 @@ namespace Arkayns.Reckon.HM {
             } else {
                 TriangulateEdgeStrip(e1, cell.Color, e2, neighbor.Color, cell.HasRoadThroughEdge(direction));
             }
+            
+            features.AddWall(e1, cell, e2, neighbor);
 
             var nextNeighbor = cell.GetNeighbor(direction.Next());
             if (direction <= HexDirection.E && nextNeighbor != null) {
@@ -419,56 +421,35 @@ namespace Arkayns.Reckon.HM {
         } // TriangulateConnection ()
 
         private void TriangulateCorner(Vector3 bottom, HexCell bottomCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
-            HexEdgeType leftEdgeType = bottomCell.GetEdgeType(leftCell);
-            HexEdgeType rightEdgeType = bottomCell.GetEdgeType(rightCell);
+            var leftEdgeType = bottomCell.GetEdgeType(leftCell);
+            var rightEdgeType = bottomCell.GetEdgeType(rightCell);
 
             if (leftEdgeType == HexEdgeType.Slope) {
                 if (rightEdgeType == HexEdgeType.Slope) {
-                    TriangulateCornerTerraces(
-                        bottom, bottomCell, left, leftCell, right, rightCell
-                    );
+                    TriangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
+                } else if (rightEdgeType == HexEdgeType.Flat) {
+                    TriangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell);
+                } else {
+                    TriangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell);
                 }
-                else if (rightEdgeType == HexEdgeType.Flat) {
-                    TriangulateCornerTerraces(
-                        left, leftCell, right, rightCell, bottom, bottomCell
-                    );
-                }
-                else {
-                    TriangulateCornerTerracesCliff(
-                        bottom, bottomCell, left, leftCell, right, rightCell
-                    );
-                }
-            }
-            else if (rightEdgeType == HexEdgeType.Slope) {
+            } else if (rightEdgeType == HexEdgeType.Slope) {
                 if (leftEdgeType == HexEdgeType.Flat) {
-                    TriangulateCornerTerraces(
-                        right, rightCell, bottom, bottomCell, left, leftCell
-                    );
+                    TriangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+                } else {
+                    TriangulateCornerCliffTerraces(bottom, bottomCell, left, leftCell, right, rightCell);
                 }
-                else {
-                    TriangulateCornerCliffTerraces(
-                        bottom, bottomCell, left, leftCell, right, rightCell
-                    );
-                }
-            }
-            else if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
+            } else if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
                 if (leftCell.Elevation < rightCell.Elevation) {
-                    TriangulateCornerCliffTerraces(
-                        right, rightCell, bottom, bottomCell, left, leftCell
-                    );
+                    TriangulateCornerCliffTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+                } else {
+                    TriangulateCornerTerracesCliff(left, leftCell, right, rightCell, bottom, bottomCell);
                 }
-                else {
-                    TriangulateCornerTerracesCliff(
-                        left, leftCell, right, rightCell, bottom, bottomCell
-                    );
-                }
-            }
-            else {
+            } else {
                 terrain.AddTriangle(bottom, left, right);
-                terrain.AddTriangleColor(
-                    bottomCell.Color, leftCell.Color, rightCell.Color
-                );
+                terrain.AddTriangleColor(bottomCell.Color, leftCell.Color, rightCell.Color);
             }
+            
+            features.AddWall(bottom, bottomCell, left, leftCell, right, rightCell);
         } // TriangulateCorner ()
 
         private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell, bool hasRoad) {

@@ -47,6 +47,9 @@ namespace Arkayns.Reckon.HM {
 		public const int HashGridSize = 256;
 		public const float HashGridScale = 0.25f;
 		
+		public const float WallHeight = 3f;
+		public const float WallThickness = 0.75f;
+		
 		private static HexHash[] m_hashGrid;
 		
 		private static Vector3[] m_corners = {
@@ -66,28 +69,6 @@ namespace Arkayns.Reckon.HM {
 		};
 
 		// -- Methods --
-		public static void InitializeHashGrid (int seed) {
-			m_hashGrid = new HexHash[HashGridSize * HashGridSize];
-			var currentState = Random.state;
-			Random.InitState(seed);
-			for (var i = 0; i < m_hashGrid.Length; i++) m_hashGrid[i] = HexHash.Create();
-			Random.state = currentState;
-		} // InitializeHashGrid ()
-		
-		public static float[] GetFeatureThresholds (int level) {
-			return m_featureThresholds[level];
-		} // GetFeatureThresholds ()
-		
-		public static HexHash SampleHashGrid (Vector3 position) {
-			var x = (int)(position.x * HashGridScale) % HashGridSize;
-			if (x < 0) x += HashGridSize;
-			
-			var z = (int)(position.z * HashGridScale) % HashGridSize;
-			if (z < 0) z += HashGridSize;
-			
-			return m_hashGrid[x + z * HashGridSize];
-		} // SampleHashGrid ()
-		
 		public static Vector4 SampleNoise (Vector3 position) {
 			return noiseSource.GetPixelBilinear(position.x * NoiseScale, position.z * NoiseScale);
 		} // SampleNoise ()
@@ -155,6 +136,36 @@ namespace Arkayns.Reckon.HM {
 			position.z += (sample.z * 2f - 1f) * CellPerturbStrength;
 			return position;
 		} // Perturb ()
+		
+		public static void InitializeHashGrid (int seed) {
+			m_hashGrid = new HexHash[HashGridSize * HashGridSize];
+			var currentState = Random.state;
+			Random.InitState(seed);
+			for (var i = 0; i < m_hashGrid.Length; i++) m_hashGrid[i] = HexHash.Create();
+			Random.state = currentState;
+		} // InitializeHashGrid ()
+		
+		public static float[] GetFeatureThresholds (int level) {
+			return m_featureThresholds[level];
+		} // GetFeatureThresholds ()
+		
+		public static HexHash SampleHashGrid (Vector3 position) {
+			var x = (int)(position.x * HashGridScale) % HashGridSize;
+			if (x < 0) x += HashGridSize;
+			
+			var z = (int)(position.z * HashGridScale) % HashGridSize;
+			if (z < 0) z += HashGridSize;
+			
+			return m_hashGrid[x + z * HashGridSize];
+		} // SampleHashGrid ()
+		
+		public static Vector3 WallThicknessOffset (Vector3 near, Vector3 far) {
+			Vector3 offset;
+			offset.x = far.x - near.x;
+			offset.y = 0f;
+			offset.z = far.z - near.z;
+			return offset.normalized * (WallThickness * 0.5f);
+		} // WallThicknessOffset ()
 		
 	} // Class HexMetrics
 
