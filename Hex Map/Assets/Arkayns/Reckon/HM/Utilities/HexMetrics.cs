@@ -50,6 +50,8 @@ namespace Arkayns.Reckon.HM {
 		public const float WallHeight = 3f;
 		public const float WallThickness = 0.75f;
 		
+		public const float WallElevationOffset = VerticalTerraceStepSize;
+		
 		private static HexHash[] m_hashGrid;
 		
 		private static Vector3[] m_corners = {
@@ -166,6 +168,14 @@ namespace Arkayns.Reckon.HM {
 			offset.z = far.z - near.z;
 			return offset.normalized * (WallThickness * 0.5f);
 		} // WallThicknessOffset ()
+		
+		public static Vector3 WallLerp (Vector3 near, Vector3 far) {
+			near.x += (far.x - near.x) * 0.5f;
+			near.z += (far.z - near.z) * 0.5f;
+			var v = near.y < far.y ? WallElevationOffset : (1f - WallElevationOffset);
+			near.y += (far.y - near.y) * v;
+			return near;
+		} // WallLerp ()
 		
 	} // Class HexMetrics
 
