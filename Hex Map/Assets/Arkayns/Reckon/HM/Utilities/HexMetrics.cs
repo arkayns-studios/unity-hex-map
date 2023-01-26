@@ -47,13 +47,15 @@ namespace Arkayns.Reckon.HM {
 		public const int HashGridSize = 256;
 		public const float HashGridScale = 0.25f;
 		
-		public const float WallHeight = 3f;
+		public const float WallHeight = 4f;
 		public const float WallThickness = 0.75f;
+		public const float WallTowerThreshold = 0.5f;
+		public const float WallYOffset = -1f;
 		
 		public const float WallElevationOffset = VerticalTerraceStepSize;
 		
 		private static HexHash[] m_hashGrid;
-		
+
 		private static Vector3[] m_corners = {
 			new (0f, 0f, OuterRadius),
 			new (InnerRadius, 0f, 0.5f * OuterRadius),
@@ -173,7 +175,7 @@ namespace Arkayns.Reckon.HM {
 			near.x += (far.x - near.x) * 0.5f;
 			near.z += (far.z - near.z) * 0.5f;
 			var v = near.y < far.y ? WallElevationOffset : (1f - WallElevationOffset);
-			near.y += (far.y - near.y) * v;
+			near.y += (far.y - near.y) * v + WallYOffset;
 			return near;
 		} // WallLerp ()
 		
