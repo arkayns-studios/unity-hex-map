@@ -13,12 +13,12 @@ namespace Arkayns.Reckon.HM {
         private int m_activeWaterLevel;
         private Color m_activeColor;
         private int m_brushSize;
-        private int m_activeUrbanLevel, m_activeFarmLevel, m_activePlantLevel, m_activeSpecialIndex;
+        private int m_activeUrbanLevel, m_activeFarmLevel, m_activePlantLevel;
 
         private bool m_applyColor;
         private bool m_applyElevation = true;
         private bool m_applyWaterLevel = true;
-        private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel, m_applySpecialIndex;
+        private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel;
 
         private OptionalToggle m_riverMode, m_roadMode, m_walledMode;
 
@@ -82,7 +82,6 @@ namespace Arkayns.Reckon.HM {
             if (m_applyColor) cell.Color = m_activeColor;
             if (m_applyElevation) cell.Elevation = m_activeElevation;
             if (m_applyWaterLevel) cell.WaterLevel = m_activeWaterLevel;
-            if (m_applySpecialIndex) cell.SpecialIndex = m_activeSpecialIndex;
             if (m_applyUrbanLevel) cell.UrbanLevel = m_activeUrbanLevel;
             if (m_applyFarmLevel) cell.FarmLevel = m_activeFarmLevel;
             if (m_applyPlantLevel) cell.PlantLevel = m_activePlantLevel;
@@ -160,14 +159,6 @@ namespace Arkayns.Reckon.HM {
         public void SetWalledMode (int mode) {
             m_walledMode = (OptionalToggle)mode;
         } // SetWalledMode ()
-        
-        public void SetApplySpecialIndex (bool toggle) {
-            m_applySpecialIndex = toggle;
-        } // SetApplySpecialIndex ()
-
-        public void SetSpecialIndex (float index) {
-            m_activeSpecialIndex = (int)index;
-        } // SetSpecialIndex ()
         
         public void ShowUI(bool visible) {
             hexGrid.ShowUI(visible);

@@ -8,7 +8,6 @@ namespace Arkayns.Reckon.HM {
         public HexFeatureCollection[] urbanCollections, farmCollections, plantCollections;
         public HexMesh walls;
         public Transform wallTower, bridge;
-        public Transform[] special;
         private Transform m_container;
         
         // -- Methods --
@@ -217,16 +216,6 @@ namespace Arkayns.Reckon.HM {
             instance.localScale = new Vector3(1f,	1f, length * (1f / HexMetrics.BridgeDesignLength));
             instance.SetParent(m_container, false);
         } // AddBridge ()
-        
-        public void AddSpecialFeature (HexCell cell, Vector3 position) {
-            if (cell.IsSpecial) return;
-
-            var instance = Instantiate(special[cell.SpecialIndex - 1]);
-            instance.localPosition = HexMetrics.Perturb(position);
-            var hash = HexMetrics.SampleHashGrid(position);
-            instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
-            instance.SetParent(m_container, false);
-        } // AddSpecialFeature ()
         
     } // Class HexFeatureManager
 
