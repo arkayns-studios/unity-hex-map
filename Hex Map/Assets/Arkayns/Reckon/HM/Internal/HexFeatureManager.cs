@@ -7,7 +7,7 @@ namespace Arkayns.Reckon.HM {
         // -- Variables --
         public HexFeatureCollection[] urbanCollections, farmCollections, plantCollections;
         public HexMesh walls;
-        public Transform wallTower;
+        public Transform wallTower, bridge;
         private Transform m_container;
         
         // -- Methods --
@@ -204,6 +204,18 @@ namespace Arkayns.Reckon.HM {
             walls.AddQuadUnperturbed(point, v2, pointTop, v4);
             walls.AddTriangleUnperturbed(pointTop, v3, v4);
         } // AddWallWedge ()
+        
+        public void AddBridge (Vector3 roadCenter1, Vector3 roadCenter2) {
+            roadCenter1 = HexMetrics.Perturb(roadCenter1);
+            roadCenter2 = HexMetrics.Perturb(roadCenter2);
+            
+            var instance = Instantiate(bridge);
+            instance.localPosition = (roadCenter1 + roadCenter2) * 0.5f;
+            instance.forward = roadCenter2 - roadCenter1;
+            var length = Vector3.Distance(roadCenter1, roadCenter2);
+            instance.localScale = new Vector3(1f,	1f, length * (1f / HexMetrics.BridgeDesignLength));
+            instance.SetParent(m_container, false);
+        } // AddBridge ()
         
     } // Class HexFeatureManager
 

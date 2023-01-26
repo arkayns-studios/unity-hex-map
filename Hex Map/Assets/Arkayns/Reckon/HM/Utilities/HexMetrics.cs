@@ -54,6 +54,8 @@ namespace Arkayns.Reckon.HM {
 		
 		public const float WallElevationOffset = VerticalTerraceStepSize;
 		
+		public const float BridgeDesignLength = 7f;
+		
 		private static HexHash[] m_hashGrid;
 
 		private static Vector3[] m_corners = {

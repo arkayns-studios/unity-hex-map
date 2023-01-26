@@ -336,6 +336,8 @@ namespace Arkayns.Reckon.HM {
                     corner = HexMetrics.GetFirstSolidCorner(direction);
                 }
                 roadCenter += corner * 0.5f;
+                if (cell.IncomingRiver == direction.Next() && (cell.HasRoadThroughEdge(direction.Next2()) || cell.HasRoadThroughEdge(direction.Opposite())))
+                    features.AddBridge(roadCenter, center - corner * 0.5f);
                 center += corner * 0.25f;
             } else if (cell.IncomingRiver == cell.OutgoingRiver.Previous()) {
                 roadCenter -= HexMetrics.GetSecondCorner(cell.IncomingRiver) * 0.2f;
@@ -356,7 +358,10 @@ namespace Arkayns.Reckon.HM {
                     middle = direction;
                 }
                 if (!cell.HasRoadThroughEdge(middle) && !cell.HasRoadThroughEdge(middle.Previous()) && !cell.HasRoadThroughEdge(middle.Next())) return;
-                roadCenter += HexMetrics.GetSolidEdgeMiddle(middle) * 0.25f;
+                var offset = HexMetrics.GetSolidEdgeMiddle(middle);
+                roadCenter += offset * 0.25f;
+                if (direction == middle && cell.HasRoadThroughEdge(direction.Opposite()))
+                    features.AddBridge(roadCenter, center - offset * (HexMetrics.InnerToOuter * 0.7f));
             }
             
             var mL = Vector3.Lerp(roadCenter, e.v1, interpolators.x);
