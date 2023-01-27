@@ -10,7 +10,7 @@ namespace Arkayns.Reckon.HM {
         public RectTransform uiRect;
         public HexGridChunk chunk;
 
-        private Color color;
+        private int m_terrainTypeIndex;
         private int elevation = int.MinValue;
         private int waterLevel;
         private bool hasIncomingRiver, hasOutgoingRiver;
@@ -24,16 +24,18 @@ namespace Arkayns.Reckon.HM {
         
         // -- Properties --
         
-        /// <summary> Gets or Sets the color of the hex, it updates and refresh the hex cell if the value is different </summary>
-        public Color Color {
-            get => color;
+        /// <summary> Gets the color of the hex cell </summary>
+        public Color Color => HexMetrics.colors[m_terrainTypeIndex]; // Color
+
+        public int TerrainTypeIndex {
+            get => m_terrainTypeIndex;
             set {
-                if (color == value) return;
-                color = value;
+                if (m_terrainTypeIndex == value) return;
+                m_terrainTypeIndex = value;
                 Refresh();
             }
-        } // Color
-
+        } // TerrainTypeIndex
+        
         /// <summary> Gets or Sets the elevation of the hex cell and updates the position, river and road accordingly </summary>
         public int Elevation {
             get => elevation;

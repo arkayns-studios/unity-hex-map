@@ -8,8 +8,6 @@ namespace Arkayns.Reckon.HM {
 		// -- Variables --
 		public int chunkCountX = 4, chunkCountZ = 3;
 
-		public Color defaultColor = Color.white;
-
 		public HexCell cellPrefab;
 		public Text cellLabelPrefab;
 		public HexGridChunk chunkPrefab;
@@ -22,10 +20,13 @@ namespace Arkayns.Reckon.HM {
 		
 		public int seed;
 
+		public Color[] colors;
+		
 		// -- Built-In Methods --
 		private void Awake () {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
+			HexMetrics.colors = colors;
 
 			m_cellCountX = chunkCountX * HexMetrics.ChunkSizeX;
 			m_cellCountZ = chunkCountZ * HexMetrics.ChunkSizeZ;
@@ -38,6 +39,7 @@ namespace Arkayns.Reckon.HM {
 			if (!HexMetrics.noiseSource) {
 				HexMetrics.noiseSource = noiseSource;
 				HexMetrics.InitializeHashGrid(seed);
+				HexMetrics.colors = colors;
 			}
 		} // OnEnable ()
 
@@ -89,7 +91,6 @@ namespace Arkayns.Reckon.HM {
 			var cell = m_cells[i] = Instantiate<HexCell>(cellPrefab);
 			cell.transform.localPosition = position;
 			cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
-			cell.Color = defaultColor;
 
 			if (x > 0) cell.SetNeighbor(HexDirection.W, m_cells[i - 1]);
 			

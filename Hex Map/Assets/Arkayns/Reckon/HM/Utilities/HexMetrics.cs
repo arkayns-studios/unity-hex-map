@@ -74,6 +74,8 @@ namespace Arkayns.Reckon.HM {
 			new float[] {0.4f, 0.6f, 0.8f}
 		};
 
+		public static Color[] colors;
+		
 		// -- Methods --
 		public static Vector4 SampleNoise (Vector3 position) {
 			return noiseSource.GetPixelBilinear(position.x * NoiseScale, position.z * NoiseScale);

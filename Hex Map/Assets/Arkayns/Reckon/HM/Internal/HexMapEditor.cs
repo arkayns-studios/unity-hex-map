@@ -6,16 +6,14 @@ namespace Arkayns.Reckon.HM {
     public class HexMapEditor : MonoBehaviour {
 
         // -- Variables ---
-        public Color[] colors;
         public HexGrid hexGrid;
 
+        private int m_activeTerrainTypeIndex;
         private int m_activeElevation;
         private int m_activeWaterLevel;
-        private Color m_activeColor;
         private int m_brushSize;
         private int m_activeUrbanLevel, m_activeFarmLevel, m_activePlantLevel, m_activeSpecialIndex;
-
-        private bool m_applyColor;
+        
         private bool m_applyElevation = true;
         private bool m_applyWaterLevel = true;
         private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel, m_applySpecialIndex;
@@ -27,10 +25,6 @@ namespace Arkayns.Reckon.HM {
         private HexCell m_previousCell;
 
         // -- Built-In Methods --
-        private void Awake() {
-            SelectColor(-1);
-        } // Awake ()
-
         private void Update() {
             if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) HandleInput();
             else m_previousCell = null;
@@ -79,7 +73,7 @@ namespace Arkayns.Reckon.HM {
         private void EditCell(HexCell cell) {
             if (!cell) return;
             
-            if (m_applyColor) cell.Color = m_activeColor;
+            if (m_activeTerrainTypeIndex >= 0) cell.TerrainTypeIndex = m_activeTerrainTypeIndex;
             if (m_applyElevation) cell.Elevation = m_activeElevation;
             if (m_applyWaterLevel) cell.WaterLevel = m_activeWaterLevel;
             if (m_applySpecialIndex) cell.SpecialIndex = m_activeSpecialIndex;
@@ -100,11 +94,10 @@ namespace Arkayns.Reckon.HM {
             
         } // EditCell ()
 
-        public void SelectColor(int index) {
-            m_applyColor = index >= 0;
-            if (m_applyColor) m_activeColor = colors[index];
-        } // SelectColor ()
-
+        public void SetTerrainTypeIndex (int index) {
+            m_activeTerrainTypeIndex = index;
+        } // SetTerrainTypeIndex ()
+        
         public void SetApplyElevation(bool toggle) {
             m_applyElevation = toggle;
         } // SetApplyElevation ()
