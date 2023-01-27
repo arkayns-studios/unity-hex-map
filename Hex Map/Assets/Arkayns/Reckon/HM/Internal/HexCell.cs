@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using UnityEngine;
+using System.IO;
 
 namespace Arkayns.Reckon.HM {
 
@@ -43,20 +44,12 @@ namespace Arkayns.Reckon.HM {
                 if (elevation == value) return;
 
                 elevation = value;
-                var position = transform.localPosition;
-                position.y = value * HexMetrics.ElevationStep;
-                position.y += (HexMetrics.SampleNoise(position).y * 2f - 1f) * HexMetrics.ElevationPerturbStrength;
-                transform.localPosition = position;
-
-                var uiPosition = uiRect.localPosition;
-                uiPosition.z = -position.y;
-                uiRect.localPosition = uiPosition;
-
+                RefreshPosition();
                 ValidateRivers();
                 for (var i = 0; i < roads.Length; i++) {
-                    if (roads[i] && GetElevationDifference((HexDirection)i) > 1) SetRoad(i, false);
+                    if (roads[i] && GetElevationDifference((HexDirection)i) > 1) 
+                        SetRoad(i, false);
                 }
-                
                 Refresh();
             }
         } // Elevation
@@ -161,6 +154,70 @@ namespace Arkayns.Reckon.HM {
         public bool IsSpecial => specialIndex > 0;
 
         // -- Methods --
+        public void Save (BinaryWriter writer) {
+            writer.Write((byte)m_terrainTypeIndex);
+            writer.Write((byte)elevation);
+            writer.Write((byte)waterLevel);
+            writer.Write((byte)urbanLevel);
+            writer.Write((byte)farmLevel);
+            writer.Write((byte)plantLevel);
+            writer.Write((byte)specialIndex);
+            writer.Write(walled);
+
+            if (hasIncomingRiver) {
+                writer.Write((byte)(incomingRiver + 128));
+            } else {
+                writer.Write((byte)0);
+            }
+            
+            if (hasOutgoingRiver) {
+                writer.Write((byte)(outgoingRiver + 128));
+            } else {
+                writer.Write((byte)0);
+            }
+
+            var roadFlags = 0;
+            for (var i = 0; i < roads.Length; i++) {
+                if (roads[i]) {
+                    roadFlags |= 1 << i;
+                }
+            }
+            writer.Write((byte)roadFlags);
+        } // Save ()
+
+        public void Load (BinaryReader reader) {
+            m_terrainTypeIndex = reader.ReadByte();
+            elevation = reader.ReadByte();
+            RefreshPosition();
+            waterLevel = reader.ReadByte();
+            urbanLevel = reader.ReadByte();
+            farmLevel = reader.ReadByte();
+            plantLevel = reader.ReadByte();
+            specialIndex = reader.ReadByte();
+            walled = reader.ReadBoolean();
+
+            var riverData = reader.ReadByte();
+            if (riverData >= 128) {
+                hasIncomingRiver = true;
+                incomingRiver = (HexDirection)(riverData - 128);
+            } else {
+                hasIncomingRiver = false;
+            }
+
+            riverData = reader.ReadByte();
+            if (riverData >= 128) {
+                hasOutgoingRiver = true;
+                outgoingRiver = (HexDirection)(riverData - 128);
+            } else {
+                hasOutgoingRiver = false;
+            }
+
+            int roadFlags = reader.ReadByte();
+            for (var i = 0; i < roads.Length; i++) {
+                roads[i] = (roadFlags & (1 << i)) != 0;
+            }
+        } // Load ()
+        
         public HexCell GetNeighbor(HexDirection direction) {
             return neighbors[(int)direction];
         } // GetNeighbor ()
@@ -275,6 +332,17 @@ namespace Arkayns.Reckon.HM {
             }
         } // Refresh ()
 
+        private void RefreshPosition() {
+            var position = transform.localPosition;
+            position.y = elevation * HexMetrics.ElevationStep;
+            position.y += (HexMetrics.SampleNoise(position).y * 2f - 1f) * HexMetrics.ElevationPerturbStrength;
+            transform.localPosition = position;
+
+            var uiPosition = uiRect.localPosition;
+            uiPosition.z = -position.y;
+            uiRect.localPosition = uiPosition;
+        } // RefreshPosition ()
+        
         private void RefreshSelfOnly() {
             chunk.Refresh();
         } // RefreshSelfOnly ()

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Arkayns.Reckon.HM {
@@ -44,6 +45,22 @@ namespace Arkayns.Reckon.HM {
 		} // OnEnable ()
 
 		// -- Methods --
+		public void Save (BinaryWriter writer) {
+			for (var i = 0; i < m_cells.Length; i++) {
+				m_cells[i].Save(writer);
+			}
+		} // Save ()
+
+		public void Load (BinaryReader reader) {
+			for (var i = 0; i < m_cells.Length; i++) {
+				m_cells[i].Load(reader);
+			}
+			
+			for (int i = 0; i < m_gridChunks.Length; i++) {
+				m_gridChunks[i].Refresh();
+			}
+		} // Load ()
+		
 		private void CreateChunks () {
 			m_gridChunks = new HexGridChunk[chunkCountX * chunkCountZ];
 
