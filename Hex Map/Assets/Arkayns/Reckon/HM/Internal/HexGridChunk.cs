@@ -70,7 +70,10 @@ namespace Arkayns.Reckon.HM {
 
         private void Triangulate(HexCell cell) {
             for (var d = HexDirection.NE; d <= HexDirection.NW; d++) Triangulate(d, cell);
-            if (!cell.IsUnderwater && !cell.HasRiver && !cell.HasRoads) features.AddFeature(cell, cell.Position);
+            if (!cell.IsUnderwater) {
+                if (!cell.HasRiver && !cell.HasRoads) features.AddFeature(cell, cell.Position);
+                if (cell.IsSpecial) features.AddSpecialFeature(cell, cell.Position);
+            }
         } // Triangulate ()
 
         private void Triangulate(HexDirection direction, HexCell cell) {
