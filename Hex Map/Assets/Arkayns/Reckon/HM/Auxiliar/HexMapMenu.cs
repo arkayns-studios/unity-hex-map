@@ -17,7 +17,7 @@ namespace Arkayns.Reckon.HM {
             gameObject.SetActive(false);
             HexMapCamera.Locked = false;
         } // Close ()
-        
+
         private void CreateMap (int x, int z) {
             hexGrid.CreateMap(x, z);
             HexMapCamera.ValidatePosition();

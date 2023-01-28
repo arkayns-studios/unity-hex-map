@@ -41,25 +41,28 @@ namespace Arkayns.Reckon.HM {
 
 		// -- Methods --
 		public void Save (BinaryWriter writer) {
-			for (var i = 0; i < m_cells.Length; i++) {
-				m_cells[i].Save(writer);
-			}
+			writer.Write(cellCountX);
+			writer.Write(cellCountZ);
+			foreach (var cell in m_cells) cell.Save(writer);
 		} // Save ()
 
-		public void Load (BinaryReader reader) {
-			for (var i = 0; i < m_cells.Length; i++) {
-				m_cells[i].Load(reader);
+		public void Load (BinaryReader reader, int header) {
+			int x = 20, z = 15;
+			if (header >= 1) {
+				x = reader.ReadInt32();
+				z = reader.ReadInt32();
 			}
 			
-			for (int i = 0; i < m_gridChunks.Length; i++) {
-				m_gridChunks[i].Refresh();
-			}
+			if (x != cellCountX || z != cellCountZ)
+				if (!CreateMap(x, z)) return;
+			foreach (var cell in m_cells) cell.Load(reader);
+			foreach (var chunk in m_gridChunks) chunk.Refresh();
 		} // Load ()
 
-		public void CreateMap (int x, int z) {
+		public bool  CreateMap (int x, int z) {
 			if (x <= 0 || x % HexMetrics.ChunkSizeX != 0 || z <= 0 || z % HexMetrics.ChunkSizeZ != 0) {
 				Debug.LogError("Unsupported map size.");
-				return;
+				return false;
 			}
 			
 			if (m_gridChunks != null) {
@@ -74,6 +77,8 @@ namespace Arkayns.Reckon.HM {
 
 			CreateChunks();
 			CreateCells();
+			
+			return true;
 		} // CreateMap ()
 		
 		private void CreateChunks () {

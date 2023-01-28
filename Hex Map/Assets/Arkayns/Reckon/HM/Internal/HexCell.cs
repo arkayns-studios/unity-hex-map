@@ -186,6 +186,7 @@ namespace Arkayns.Reckon.HM {
         } // Save ()
 
         public void Load (BinaryReader reader) {
+            // Debug.Log(Application.persistentDataPath);
             m_terrainTypeIndex = reader.ReadByte();
             elevation = reader.ReadByte();
             RefreshPosition();

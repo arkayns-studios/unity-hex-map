@@ -32,25 +32,6 @@ namespace Arkayns.Reckon.HM {
         } // Update ()
 
         // -- Methods --
-        public void Save () {
-            // Debug.Log(Application.persistentDataPath);
-            var path = Path.Combine(Application.persistentDataPath, "test.map");
-            using var writer = new BinaryWriter(File.Open(path, FileMode.Create));
-            writer.Write(0);
-            hexGrid.Save(writer);
-        } // Save ()
-
-        public void Load () {
-            var path = Path.Combine(Application.persistentDataPath, "test.map");
-            using var reader = new BinaryReader(File.OpenRead(path));
-            var header = reader.ReadInt32();
-            if (header == 0) {
-                hexGrid.Load(reader);
-            } else {
-                Debug.LogWarning("Unknown map format " + header);
-            }
-        } // Load ()
-        
         private void HandleInput() {
             if (Camera.main == null) return;
             var inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
