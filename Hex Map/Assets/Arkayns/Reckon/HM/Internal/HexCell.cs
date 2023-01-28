@@ -299,9 +299,9 @@ namespace Arkayns.Reckon.HM {
         public bool HasRoadThroughEdge(HexDirection direction) {
             return roads[(int)direction];
         } // HasRoadThroughEdge ()
-
+ 
         public void AddRoad(HexDirection direction) {
-            if (!roads[(int)direction] && !HasRiverThroughEdge(direction) && !IsSpecial && !GetNeighbor(direction).IsSpecial && GetElevationDifference(direction) <= 1) 
+            if (!roads[(int)direction] && !HasRiverThroughEdge(direction) && !IsSpecial && !GetNeighbor(direction).IsSpecial && GetElevationDifference(direction) <= 1 && !IsUnderwater) 
                 SetRoad((int)direction, true);
         } // AddRoad ()
         

@@ -14,7 +14,13 @@ namespace Arkayns.Reckon.HM {
         public float rotationSpeed;
         private float rotationAngle = 0f;
         public HexGrid grid;
+        private static HexMapCamera instance;
 
+        // -- Property --
+        public static bool Locked {
+            set => instance.enabled = !value;
+        } // Locked
+        
         // -- Built-In Methods --
         private void Awake() {
             m_swivel = transform.GetChild(0);
@@ -32,6 +38,10 @@ namespace Arkayns.Reckon.HM {
             if (rotationDelta != 0f) HandleRotation(rotationDelta);
 
         } // Update ()
+        
+        private void OnEnable () {
+            instance = this;
+        } // OnEnable ()
         
         // -- Methods --
         private void HandleZoom(float _delta) {
@@ -63,12 +73,16 @@ namespace Arkayns.Reckon.HM {
             transform.localRotation = Quaternion.Euler(0f, rotationAngle, 0f);
         } // HandleRotation ()
         
+        public static void ValidatePosition () {
+            instance.HandlePosition(0f, 0f);
+        } // ValidatePosition ()
+        
         private Vector3 ClampPosition(Vector3 _position) {
             const float halfCell = 0.5f; const float fullCell = 1f;
-            var xMax = (grid.chunkCountX * HexMetrics.ChunkSizeX - halfCell) * (2f * HexMetrics.InnerRadius);
+            var xMax = (grid.cellCountX * HexMetrics.ChunkSizeX - halfCell) * (2f * HexMetrics.InnerRadius);
             _position.x = Mathf.Clamp(_position.x, 0f, xMax);
             
-            var zMax = (grid.chunkCountZ * HexMetrics.ChunkSizeZ - fullCell) * (2f * HexMetrics.OuterRadius);
+            var zMax = (grid.cellCountZ * HexMetrics.ChunkSizeZ - fullCell) * (2f * HexMetrics.OuterRadius);
             _position.z = Mathf.Clamp(_position.z, 0f, zMax);
             
             return _position;

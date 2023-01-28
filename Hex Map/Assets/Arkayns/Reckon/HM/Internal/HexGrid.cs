@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Arkayns.Reckon.HM {
@@ -7,20 +8,19 @@ namespace Arkayns.Reckon.HM {
 	public class HexGrid : MonoBehaviour {
 
 		// -- Variables --
-		public int chunkCountX = 4, chunkCountZ = 3;
+		public int cellCountX = 20;
+		public int cellCountZ = 15;
+		private int m_chunkCountX, m_chunkCountZ;
 
 		public HexCell cellPrefab;
 		public Text cellLabelPrefab;
 		public HexGridChunk chunkPrefab;
 
 		public Texture2D noiseSource;
+		public int seed;
 
 		private HexGridChunk[] m_gridChunks;
 		private HexCell[] m_cells;
-		private int m_cellCountX, m_cellCountZ;
-		
-		public int seed;
-
 		public Color[] colors;
 		
 		// -- Built-In Methods --
@@ -28,12 +28,7 @@ namespace Arkayns.Reckon.HM {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
 			HexMetrics.colors = colors;
-
-			m_cellCountX = chunkCountX * HexMetrics.ChunkSizeX;
-			m_cellCountZ = chunkCountZ * HexMetrics.ChunkSizeZ;
-
-			CreateChunks();
-			CreateCells();
+			CreateMap(cellCountX, cellCountZ);
 		} // Awake ()
 		
 		private void OnEnable () {
@@ -60,12 +55,32 @@ namespace Arkayns.Reckon.HM {
 				m_gridChunks[i].Refresh();
 			}
 		} // Load ()
+
+		public void CreateMap (int x, int z) {
+			if (x <= 0 || x % HexMetrics.ChunkSizeX != 0 || z <= 0 || z % HexMetrics.ChunkSizeZ != 0) {
+				Debug.LogError("Unsupported map size.");
+				return;
+			}
+			
+			if (m_gridChunks != null) {
+				foreach (var t in m_gridChunks) 
+					Destroy(t.gameObject);
+			}
+			
+			cellCountX = x;
+			cellCountZ = z;
+			m_chunkCountX = cellCountX / HexMetrics.ChunkSizeX;
+			m_chunkCountZ = cellCountZ / HexMetrics.ChunkSizeZ;
+
+			CreateChunks();
+			CreateCells();
+		} // CreateMap ()
 		
 		private void CreateChunks () {
-			m_gridChunks = new HexGridChunk[chunkCountX * chunkCountZ];
+			m_gridChunks = new HexGridChunk[m_chunkCountX * m_chunkCountZ];
 
-			for (int z = 0, i = 0; z < chunkCountZ; z++) {
-				for (var x = 0; x < chunkCountX; x++) {
+			for (int z = 0, i = 0; z < m_chunkCountZ; z++) {
+				for (var x = 0; x < m_chunkCountX; x++) {
 					var chunk = m_gridChunks[i++] = Instantiate(chunkPrefab);
 					chunk.transform.SetParent(transform);
 				}
@@ -73,26 +88,26 @@ namespace Arkayns.Reckon.HM {
 		} // CreateChunks ()
 
 		private void CreateCells () {
-			m_cells = new HexCell[m_cellCountZ * m_cellCountX];
-			for (int z = 0, i = 0; z < m_cellCountZ; z++) 
-				for (var x = 0; x < m_cellCountX; x++) CreateCell(x, z, i++);
+			m_cells = new HexCell[cellCountZ * cellCountX];
+			for (int z = 0, i = 0; z < cellCountZ; z++) 
+				for (var x = 0; x < cellCountX; x++) CreateCell(x, z, i++);
 		} // CreateCells ()
 		
 		public HexCell GetCell (Vector3 position) {
 			position = transform.InverseTransformPoint(position);
 			var coordinates = HexCoordinates.FromPosition(position);
-			var index = coordinates.X + coordinates.Z * m_cellCountX + coordinates.Z / 2;
+			var index = coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2;
 			return m_cells[index];
 		} // GetCell ()
 
 		public HexCell GetCell (HexCoordinates coordinates) {
 			var z = coordinates.Z;
-			if (z < 0 || z >= m_cellCountZ) return null;
+			if (z < 0 || z >= cellCountZ) return null;
 			
 			var x = coordinates.X + z / 2;
-			if (x < 0 || x >= m_cellCountX) return null;
+			if (x < 0 || x >= cellCountX) return null;
 			
-			return m_cells[x + z * m_cellCountX];
+			return m_cells[x + z * cellCountX];
 		} // GetCell ()
 
 		public void ShowUI (bool visible) {
@@ -113,11 +128,11 @@ namespace Arkayns.Reckon.HM {
 			
 			if (z > 0) {
 				if ((z & 1) == 0) {
-					cell.SetNeighbor(HexDirection.SE, m_cells[i - m_cellCountX]);
-					if (x > 0) cell.SetNeighbor(HexDirection.SW, m_cells[i - m_cellCountX - 1]);
+					cell.SetNeighbor(HexDirection.SE, m_cells[i - cellCountX]);
+					if (x > 0) cell.SetNeighbor(HexDirection.SW, m_cells[i - cellCountX - 1]);
 				} else {
-					cell.SetNeighbor(HexDirection.SW, m_cells[i - m_cellCountX]);
-					if (x < m_cellCountX - 1) cell.SetNeighbor(HexDirection.SE, m_cells[i - m_cellCountX + 1]);
+					cell.SetNeighbor(HexDirection.SW, m_cells[i - cellCountX]);
+					if (x < cellCountX - 1) cell.SetNeighbor(HexDirection.SE, m_cells[i - cellCountX + 1]);
 				}
 			}
 
@@ -134,7 +149,7 @@ namespace Arkayns.Reckon.HM {
 		private void AddCellToChunk (int x, int z, HexCell cell) {
 			var chunkX = x / HexMetrics.ChunkSizeX;
 			var chunkZ = z / HexMetrics.ChunkSizeZ;
-			var chunk = m_gridChunks[chunkX + chunkZ * chunkCountX];
+			var chunk = m_gridChunks[chunkX + chunkZ * m_chunkCountX];
 
 			var localX = x - chunkX * HexMetrics.ChunkSizeX;
 			var localZ = z - chunkZ * HexMetrics.ChunkSizeZ;
