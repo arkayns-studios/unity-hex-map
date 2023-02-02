@@ -8,6 +8,7 @@ namespace Arkayns.Reckon.HM {
 
         // -- Variables ---
         public HexGrid hexGrid;
+        public Material terrainMaterial;
 
         private int m_activeTerrainTypeIndex;
         private int m_activeElevation;
@@ -26,6 +27,10 @@ namespace Arkayns.Reckon.HM {
         private HexCell m_previousCell;
 
         // -- Built-In Methods --
+        private void Awake () {
+            terrainMaterial.DisableKeyword("GRID_ON");
+        } // Awake ()
+        
         private void Update() {
             if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) HandleInput();
             else m_previousCell = null;
@@ -166,6 +171,11 @@ namespace Arkayns.Reckon.HM {
         public void ShowUI(bool visible) {
             hexGrid.ShowUI(visible);
         } // ShowUI ()
+        
+        public void ShowGrid (bool visible) {
+            if (visible) terrainMaterial.EnableKeyword("GRID_ON");
+            else terrainMaterial.DisableKeyword("GRID_ON");
+        } // ShowGrid ()
         
     } // Class HexMapEditor
 
