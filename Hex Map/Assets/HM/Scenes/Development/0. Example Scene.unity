@@ -270,7 +270,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: W
+  m_Text: SN
 --- !u!222 &27632224
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -418,7 +418,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: B
+  m_Text: MU
 --- !u!222 &54960251
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -910,7 +910,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: O
+  m_Text: ST
 --- !u!222 &139278379
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1239,7 +1239,7 @@ GameObject:
   - component: {fileID: 206886248}
   - component: {fileID: 206886249}
   m_Layer: 5
-  m_Name: Color Yellow
+  m_Name: Sand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1957,7 +1957,7 @@ GameObject:
   - component: {fileID: 302237434}
   - component: {fileID: 302237435}
   m_Layer: 5
-  m_Name: Color Blue
+  m_Name: Mud
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3361,7 +3361,7 @@ GameObject:
   - component: {fileID: 496089509}
   - component: {fileID: 496089510}
   m_Layer: 5
-  m_Name: Color ---
+  m_Name: None ---
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4422,7 +4422,7 @@ GameObject:
   - component: {fileID: 609665462}
   - component: {fileID: 609665463}
   m_Layer: 5
-  m_Name: Color White
+  m_Name: Snow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4581,7 +4581,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: G
+  m_Text: GR
 --- !u!222 &611377572
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9089,7 +9089,7 @@ GameObject:
   - component: {fileID: 1240093214}
   - component: {fileID: 1240093213}
   m_Layer: 5
-  m_Name: Color Panel
+  m_Name: Terrain Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9506,7 +9506,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Y
+  m_Text: SA
 --- !u!222 &1256671944
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -13040,7 +13040,7 @@ GameObject:
   - component: {fileID: 1647003758}
   - component: {fileID: 1647003759}
   m_Layer: 5
-  m_Name: Color Orange
+  m_Name: Stone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13973,7 +13973,7 @@ GameObject:
   - component: {fileID: 1765397419}
   - component: {fileID: 1765397420}
   m_Layer: 5
-  m_Name: Color Green
+  m_Name: Grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

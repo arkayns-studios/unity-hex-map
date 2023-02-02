@@ -9,8 +9,9 @@ namespace Arkayns.Reckon.HM {
 
 		// -- Variables --
 		public bool useCollider, useColors, useUVCoordinates, useUV2Coordinates;
-
-		[NonSerialized] private List<Vector3> m_vertices;
+		public bool useTerrainTypes;
+		
+		[NonSerialized] private List<Vector3> m_vertices, m_terrainTypes;
 		[NonSerialized] private List<Color> m_colors;
 		[NonSerialized] private List<Vector2> m_uvs, m_uv2s;
 		[NonSerialized] private List<int> m_triangles;
@@ -32,6 +33,7 @@ namespace Arkayns.Reckon.HM {
 			if (useColors) m_colors = ListPool<Color>.Get();
 			if (useUVCoordinates) m_uvs = ListPool<Vector2>.Get();
 			if (useUV2Coordinates) m_uv2s = ListPool<Vector2>.Get();
+			if (useTerrainTypes) m_terrainTypes = ListPool<Vector3>.Get();
 			m_triangles = ListPool<int>.Get();
 		} // Clear ()
 
@@ -49,6 +51,10 @@ namespace Arkayns.Reckon.HM {
 			if (useUV2Coordinates) {
 				m_hexMesh.SetUVs(0, m_uv2s);
 				ListPool<Vector2>.Add(m_uv2s);
+			}
+			if (useTerrainTypes) {
+				m_hexMesh.SetUVs(2, m_terrainTypes);
+				ListPool<Vector3>.Add(m_terrainTypes);
 			}
 			m_hexMesh.SetTriangles(m_triangles, 0);
 			ListPool<int>.Add(m_triangles);
@@ -102,6 +108,12 @@ namespace Arkayns.Reckon.HM {
 			m_uv2s.Add(uv3);
 		} // AddTriangleUV2 ()
 
+		public void AddTriangleTerrainTypes (Vector3 types) {
+			m_terrainTypes.Add(types);
+			m_terrainTypes.Add(types);
+			m_terrainTypes.Add(types);
+		} // AddTriangleTerrainTypes ()
+		
 		public void AddQuad (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
 			var vertexIndex = m_vertices.Count;
 			m_vertices.Add(HexMetrics.Perturb(v1));
@@ -178,6 +190,13 @@ namespace Arkayns.Reckon.HM {
 			m_uv2s.Add(new Vector2(uMin, vMax));
 			m_uv2s.Add(new Vector2(uMax, vMax));
 		} // AddQuadUV ()
+		
+		public void AddQuadTerrainTypes (Vector3 types) {
+			m_terrainTypes.Add(types);
+			m_terrainTypes.Add(types);
+			m_terrainTypes.Add(types);
+			m_terrainTypes.Add(types);
+		} // AddQuadTerrainTypes ()
 		
 	} // Class HexMesh
 

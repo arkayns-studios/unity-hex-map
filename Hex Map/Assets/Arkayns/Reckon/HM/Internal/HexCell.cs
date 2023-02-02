@@ -24,10 +24,6 @@ namespace Arkayns.Reckon.HM {
         [SerializeField] private bool[] roads;
         
         // -- Properties --
-        
-        /// <summary> Gets the color of the hex cell </summary>
-        public Color Color => HexMetrics.colors[m_terrainTypeIndex]; // Color
-
         public int TerrainTypeIndex {
             get => m_terrainTypeIndex;
             set {

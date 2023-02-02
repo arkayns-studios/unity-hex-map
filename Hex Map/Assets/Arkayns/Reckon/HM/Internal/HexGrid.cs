@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Arkayns.Reckon.HM {
@@ -21,13 +20,11 @@ namespace Arkayns.Reckon.HM {
 
 		private HexGridChunk[] m_gridChunks;
 		private HexCell[] m_cells;
-		public Color[] colors;
-		
+
 		// -- Built-In Methods --
 		private void Awake () {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
-			HexMetrics.colors = colors;
 			CreateMap(cellCountX, cellCountZ);
 		} // Awake ()
 		
@@ -35,7 +32,6 @@ namespace Arkayns.Reckon.HM {
 			if (!HexMetrics.noiseSource) {
 				HexMetrics.noiseSource = noiseSource;
 				HexMetrics.InitializeHashGrid(seed);
-				HexMetrics.colors = colors;
 			}
 		} // OnEnable ()
 
