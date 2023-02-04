@@ -165,22 +165,41 @@ namespace Arkayns.Reckon.HM {
 				hexCell.Distance = int.MaxValue;
 
 			var delay = new WaitForSeconds(1 / 60f);
-			var frontier = new Queue<HexCell>();
+			var frontier = new List<HexCell>();
 			cell.Distance = 0;
-			frontier.Enqueue(cell);
+			frontier.Add(cell);
 			
 			while (frontier.Count > 0) {
 				yield return delay;
-				var current = frontier.Dequeue();
+				var current = frontier[0];
+				frontier.RemoveAt(0);
 				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					var neighbor = current.GetNeighbor(d);
 
-					if (neighbor == null || neighbor.Distance != int.MaxValue) continue;
+					if (neighbor == null) continue;
 					if (neighbor.IsUnderwater) continue;
-					if (current.GetEdgeType(neighbor) == HexEdgeType.Cliff) continue;
+					
+					var edgeType = current.GetEdgeType(neighbor);
+					if (edgeType == HexEdgeType.Cliff) continue;
 
-					neighbor.Distance = current.Distance + 1;
-					frontier.Enqueue(neighbor);
+					var distance = current.Distance;
+					if (current.HasRoadThroughEdge(d)) {
+						distance += 1;
+					} else if (current.Walled != neighbor.Walled) {
+						continue;
+					} else {
+						distance += edgeType == HexEdgeType.Flat ? 5 : 10;
+						distance += neighbor.UrbanLevel + neighbor.FarmLevel + neighbor.PlantLevel;
+					}
+
+					if (neighbor.Distance == int.MaxValue) {
+						neighbor.Distance = distance;
+						frontier.Add(neighbor);
+					} else if (distance < neighbor.Distance) {
+						neighbor.Distance = distance;
+					}
+					
+					frontier.Sort((x, y) => x.Distance.CompareTo(y.Distance));
 				}
 			}
 		} // Search ()
