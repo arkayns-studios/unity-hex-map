@@ -49,11 +49,11 @@ MonoBehaviour:
     z: 0
   uiRect: {fileID: 0}
   chunk: {fileID: 0}
-  neighbors:
+  m_neighbors:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  roads: 000000000000
+  m_roads: 000000000000

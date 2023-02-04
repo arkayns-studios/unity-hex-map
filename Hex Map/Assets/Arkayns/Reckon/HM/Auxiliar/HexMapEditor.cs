@@ -47,6 +47,7 @@ namespace Arkayns.Reckon.HM {
                 else isDrag = false;
 
                 if (m_editMode) EditCells(currentCell);
+                else hexGrid.FindDistancesTo(currentCell);
                 m_previousCell = currentCell;
             } else m_previousCell = null;
         } // HandleInput ()

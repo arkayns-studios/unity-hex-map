@@ -88,33 +88,22 @@ namespace Arkayns.Reckon.HM {
 			}
 		} // CreateChunks ()
 
+		private void AddCellToChunk (int x, int z, HexCell cell) {
+			var chunkX = x / HexMetrics.ChunkSizeX;
+			var chunkZ = z / HexMetrics.ChunkSizeZ;
+			var chunk = m_gridChunks[chunkX + chunkZ * m_chunkCountX];
+
+			var localX = x - chunkX * HexMetrics.ChunkSizeX;
+			var localZ = z - chunkZ * HexMetrics.ChunkSizeZ;
+			chunk.AddCell(localX + localZ * HexMetrics.ChunkSizeX, cell);
+		} // AddCellToChunk ()
+
 		private void CreateCells () {
 			m_cells = new HexCell[cellCountZ * cellCountX];
 			for (int z = 0, i = 0; z < cellCountZ; z++) 
 				for (var x = 0; x < cellCountX; x++) CreateCell(x, z, i++);
 		} // CreateCells ()
 		
-		public HexCell GetCell (Vector3 position) {
-			position = transform.InverseTransformPoint(position);
-			var coordinates = HexCoordinates.FromPosition(position);
-			var index = coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2;
-			return m_cells[index];
-		} // GetCell ()
-
-		public HexCell GetCell (HexCoordinates coordinates) {
-			var z = coordinates.Z;
-			if (z < 0 || z >= cellCountZ) return null;
-			
-			var x = coordinates.X + z / 2;
-			if (x < 0 || x >= cellCountX) return null;
-			
-			return m_cells[x + z * cellCountX];
-		} // GetCell ()
-
-		public void ShowUI (bool visible) {
-			foreach (var chunk in m_gridChunks) chunk.ShowUI(visible);
-		} // ShowUI ()
-
 		private void CreateCell (int x, int z, int i) {
 			Vector3 position;
 			position.x = (x + z * 0.5f - z / 2) * (HexMetrics.InnerRadius * 2f);
@@ -147,15 +136,32 @@ namespace Arkayns.Reckon.HM {
 			AddCellToChunk(x, z, cell);
 		} // CreateCell ()
 
-		private void AddCellToChunk (int x, int z, HexCell cell) {
-			var chunkX = x / HexMetrics.ChunkSizeX;
-			var chunkZ = z / HexMetrics.ChunkSizeZ;
-			var chunk = m_gridChunks[chunkX + chunkZ * m_chunkCountX];
+		public HexCell GetCell (Vector3 position) {
+			position = transform.InverseTransformPoint(position);
+			var coordinates = HexCoordinates.FromPosition(position);
+			var index = coordinates.X + coordinates.Z * cellCountX + coordinates.Z / 2;
+			return m_cells[index];
+		} // GetCell ()
 
-			var localX = x - chunkX * HexMetrics.ChunkSizeX;
-			var localZ = z - chunkZ * HexMetrics.ChunkSizeZ;
-			chunk.AddCell(localX + localZ * HexMetrics.ChunkSizeX, cell);
-		} // AddCellToChunk ()
+		public HexCell GetCell (HexCoordinates coordinates) {
+			var z = coordinates.Z;
+			if (z < 0 || z >= cellCountZ) return null;
+			
+			var x = coordinates.X + z / 2;
+			if (x < 0 || x >= cellCountX) return null;
+			
+			return m_cells[x + z * cellCountX];
+		} // GetCell ()
+
+		public void FindDistancesTo (HexCell cell) {
+			foreach (var hexCell in m_cells) {
+				hexCell.Distance = cell.coordinates.DistanceTo(hexCell.coordinates);;
+			}
+		} // FindDistancesTo ()
+		
+		public void ShowUI (bool visible) {
+			foreach (var chunk in m_gridChunks) chunk.ShowUI(visible);
+		} // ShowUI ()
 		
 	} // Class HexGrid
 
