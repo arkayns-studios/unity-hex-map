@@ -331,7 +331,7 @@ namespace Arkayns.Reckon.HM {
         
         private void UpdateDistanceLabel () {
             var label = uiRect.GetComponent<Text>();
-            label.text = m_distance.ToString();
+            label.text = m_distance == int.MaxValue ? "" : m_distance.ToString();
         } // UpdateDistanceLabel ()
 
         private void Refresh() {

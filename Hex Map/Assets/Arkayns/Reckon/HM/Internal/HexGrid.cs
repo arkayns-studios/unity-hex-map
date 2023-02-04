@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,6 +45,7 @@ namespace Arkayns.Reckon.HM {
 		} // Save ()
 
 		public void Load (BinaryReader reader, int header) {
+			StopAllCoroutines();
 			int x = 20, z = 15;
 			if (header >= 1) {
 				x = reader.ReadInt32();
@@ -128,7 +131,6 @@ namespace Arkayns.Reckon.HM {
 
 			var label = Instantiate(cellLabelPrefab);
 			label.rectTransform.anchoredPosition = new Vector2(position.x, position.z);
-			label.text = cell.coordinates.ToStringOnSeparateLines();
 			cell.uiRect = label.rectTransform;
 
 			cell.Elevation = 0;
@@ -154,10 +156,34 @@ namespace Arkayns.Reckon.HM {
 		} // GetCell ()
 
 		public void FindDistancesTo (HexCell cell) {
-			foreach (var hexCell in m_cells) {
-				hexCell.Distance = cell.coordinates.DistanceTo(hexCell.coordinates);;
-			}
+			StopAllCoroutines();
+			StartCoroutine(Search(cell));
 		} // FindDistancesTo ()
+		
+		private IEnumerator Search (HexCell cell) {
+			foreach (var hexCell in m_cells) 
+				hexCell.Distance = int.MaxValue;
+
+			var delay = new WaitForSeconds(1 / 60f);
+			var frontier = new Queue<HexCell>();
+			cell.Distance = 0;
+			frontier.Enqueue(cell);
+			
+			while (frontier.Count > 0) {
+				yield return delay;
+				var current = frontier.Dequeue();
+				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
+					var neighbor = current.GetNeighbor(d);
+
+					if (neighbor == null || neighbor.Distance != int.MaxValue) continue;
+					if (neighbor.IsUnderwater) continue;
+					if (current.GetEdgeType(neighbor) == HexEdgeType.Cliff) continue;
+
+					neighbor.Distance = current.Distance + 1;
+					frontier.Enqueue(neighbor);
+				}
+			}
+		} // Search ()
 		
 		public void ShowUI (bool visible) {
 			foreach (var chunk in m_gridChunks) chunk.ShowUI(visible);
