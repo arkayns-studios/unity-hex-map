@@ -7126,7 +7126,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: UI
+  m_Text: ED
 --- !u!222 &944654852
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -15623,7 +15623,7 @@ GameObject:
   - component: {fileID: 1887661081}
   - component: {fileID: 1887661082}
   m_Layer: 5
-  m_Name: Labels Toggle
+  m_Name: Edit Toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15649,7 +15649,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 4, y: -4}
-  m_SizeDelta: {x: 45, y: 20}
+  m_SizeDelta: {x: 47.116, y: 20}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1887661082
 MonoBehaviour:
@@ -15700,7 +15700,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1088202169}
         m_TargetAssemblyTypeName: Arkayns.Reckon.HM.HexMapEditor, Assembly-CSharp
-        m_MethodName: ShowUI
+        m_MethodName: SetEditMode
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

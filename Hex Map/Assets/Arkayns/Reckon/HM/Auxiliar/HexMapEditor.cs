@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.IO;
 
 namespace Arkayns.Reckon.HM {
 
@@ -19,6 +18,7 @@ namespace Arkayns.Reckon.HM {
         private bool m_applyElevation = true;
         private bool m_applyWaterLevel = true;
         private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel, m_applySpecialIndex;
+        private bool m_editMode;
 
         private OptionalToggle m_riverMode, m_roadMode, m_walledMode;
 
@@ -30,7 +30,7 @@ namespace Arkayns.Reckon.HM {
         private void Awake () {
             terrainMaterial.DisableKeyword("GRID_ON");
         } // Awake ()
-        
+
         private void Update() {
             if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) HandleInput();
             else m_previousCell = null;
@@ -46,7 +46,7 @@ namespace Arkayns.Reckon.HM {
                 if (m_previousCell && m_previousCell != currentCell) ValidateDrag(currentCell);
                 else isDrag = false;
 
-                EditCells(currentCell);
+                if (m_editMode) EditCells(currentCell);
                 m_previousCell = currentCell;
             } else m_previousCell = null;
         } // HandleInput ()
@@ -168,10 +168,11 @@ namespace Arkayns.Reckon.HM {
             m_activeSpecialIndex = (int)index;
         } // SetSpecialIndex ()
         
-        public void ShowUI(bool visible) {
-            hexGrid.ShowUI(visible);
-        } // ShowUI ()
-        
+        public void SetEditMode (bool toggle) {
+            m_editMode = toggle;
+            hexGrid.ShowUI(!toggle);
+        } // SetEditMode ()
+
         public void ShowGrid (bool visible) {
             if (visible) terrainMaterial.EnableKeyword("GRID_ON");
             else terrainMaterial.DisableKeyword("GRID_ON");

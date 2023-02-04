@@ -17,7 +17,6 @@ namespace Arkayns.Reckon.HM {
         private void Awake() {
             gridCanvas = GetComponentInChildren<Canvas>();
             cells = new HexCell[HexMetrics.ChunkSizeX * HexMetrics.ChunkSizeZ];
-            ShowUI(false);
         } // Awake ()
         
         private void LateUpdate() {
