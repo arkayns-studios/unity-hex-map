@@ -24,6 +24,8 @@ namespace Arkayns.Reckon.HM {
 
 		private HexGridChunk[] m_gridChunks;
 		private HexCell[] m_cells;
+		
+		private HexCellPriorityQueue m_searchFrontier;
 
 		// -- Built-In Methods --
 		private void Awake () {
@@ -163,6 +165,9 @@ namespace Arkayns.Reckon.HM {
 		} // FindPath ()
 		
 		private IEnumerator Search (HexCell fromCell, HexCell toCell) {
+			if (m_searchFrontier == null) m_searchFrontier = new HexCellPriorityQueue();
+			else m_searchFrontier.Clear();
+
 			foreach (var hexCell in m_cells) {
 				hexCell.Distance = int.MaxValue;
 				hexCell.DisableHighlight();
@@ -172,15 +177,13 @@ namespace Arkayns.Reckon.HM {
 			toCell.EnableHighlight(Color.red);
 
 			var delay = new WaitForSeconds(1 / 60f);
-			var frontier = new List<HexCell>();
 			fromCell.Distance = 0;
-			frontier.Add(fromCell);
+			m_searchFrontier.Enqueue(fromCell);
 			
-			while (frontier.Count > 0) {
+			while (m_searchFrontier.Count > 0) {
 				yield return delay;
-				var current = frontier[0];
-				frontier.RemoveAt(0);
-				
+				var current = m_searchFrontier.Dequeue();
+
 				if (current == toCell) {
 					current = current.PathFrom;
 					while (current != fromCell) {
@@ -212,13 +215,14 @@ namespace Arkayns.Reckon.HM {
 					if (neighbor.Distance == int.MaxValue) {
 						neighbor.Distance = distance;
 						neighbor.PathFrom = current;
-						frontier.Add(neighbor);
+						neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
+						m_searchFrontier.Enqueue(neighbor);
 					} else if (distance < neighbor.Distance) {
+						var oldPriority = neighbor.SearchPriority;
 						neighbor.Distance = distance;
 						neighbor.PathFrom = current;
+						m_searchFrontier.Change(neighbor, oldPriority);
 					}
-					
-					frontier.Sort((x, y) => x.Distance.CompareTo(y.Distance));
 				}
 			}
 		} // Search ()

@@ -159,6 +159,12 @@ namespace Arkayns.Reckon.HM {
         
         public HexCell PathFrom { get; set; }
         
+        public int SearchHeuristic { get; set; }
+        
+        public int SearchPriority => m_distance + SearchHeuristic;
+
+        public HexCell NextWithSamePriority { get; set; }
+        
         // -- Methods --
         public void Save (BinaryWriter writer) {
             writer.Write((byte)m_terrainTypeIndex);
