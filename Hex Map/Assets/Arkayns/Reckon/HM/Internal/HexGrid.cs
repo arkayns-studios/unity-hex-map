@@ -4,6 +4,8 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
+// ReSharper disable once PossibleLossOfFraction
+
 namespace Arkayns.Reckon.HM {
 
 	public class HexGrid : MonoBehaviour {
@@ -113,7 +115,7 @@ namespace Arkayns.Reckon.HM {
 			position.y = 0f;
 			position.z = z * (HexMetrics.OuterRadius * 1.5f);
 
-			var cell = m_cells[i] = Instantiate<HexCell>(cellPrefab);
+			var cell = m_cells[i] = Instantiate(cellPrefab);
 			cell.transform.localPosition = position;
 			cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
 
@@ -155,24 +157,39 @@ namespace Arkayns.Reckon.HM {
 			return m_cells[x + z * cellCountX];
 		} // GetCell ()
 
-		public void FindDistancesTo (HexCell cell) {
+		public void FindPath (HexCell fromCell, HexCell toCell) {
 			StopAllCoroutines();
-			StartCoroutine(Search(cell));
-		} // FindDistancesTo ()
+			StartCoroutine(Search(fromCell, toCell));
+		} // FindPath ()
 		
-		private IEnumerator Search (HexCell cell) {
-			foreach (var hexCell in m_cells) 
+		private IEnumerator Search (HexCell fromCell, HexCell toCell) {
+			foreach (var hexCell in m_cells) {
 				hexCell.Distance = int.MaxValue;
+				hexCell.DisableHighlight();
+			}
+			
+			fromCell.EnableHighlight(Color.blue);
+			toCell.EnableHighlight(Color.red);
 
 			var delay = new WaitForSeconds(1 / 60f);
 			var frontier = new List<HexCell>();
-			cell.Distance = 0;
-			frontier.Add(cell);
+			fromCell.Distance = 0;
+			frontier.Add(fromCell);
 			
 			while (frontier.Count > 0) {
 				yield return delay;
 				var current = frontier[0];
 				frontier.RemoveAt(0);
+				
+				if (current == toCell) {
+					current = current.PathFrom;
+					while (current != fromCell) {
+						current.EnableHighlight(Color.white);
+						current = current.PathFrom;
+					}
+					break;
+				}
+
 				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					var neighbor = current.GetNeighbor(d);
 
@@ -194,9 +211,11 @@ namespace Arkayns.Reckon.HM {
 
 					if (neighbor.Distance == int.MaxValue) {
 						neighbor.Distance = distance;
+						neighbor.PathFrom = current;
 						frontier.Add(neighbor);
 					} else if (distance < neighbor.Distance) {
 						neighbor.Distance = distance;
+						neighbor.PathFrom = current;
 					}
 					
 					frontier.Sort((x, y) => x.Distance.CompareTo(y.Distance));

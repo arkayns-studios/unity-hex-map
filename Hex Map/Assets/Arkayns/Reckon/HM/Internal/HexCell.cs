@@ -20,8 +20,8 @@ namespace Arkayns.Reckon.HM {
 
         private bool m_hasIncomingRiver, m_hasOutgoingRiver;
 
-        [SerializeField] private HexCell[] m_neighbors;
-        [SerializeField] private bool[] m_roads;
+        [SerializeField] private HexCell[] neighbors;
+        [SerializeField] private bool[] roads;
         
         // -- Properties --
         public int TerrainTypeIndex {
@@ -42,8 +42,8 @@ namespace Arkayns.Reckon.HM {
                 m_elevation = value;
                 RefreshPosition();
                 ValidateRivers();
-                for (var i = 0; i < m_roads.Length; i++) {
-                    if (m_roads[i] && GetElevationDifference((HexDirection)i) > 1) 
+                for (var i = 0; i < roads.Length; i++) {
+                    if (roads[i] && GetElevationDifference((HexDirection)i) > 1) 
                         SetRoad(i, false);
                 }
                 Refresh();
@@ -99,7 +99,7 @@ namespace Arkayns.Reckon.HM {
         public float StreamBedY => (m_elevation + HexMetrics.StreamBedElevationOffset) * HexMetrics.ElevationStep;
 
         /// <summary> Returns true if the hex cell has at least one road </summary>
-        public bool HasRoads => m_roads.Any(road => road);
+        public bool HasRoads => roads.Any(road => road);
         
         public int UrbanLevel {
             get => m_urbanLevel;
@@ -157,6 +157,8 @@ namespace Arkayns.Reckon.HM {
             }
         } // Distance
         
+        public HexCell PathFrom { get; set; }
+        
         // -- Methods --
         public void Save (BinaryWriter writer) {
             writer.Write((byte)m_terrainTypeIndex);
@@ -181,8 +183,8 @@ namespace Arkayns.Reckon.HM {
             }
 
             var roadFlags = 0;
-            for (var i = 0; i < m_roads.Length; i++) {
-                if (m_roads[i]) {
+            for (var i = 0; i < roads.Length; i++) {
+                if (roads[i]) {
                     roadFlags |= 1 << i;
                 }
             }
@@ -218,22 +220,22 @@ namespace Arkayns.Reckon.HM {
             }
 
             int roadFlags = reader.ReadByte();
-            for (var i = 0; i < m_roads.Length; i++) {
-                m_roads[i] = (roadFlags & (1 << i)) != 0;
+            for (var i = 0; i < roads.Length; i++) {
+                roads[i] = (roadFlags & (1 << i)) != 0;
             }
         } // Load ()
         
         public HexCell GetNeighbor(HexDirection direction) {
-            return m_neighbors[(int)direction];
+            return neighbors[(int)direction];
         } // GetNeighbor ()
 
         public void SetNeighbor(HexDirection direction, HexCell cell) {
-            m_neighbors[(int)direction] = cell;
-            cell.m_neighbors[(int)direction.Opposite()] = this;
+            neighbors[(int)direction] = cell;
+            cell.neighbors[(int)direction.Opposite()] = this;
         } // SetNeighbor ()
  
         public HexEdgeType GetEdgeType(HexDirection direction) {
-            return HexMetrics.GetEdgeType(m_elevation, m_neighbors[(int)direction].m_elevation);
+            return HexMetrics.GetEdgeType(m_elevation, neighbors[(int)direction].m_elevation);
         } // GetEdgeType ()
 
         public HexEdgeType GetEdgeType(HexCell otherCell) {
@@ -302,25 +304,25 @@ namespace Arkayns.Reckon.HM {
         } // SetOutgoingRiver ()
 
         public bool HasRoadThroughEdge(HexDirection direction) {
-            return m_roads[(int)direction];
+            return roads[(int)direction];
         } // HasRoadThroughEdge ()
  
         public void AddRoad(HexDirection direction) {
-            if (!m_roads[(int)direction] && !HasRiverThroughEdge(direction) && !IsSpecial && !GetNeighbor(direction).IsSpecial && GetElevationDifference(direction) <= 1 && !IsUnderwater) 
+            if (!roads[(int)direction] && !HasRiverThroughEdge(direction) && !IsSpecial && !GetNeighbor(direction).IsSpecial && GetElevationDifference(direction) <= 1 && !IsUnderwater) 
                 SetRoad((int)direction, true);
         } // AddRoad ()
         
         public void RemoveRoads() {
-            for (var i = 0; i < m_neighbors.Length; i++) {
-                if (!m_roads[i]) continue;
+            for (var i = 0; i < neighbors.Length; i++) {
+                if (!roads[i]) continue;
                 SetRoad(i, false);
             }
         } // RemoveRoads ()
 
         private void SetRoad(int index, bool state) {
-            m_roads[index] = state;
-            m_neighbors[index].m_roads[(int)((HexDirection)index).Opposite()] = state;
-            m_neighbors[index].RefreshSelfOnly();
+            roads[index] = state;
+            neighbors[index].roads[(int)((HexDirection)index).Opposite()] = state;
+            neighbors[index].RefreshSelfOnly();
             RefreshSelfOnly();
         } // SetRoad ()
 
@@ -334,10 +336,21 @@ namespace Arkayns.Reckon.HM {
             label.text = m_distance == int.MaxValue ? "" : m_distance.ToString();
         } // UpdateDistanceLabel ()
 
+        public void DisableHighlight () {
+            var highlight = uiRect.GetChild(0).GetComponent<Image>();
+            highlight.enabled = false;
+        } // DisableHighlight ()
+	
+        public void EnableHighlight (Color color) {
+            var highlight = uiRect.GetChild(0).GetComponent<Image>();
+            highlight.color = color;
+            highlight.enabled = true;
+        } // EnableHighlight ()
+        
         private void Refresh() {
             if (!chunk) return;
             chunk.Refresh();
-            foreach (var neighbor in m_neighbors) {
+            foreach (var neighbor in neighbors) {
                 if (neighbor != null && neighbor.chunk != chunk) neighbor.chunk.Refresh();
             }
         } // Refresh ()

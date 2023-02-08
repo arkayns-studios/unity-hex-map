@@ -164,12 +164,11 @@ namespace Arkayns.Reckon.HM {
             walls.AddQuadUnperturbed(t1, t2, v3, v4);
 
             if (addTower) {
-                var towerInstance = Instantiate(wallTower);
+                var towerInstance = Instantiate(wallTower, m_container, false);
                 towerInstance.transform.localPosition = (left + right) * 0.5f;
                 var rightDirection = right - left;
                 rightDirection.y = 0f;
                 towerInstance.transform.right = rightDirection;
-                towerInstance.SetParent(m_container, false);
             }
         } // AddWallSegment ()
 
@@ -212,20 +211,18 @@ namespace Arkayns.Reckon.HM {
             roadCenter1 = HexMetrics.Perturb(roadCenter1);
             roadCenter2 = HexMetrics.Perturb(roadCenter2);
             
-            var instance = Instantiate(bridge);
+            var instance = Instantiate(bridge, m_container, false);
             instance.localPosition = (roadCenter1 + roadCenter2) * 0.5f;
             instance.forward = roadCenter2 - roadCenter1;
             var length = Vector3.Distance(roadCenter1, roadCenter2);
             instance.localScale = new Vector3(1f,	1f, length * (1f / HexMetrics.BridgeDesignLength));
-            instance.SetParent(m_container, false);
         } // AddBridge ()
         
         public void AddSpecialFeature (HexCell cell, Vector3 position) {
-            var instance = Instantiate(special[cell.SpecialIndex - 1]);
+            var instance = Instantiate(special[cell.SpecialIndex - 1], m_container, false);
             instance.localPosition = HexMetrics.Perturb(position);
             var hash = HexMetrics.SampleHashGrid(position);
             instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
-            instance.SetParent(m_container, false);
         }
         
     } // Class HexFeatureManager

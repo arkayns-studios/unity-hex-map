@@ -24,7 +24,7 @@ namespace Arkayns.Reckon.HM {
 
         private bool isDrag;
         private HexDirection m_dragDirection;
-        private HexCell m_previousCell;
+        private HexCell m_previousCell, m_searchFromCell, m_searchToCell;
 
         // -- Built-In Methods --
         private void Awake () {
@@ -47,7 +47,15 @@ namespace Arkayns.Reckon.HM {
                 else isDrag = false;
 
                 if (m_editMode) EditCells(currentCell);
-                else hexGrid.FindDistancesTo(currentCell);
+                else if (Input.GetKey(KeyCode.LeftShift) && m_searchToCell != currentCell) {
+                    if (m_searchFromCell) m_searchFromCell.DisableHighlight();
+                    m_searchFromCell = currentCell;
+                    m_searchFromCell.EnableHighlight(Color.blue);
+                    if (m_searchToCell) hexGrid.FindPath(m_searchFromCell, m_searchToCell);
+                } else if (m_searchFromCell && m_searchFromCell != currentCell) {
+                    m_searchToCell = currentCell;
+                    hexGrid.FindPath(m_searchFromCell, m_searchToCell);
+                }
                 m_previousCell = currentCell;
             } else m_previousCell = null;
         } // HandleInput ()
