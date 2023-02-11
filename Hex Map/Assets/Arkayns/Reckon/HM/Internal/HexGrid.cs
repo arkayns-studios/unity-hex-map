@@ -27,6 +27,9 @@ namespace Arkayns.Reckon.HM {
 		private HexCellPriorityQueue m_searchFrontier;
 		private int m_searchFrontierPhase;
 
+		private HexCell m_currentPathFrom, m_currentPathTo;
+		private bool m_currentPathExists;
+		
 		// -- Built-In Methods --
 		private void Awake () {
 			HexMetrics.noiseSource = noiseSource;
@@ -49,6 +52,7 @@ namespace Arkayns.Reckon.HM {
 		} // Save ()
 
 		public void Load (BinaryReader reader, int header) {
+			ClearPath();
 			int x = 20, z = 15;
 			if (header >= 1) {
 				x = reader.ReadInt32();
@@ -67,6 +71,7 @@ namespace Arkayns.Reckon.HM {
 				return false;
 			}
 			
+			ClearPath();
 			if (m_gridChunks != null) {
 				foreach (var t in m_gridChunks) 
 					Destroy(t.gameObject);
@@ -158,26 +163,36 @@ namespace Arkayns.Reckon.HM {
 			return m_cells[x + z * cellCountX];
 		} // GetCell ()
 
+		private void ClearPath () {
+			if (m_currentPathExists) {
+				var current = m_currentPathTo;
+				while (current != m_currentPathFrom) {
+					current.SetLabel(null);
+					current.DisableHighlight();
+					current = current.PathFrom;
+				}
+				current.DisableHighlight();
+				m_currentPathExists = false;
+			} else if (m_currentPathFrom) {
+				m_currentPathFrom.DisableHighlight();
+				m_currentPathTo.DisableHighlight();
+			}
+			m_currentPathFrom = m_currentPathTo = null;
+		} // ClearPath ()
+		
 		public void FindPath (HexCell fromCell, HexCell toCell, int speed) {
-			System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-			sw.Start();
-			Search(fromCell, toCell, speed);
-			sw.Stop();
-			Debug.Log(sw.ElapsedMilliseconds);
+			ClearPath();
+			m_currentPathFrom = fromCell;
+			m_currentPathTo = toCell;
+			m_currentPathExists = Search(fromCell, toCell, speed);
+			ShowPath(speed);
 		} // FindPath ()
 		
-		private void Search (HexCell fromCell, HexCell toCell, int speed) {
+		private bool Search (HexCell fromCell, HexCell toCell, int speed) {
 			m_searchFrontierPhase += 2;
-			
 			if (m_searchFrontier == null) m_searchFrontier = new HexCellPriorityQueue();
 			else m_searchFrontier.Clear();
-
-			foreach (var hexCell in m_cells) {
-				hexCell.SetLabel(null);
-				hexCell.DisableHighlight();
-			}
 			
-			fromCell.EnableHighlight(Color.blue);
 			fromCell.SearchPhase = m_searchFrontierPhase;
 			fromCell.Distance = 0;
 			m_searchFrontier.Enqueue(fromCell);
@@ -186,18 +201,9 @@ namespace Arkayns.Reckon.HM {
 				var current = m_searchFrontier.Dequeue();
 				current.SearchPhase += 1;
 
-				if (current == toCell) {
-					while (current != fromCell) {
-						var turn = current.Distance / speed;
-						current.SetLabel(turn.ToString());
-						current.EnableHighlight(Color.white);
-						current = current.PathFrom;
-					}
-					toCell.EnableHighlight(Color.red);
-					break;
-				}
-				
+				if (current == toCell) return true;
 				var currentTurn = current.Distance / speed;
+				
 				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					var neighbor = current.GetNeighbor(d);
 
@@ -237,7 +243,22 @@ namespace Arkayns.Reckon.HM {
 					}
 				}
 			}
+			return false;
 		} // Search ()
+
+		private void ShowPath (int speed) {
+			if (m_currentPathExists) {
+				var current = m_currentPathTo;
+				while (current != m_currentPathFrom) {
+					var turn = current.Distance / speed;
+					current.SetLabel(turn.ToString());
+					current.EnableHighlight(Color.white);
+					current = current.PathFrom;
+				}
+			}
+			m_currentPathFrom.EnableHighlight(Color.blue);
+			m_currentPathTo.EnableHighlight(Color.red);
+		} // ShowPath ()
 		
 		public void ShowUI (bool visible) {
 			foreach (var chunk in m_gridChunks) chunk.ShowUI(visible);
