@@ -162,6 +162,8 @@ namespace Arkayns.Reckon.HM {
 
         public HexCell NextWithSamePriority { get; set; }
         
+        public int SearchPhase { get; set; }
+        
         // -- Methods --
         public void Save (BinaryWriter writer) {
             writer.Write((byte)m_terrainTypeIndex);

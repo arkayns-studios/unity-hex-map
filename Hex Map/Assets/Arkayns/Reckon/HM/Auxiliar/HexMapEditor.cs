@@ -48,13 +48,17 @@ namespace Arkayns.Reckon.HM {
 
                 if (m_editMode) EditCells(currentCell);
                 else if (Input.GetKey(KeyCode.LeftShift) && m_searchToCell != currentCell) {
-                    if (m_searchFromCell) m_searchFromCell.DisableHighlight();
-                    m_searchFromCell = currentCell;
-                    m_searchFromCell.EnableHighlight(Color.blue);
-                    if (m_searchToCell) hexGrid.FindPath(m_searchFromCell, m_searchToCell, 24);
+                    if (m_searchFromCell != currentCell) {
+                        if (m_searchFromCell) m_searchFromCell.DisableHighlight();
+                        m_searchFromCell = currentCell;
+                        m_searchFromCell.EnableHighlight(Color.blue);
+                        if (m_searchToCell) hexGrid.FindPath(m_searchFromCell, m_searchToCell, 24);
+                    }
                 } else if (m_searchFromCell && m_searchFromCell != currentCell) {
-                    m_searchToCell = currentCell;
-                    hexGrid.FindPath(m_searchFromCell, m_searchToCell, 24);
+                    if (m_searchFromCell != currentCell) {
+                        m_searchToCell = currentCell;
+                        hexGrid.FindPath(m_searchFromCell, m_searchToCell, 24);
+                    }
                 }
                 m_previousCell = currentCell;
             } else m_previousCell = null;

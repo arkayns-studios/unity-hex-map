@@ -25,6 +25,7 @@ namespace Arkayns.Reckon.HM {
 		private HexCell[] m_cells;
 		
 		private HexCellPriorityQueue m_searchFrontier;
+		private int m_searchFrontierPhase;
 
 		// -- Built-In Methods --
 		private void Awake () {
@@ -48,7 +49,6 @@ namespace Arkayns.Reckon.HM {
 		} // Save ()
 
 		public void Load (BinaryReader reader, int header) {
-			StopAllCoroutines();
 			int x = 20, z = 15;
 			if (header >= 1) {
 				x = reader.ReadInt32();
@@ -159,37 +159,41 @@ namespace Arkayns.Reckon.HM {
 		} // GetCell ()
 
 		public void FindPath (HexCell fromCell, HexCell toCell, int speed) {
-			StopAllCoroutines();
-			StartCoroutine(Search(fromCell, toCell, speed));
+			System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+			sw.Start();
+			Search(fromCell, toCell, speed);
+			sw.Stop();
+			Debug.Log(sw.ElapsedMilliseconds);
 		} // FindPath ()
 		
-		private IEnumerator Search (HexCell fromCell, HexCell toCell, int speed) {
+		private void Search (HexCell fromCell, HexCell toCell, int speed) {
+			m_searchFrontierPhase += 2;
+			
 			if (m_searchFrontier == null) m_searchFrontier = new HexCellPriorityQueue();
 			else m_searchFrontier.Clear();
 
 			foreach (var hexCell in m_cells) {
-				hexCell.Distance = int.MaxValue;
 				hexCell.SetLabel(null);
 				hexCell.DisableHighlight();
 			}
 			
 			fromCell.EnableHighlight(Color.blue);
-			toCell.EnableHighlight(Color.red);
-
-			var delay = new WaitForSeconds(1 / 60f);
+			fromCell.SearchPhase = m_searchFrontierPhase;
 			fromCell.Distance = 0;
 			m_searchFrontier.Enqueue(fromCell);
 			
 			while (m_searchFrontier.Count > 0) {
-				yield return delay;
 				var current = m_searchFrontier.Dequeue();
+				current.SearchPhase += 1;
 
 				if (current == toCell) {
-					current = current.PathFrom;
 					while (current != fromCell) {
+						var turn = current.Distance / speed;
+						current.SetLabel(turn.ToString());
 						current.EnableHighlight(Color.white);
 						current = current.PathFrom;
 					}
+					toCell.EnableHighlight(Color.red);
 					break;
 				}
 				
@@ -197,7 +201,7 @@ namespace Arkayns.Reckon.HM {
 				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					var neighbor = current.GetNeighbor(d);
 
-					if (neighbor == null) continue;
+					if (neighbor == null || neighbor.SearchPhase > m_searchFrontierPhase) continue;
 					if (neighbor.IsUnderwater) continue;
 					
 					var edgeType = current.GetEdgeType(neighbor);
@@ -219,16 +223,15 @@ namespace Arkayns.Reckon.HM {
 						distance = turn * speed + moveCost;
 					}
 					
-					if (neighbor.Distance == int.MaxValue) {
+					if (neighbor.SearchPhase < m_searchFrontierPhase) {
+						neighbor.SearchPhase = m_searchFrontierPhase;
 						neighbor.Distance = distance;
-						neighbor.SetLabel(turn.ToString());
 						neighbor.PathFrom = current;
 						neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
 						m_searchFrontier.Enqueue(neighbor);
 					} else if (distance < neighbor.Distance) {
 						var oldPriority = neighbor.SearchPriority;
 						neighbor.Distance = distance;
-						neighbor.SetLabel(turn.ToString());
 						neighbor.PathFrom = current;
 						m_searchFrontier.Change(neighbor, oldPriority);
 					}
