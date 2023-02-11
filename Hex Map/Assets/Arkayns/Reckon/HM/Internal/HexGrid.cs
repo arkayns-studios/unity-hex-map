@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -159,17 +158,18 @@ namespace Arkayns.Reckon.HM {
 			return m_cells[x + z * cellCountX];
 		} // GetCell ()
 
-		public void FindPath (HexCell fromCell, HexCell toCell) {
+		public void FindPath (HexCell fromCell, HexCell toCell, int speed) {
 			StopAllCoroutines();
-			StartCoroutine(Search(fromCell, toCell));
+			StartCoroutine(Search(fromCell, toCell, speed));
 		} // FindPath ()
 		
-		private IEnumerator Search (HexCell fromCell, HexCell toCell) {
+		private IEnumerator Search (HexCell fromCell, HexCell toCell, int speed) {
 			if (m_searchFrontier == null) m_searchFrontier = new HexCellPriorityQueue();
 			else m_searchFrontier.Clear();
 
 			foreach (var hexCell in m_cells) {
 				hexCell.Distance = int.MaxValue;
+				hexCell.SetLabel(null);
 				hexCell.DisableHighlight();
 			}
 			
@@ -192,7 +192,8 @@ namespace Arkayns.Reckon.HM {
 					}
 					break;
 				}
-
+				
+				var currentTurn = current.Distance / speed;
 				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					var neighbor = current.GetNeighbor(d);
 
@@ -202,24 +203,32 @@ namespace Arkayns.Reckon.HM {
 					var edgeType = current.GetEdgeType(neighbor);
 					if (edgeType == HexEdgeType.Cliff) continue;
 
-					var distance = current.Distance;
+					int moveCost;
 					if (current.HasRoadThroughEdge(d)) {
-						distance += 1;
+						moveCost = 1;
 					} else if (current.Walled != neighbor.Walled) {
 						continue;
 					} else {
-						distance += edgeType == HexEdgeType.Flat ? 5 : 10;
-						distance += neighbor.UrbanLevel + neighbor.FarmLevel + neighbor.PlantLevel;
+						moveCost = edgeType == HexEdgeType.Flat ? 5 : 10;
+						moveCost += neighbor.UrbanLevel + neighbor.FarmLevel + neighbor.PlantLevel;
 					}
-
+					
+					var distance = current.Distance + moveCost;
+					var turn = distance / speed;
+					if (turn > currentTurn) {
+						distance = turn * speed + moveCost;
+					}
+					
 					if (neighbor.Distance == int.MaxValue) {
 						neighbor.Distance = distance;
+						neighbor.SetLabel(turn.ToString());
 						neighbor.PathFrom = current;
 						neighbor.SearchHeuristic = neighbor.coordinates.DistanceTo(toCell.coordinates);
 						m_searchFrontier.Enqueue(neighbor);
 					} else if (distance < neighbor.Distance) {
 						var oldPriority = neighbor.SearchPriority;
 						neighbor.Distance = distance;
+						neighbor.SetLabel(turn.ToString());
 						neighbor.PathFrom = current;
 						m_searchFrontier.Change(neighbor, oldPriority);
 					}

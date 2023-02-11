@@ -151,10 +151,7 @@ namespace Arkayns.Reckon.HM {
 
         public int Distance {
             get => m_distance;
-            set {
-                m_distance = value;
-                UpdateDistanceLabel();
-            }
+            set => m_distance = value;
         } // Distance
         
         public HexCell PathFrom { get; set; }
@@ -337,10 +334,10 @@ namespace Arkayns.Reckon.HM {
             return difference >= 0 ? difference : -difference;
         } // GetElevationDifference ()
         
-        private void UpdateDistanceLabel () {
+        public void SetLabel (string text) {
             var label = uiRect.GetComponent<Text>();
-            label.text = m_distance == int.MaxValue ? "" : m_distance.ToString();
-        } // UpdateDistanceLabel ()
+            label.text = text;
+        } // SetLabel ()
 
         public void DisableHighlight () {
             var highlight = uiRect.GetChild(0).GetComponent<Image>();
