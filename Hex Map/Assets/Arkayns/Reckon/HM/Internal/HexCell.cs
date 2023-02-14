@@ -164,6 +164,8 @@ namespace Arkayns.Reckon.HM {
         
         public int SearchPhase { get; set; }
         
+        public HexUnit Unit { get; set; }
+        
         // -- Methods --
         public void Save (BinaryWriter writer) {
             writer.Write((byte)m_terrainTypeIndex);
@@ -358,6 +360,7 @@ namespace Arkayns.Reckon.HM {
             foreach (var neighbor in neighbors) {
                 if (neighbor != null && neighbor.chunk != chunk) neighbor.chunk.Refresh();
             }
+            if (Unit) Unit.ValidateLocation();
         } // Refresh ()
 
         private void RefreshPosition() {
@@ -373,6 +376,7 @@ namespace Arkayns.Reckon.HM {
         
         private void RefreshSelfOnly() {
             chunk.Refresh();
+            if (Unit) Unit.ValidateLocation();
         } // RefreshSelfOnly ()
 
     } // Class HexCell

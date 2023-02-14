@@ -8,7 +8,8 @@ namespace Arkayns.Reckon.HM {
         // -- Variables ---
         public HexGrid hexGrid;
         public Material terrainMaterial;
-
+        public HexUnit unitPrefab;
+        
         private int m_activeTerrainTypeIndex;
         private int m_activeElevation;
         private int m_activeWaterLevel;
@@ -25,24 +26,42 @@ namespace Arkayns.Reckon.HM {
         private bool isDrag;
         private HexDirection m_dragDirection;
         private HexCell m_previousCell, m_searchFromCell, m_searchToCell;
-
+        
         // -- Built-In Methods --
         private void Awake () {
             terrainMaterial.DisableKeyword("GRID_ON");
         } // Awake ()
 
         private void Update() {
-            if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject()) HandleInput();
-            else m_previousCell = null;
+            if (!EventSystem.current.IsPointerOverGameObject()) {
+                if (Input.GetMouseButton(0)) {
+                    HandleInput();
+                    return;
+                }
+                
+                if (Input.GetKeyDown(KeyCode.U)) {
+                    if (Input.GetKey(KeyCode.LeftShift)) {
+                        DestroyUnit();
+                    } else {
+                        CreateUnit();
+                    }
+                    return;
+                }
+            }
+            m_previousCell = null;
         } // Update ()
 
         // -- Methods --
+        private HexCell GetCellUnderCursor () {
+            var inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            return Physics.Raycast(inputRay, out var hit) ? hexGrid.GetCell(hit.point) : null;
+        } // GetCellUnderCursor ()
+        
         private void HandleInput() {
             if (Camera.main == null) return;
-            var inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             
-            if (Physics.Raycast(inputRay, out var hit)) {
-                var currentCell = hexGrid.GetCell(hit.point);
+            var currentCell = GetCellUnderCursor();
+            if (currentCell) {
                 if (m_previousCell && m_previousCell != currentCell) ValidateDrag(currentCell);
                 else isDrag = false;
 
@@ -113,6 +132,19 @@ namespace Arkayns.Reckon.HM {
             
         } // EditCell ()
 
+        private void CreateUnit () {
+            var cell = GetCellUnderCursor();
+            if (!cell || cell.Unit) return;
+            var unit = Instantiate(unitPrefab, hexGrid.transform, false);
+            unit.Location = cell;
+            unit.Orientation = Random.Range(0f, 360f);
+        } // CreateUnit ()
+        
+        private void DestroyUnit () {
+            var cell = GetCellUnderCursor();
+            if (cell && cell.Unit) cell.Unit.Die();
+        } // DestroyUnit ()
+        
         public void SetTerrainTypeIndex (int index) {
             m_activeTerrainTypeIndex = index;
         } // SetTerrainTypeIndex ()
@@ -185,7 +217,7 @@ namespace Arkayns.Reckon.HM {
             m_editMode = toggle;
             hexGrid.ShowUI(!toggle);
         } // SetEditMode ()
-
+        
         public void ShowGrid (bool visible) {
             if (visible) terrainMaterial.EnableKeyword("GRID_ON");
             else terrainMaterial.DisableKeyword("GRID_ON");
