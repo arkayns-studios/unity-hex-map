@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.IO;
+using UnityEngine;
 
 namespace Arkayns.Reckon.HM {
 
@@ -22,6 +23,18 @@ namespace Arkayns.Reckon.HM {
 		} // Constructor HexCoordinates
 
 		// -- Methods --
+		public void Save (BinaryWriter writer) {
+			writer.Write(x);
+			writer.Write(z);
+		} // Save ()
+		
+		public static HexCoordinates Load (BinaryReader reader) {
+			HexCoordinates c;
+			c.x = reader.ReadInt32();
+			c.z = reader.ReadInt32();
+			return c;
+		} // Load ()
+		
 		public static HexCoordinates FromOffsetCoordinates (int x, int z) {
 			return new HexCoordinates(x - z / 2, z);
 		} // FromOffsetCoordinates ()

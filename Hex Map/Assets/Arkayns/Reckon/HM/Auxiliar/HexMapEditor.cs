@@ -8,7 +8,6 @@ namespace Arkayns.Reckon.HM {
         // -- Variables ---
         public HexGrid hexGrid;
         public Material terrainMaterial;
-        public HexUnit unitPrefab;
         
         private int m_activeTerrainTypeIndex;
         private int m_activeElevation;
@@ -135,14 +134,12 @@ namespace Arkayns.Reckon.HM {
         private void CreateUnit () {
             var cell = GetCellUnderCursor();
             if (!cell || cell.Unit) return;
-            var unit = Instantiate(unitPrefab, hexGrid.transform, false);
-            unit.Location = cell;
-            unit.Orientation = Random.Range(0f, 360f);
+            hexGrid.AddUnit(Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f));
         } // CreateUnit ()
         
         private void DestroyUnit () {
             var cell = GetCellUnderCursor();
-            if (cell && cell.Unit) cell.Unit.Die();
+            if (cell && cell.Unit) hexGrid.RemoveUnit(cell.Unit);
         } // DestroyUnit ()
         
         public void SetTerrainTypeIndex (int index) {

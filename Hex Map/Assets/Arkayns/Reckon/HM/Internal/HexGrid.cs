@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,18 +30,22 @@ namespace Arkayns.Reckon.HM {
 		private HexCell m_currentPathFrom, m_currentPathTo;
 		private bool m_currentPathExists;
 		
+		private List<HexUnit> m_units = new ();
+		public HexUnit unitPrefab;
+		
 		// -- Built-In Methods --
 		private void Awake () {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
+			HexUnit.unitPrefab = unitPrefab;
 			CreateMap(cellCountX, cellCountZ);
 		} // Awake ()
 		
 		private void OnEnable () {
-			if (!HexMetrics.noiseSource) {
-				HexMetrics.noiseSource = noiseSource;
-				HexMetrics.InitializeHashGrid(seed);
-			}
+			if (HexMetrics.noiseSource) return;
+			HexMetrics.noiseSource = noiseSource;
+			HexMetrics.InitializeHashGrid(seed);
+			HexUnit.unitPrefab = unitPrefab;
 		} // OnEnable ()
 
 		// -- Methods --
@@ -49,10 +53,14 @@ namespace Arkayns.Reckon.HM {
 			writer.Write(cellCountX);
 			writer.Write(cellCountZ);
 			foreach (var cell in m_cells) cell.Save(writer);
+			
+			writer.Write(m_units.Count);
+			foreach (var unit in m_units) unit.Save(writer);
 		} // Save ()
 
 		public void Load (BinaryReader reader, int header) {
 			ClearPath();
+			ClearUnits();
 			int x = 20, z = 15;
 			if (header >= 1) {
 				x = reader.ReadInt32();
@@ -63,6 +71,12 @@ namespace Arkayns.Reckon.HM {
 				if (!CreateMap(x, z)) return;
 			foreach (var cell in m_cells) cell.Load(reader);
 			foreach (var chunk in m_gridChunks) chunk.Refresh();
+
+			if (header >= 2) {
+				var unitCount = reader.ReadInt32();
+				for (var i = 0; i < unitCount; i++) 
+					HexUnit.Load(reader, this);
+			}
 		} // Load ()
 
 		public bool  CreateMap (int x, int z) {
@@ -72,9 +86,9 @@ namespace Arkayns.Reckon.HM {
 			}
 			
 			ClearPath();
+			ClearUnits();
 			if (m_gridChunks != null) {
-				foreach (var t in m_gridChunks) 
-					Destroy(t.gameObject);
+				foreach (var t in m_gridChunks) Destroy(t.gameObject);
 			}
 			
 			cellCountX = x;
@@ -146,6 +160,11 @@ namespace Arkayns.Reckon.HM {
 			AddCellToChunk(x, z, cell);
 		} // CreateCell ()
 
+		private void ClearUnits () {
+			foreach (var unit in m_units) unit.Die();
+			m_units.Clear();
+		} // ClearUnits ()
+		
 		public HexCell GetCell (Vector3 position) {
 			position = transform.InverseTransformPoint(position);
 			var coordinates = HexCoordinates.FromPosition(position);
@@ -259,6 +278,18 @@ namespace Arkayns.Reckon.HM {
 			m_currentPathFrom.EnableHighlight(Color.blue);
 			m_currentPathTo.EnableHighlight(Color.red);
 		} // ShowPath ()
+		
+		public void AddUnit (HexUnit unit, HexCell location, float orientation) {
+			m_units.Add(unit);
+			unit.transform.SetParent(transform, false);
+			unit.Location = location;
+			unit.Orientation = orientation;
+		} // AddUnit ()
+		
+		public void RemoveUnit (HexUnit unit) {
+			m_units.Remove(unit);
+			unit.Die();
+		} // RemoveUnit ()
 		
 		public void ShowUI (bool visible) {
 			foreach (var chunk in m_gridChunks) chunk.ShowUI(visible);

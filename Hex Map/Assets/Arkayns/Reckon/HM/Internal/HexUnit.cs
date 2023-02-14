@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 
 namespace Arkayns.Reckon.HM {
@@ -5,8 +6,8 @@ namespace Arkayns.Reckon.HM {
     public class HexUnit : MonoBehaviour {
 
         // -- Variables --
+        public static HexUnit unitPrefab;
         private HexCell m_location;
-
         private float m_orientation;
         
         // -- Properties --
@@ -36,6 +37,17 @@ namespace Arkayns.Reckon.HM {
             m_location.Unit = null;
             Destroy(gameObject);
         } // Die ()
+        
+        public void Save (BinaryWriter writer) {
+            m_location.coordinates.Save(writer);
+            writer.Write(m_orientation);
+        } // Save ()
+        
+        public static void Load (BinaryReader reader, HexGrid grid) {
+            var coordinates = HexCoordinates.Load(reader);
+            var orientation = reader.ReadSingle();
+            grid.AddUnit(Instantiate(unitPrefab), grid.GetCell(coordinates), orientation);
+        } // Load ()
         
     } // Class HexUnit
 
