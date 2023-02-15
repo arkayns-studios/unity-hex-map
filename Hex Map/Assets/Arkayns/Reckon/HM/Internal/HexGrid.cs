@@ -213,6 +213,15 @@ namespace Arkayns.Reckon.HM {
 			m_currentPathExists = Search(fromCell, toCell, speed);
 			ShowPath(speed);
 		} // FindPath ()
+
+		public List<HexCell> GetPath () {
+			if (!m_currentPathExists) return null;
+			var path = ListPool<HexCell>.Get();
+			for (var c = m_currentPathTo; c != m_currentPathFrom; c = c.PathFrom) path.Add(c);
+			path.Add(m_currentPathFrom);
+			path.Reverse();
+			return path;
+		} // GetPath ()
 		
 		private bool Search (HexCell fromCell, HexCell toCell, int speed) {
 			m_searchFrontierPhase += 2;

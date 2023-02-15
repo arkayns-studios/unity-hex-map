@@ -59,7 +59,7 @@ namespace Arkayns.Reckon.HM {
         
         private void DoMove () {
             if (!grid.HasPath) return;
-            m_selectedUnit.Location = m_currentCell;
+            m_selectedUnit.Travel(grid.GetPath());
             grid.ClearPath();
         } // DoMove ()
         
