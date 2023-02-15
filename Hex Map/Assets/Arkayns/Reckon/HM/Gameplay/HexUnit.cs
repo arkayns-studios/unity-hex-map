@@ -36,12 +36,23 @@ namespace Arkayns.Reckon.HM {
         // -- Built-In Methods --
         private void OnDrawGizmos () {
             if (m_pathToTravel == null || m_pathToTravel.Count == 0) return;
+            
+            Vector3 a, b, c = m_pathToTravel[0].Position;
+
             for (var i = 1; i < m_pathToTravel.Count; i++) {
-                var a = m_pathToTravel[i - 1].Position;
-                var b = m_pathToTravel[i].Position;
+                a = c;
+                b = m_pathToTravel[i - 1].Position;
+                c = (b + m_pathToTravel[i].Position) * 0.5f;
                 for (var t = 0f; t < 1f; t += 0.1f) {
-                    Gizmos.DrawSphere(Vector3.Lerp(a, b, t), 2f);
+                    Gizmos.DrawSphere(HexBezier.GetPoint(a, b, c, t), 2f);
                 }
+            }
+            
+            a = c;
+            b = m_pathToTravel[^1].Position;
+            c = b;
+            for (var t = 0f; t < 1f; t += 0.1f) {
+                Gizmos.DrawSphere(HexBezier.GetPoint(a, b, c, t), 2f);
             }
         } // OnDrawGizmos()
         
@@ -77,14 +88,29 @@ namespace Arkayns.Reckon.HM {
         } // Travel ()
         
         private IEnumerator TravelPath () {
+            Vector3 a, b, c = m_pathToTravel[0].Position;
+            
+            var t = Time.deltaTime * TravelSpeed;;
             for (var i = 1; i < m_pathToTravel.Count; i++) {
-                var a = m_pathToTravel[i - 1].Position;
-                var b = m_pathToTravel[i].Position;
-                for (var t = 0f; t < 1f; t += Time.deltaTime * TravelSpeed) {
-                    transform.localPosition = Vector3.Lerp(a, b, t);
+                a = c;
+                b = m_pathToTravel[i - 1].Position;
+                c = (b + m_pathToTravel[i].Position) * 0.5f;
+                for (; t < 1f; t += Time.deltaTime * TravelSpeed) {
+                    transform.localPosition = HexBezier.GetPoint(a, b, c, t);
                     yield return null;
                 }
+                t -= 1f;
             }
+            
+            a = c;
+            b = m_pathToTravel[^1].Position;
+            c = b;
+            for (; t < 1f; t += Time.deltaTime * TravelSpeed) {
+                transform.localPosition = HexBezier.GetPoint(a, b, c, t);
+                yield return null;
+            }
+            
+            transform.localPosition = m_location.Position;
         } // TravelPath ()
 
         public void Die () {
