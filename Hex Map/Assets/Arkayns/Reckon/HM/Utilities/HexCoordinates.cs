@@ -11,9 +11,7 @@ namespace Arkayns.Reckon.HM {
 
 		// -- Properties --
 		public int X => x;
-
 		public int Z => z;
-
 		public int Y => -X - Z;
 
 		// -- Constructor --

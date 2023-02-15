@@ -33,6 +33,9 @@ namespace Arkayns.Reckon.HM {
 		private List<HexUnit> m_units = new ();
 		public HexUnit unitPrefab;
 		
+		// -- Property --
+		public bool HasPath => m_currentPathExists;
+
 		// -- Built-In Methods --
 		private void Awake () {
 			HexMetrics.noiseSource = noiseSource;
@@ -182,7 +185,11 @@ namespace Arkayns.Reckon.HM {
 			return m_cells[x + z * cellCountX];
 		} // GetCell ()
 
-		private void ClearPath () {
+		public HexCell GetCell (Ray ray) {
+			return Physics.Raycast(ray, out var hit) ? GetCell(hit.point) : null;
+		} // GetCell ()
+		
+		public void ClearPath () {
 			if (m_currentPathExists) {
 				var current = m_currentPathTo;
 				while (current != m_currentPathFrom) {
@@ -227,7 +234,7 @@ namespace Arkayns.Reckon.HM {
 					var neighbor = current.GetNeighbor(d);
 
 					if (neighbor == null || neighbor.SearchPhase > m_searchFrontierPhase) continue;
-					if (neighbor.IsUnderwater) continue;
+					if (neighbor.IsUnderwater || neighbor.Unit) continue;
 					
 					var edgeType = current.GetEdgeType(neighbor);
 					if (edgeType == HexEdgeType.Cliff) continue;

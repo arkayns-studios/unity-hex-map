@@ -14,6 +14,7 @@ namespace Arkayns.Reckon.HM {
         public HexCell Location {
             get => m_location;
             set {
+                if (m_location) m_location.Unit = null;
                 m_location = value;
                 value.Unit = this;
                 transform.localPosition = value.Position;
@@ -29,15 +30,6 @@ namespace Arkayns.Reckon.HM {
         } // Orientation
         
         // -- Methods --
-        public void ValidateLocation () {
-            transform.localPosition = m_location.Position;
-        } // ValidateLocation ()
-        
-        public void Die () {
-            m_location.Unit = null;
-            Destroy(gameObject);
-        } // Die ()
-        
         public void Save (BinaryWriter writer) {
             m_location.coordinates.Save(writer);
             writer.Write(m_orientation);
@@ -49,6 +41,19 @@ namespace Arkayns.Reckon.HM {
             grid.AddUnit(Instantiate(unitPrefab), grid.GetCell(coordinates), orientation);
         } // Load ()
         
+        public void ValidateLocation () {
+            transform.localPosition = m_location.Position;
+        } // ValidateLocation ()
+        
+        public bool IsValidDestination (HexCell cell) {
+            return !cell.IsUnderwater && !cell.Unit;
+        } // IsValidDestination ()
+        
+        public void Die () {
+            m_location.Unit = null;
+            Destroy(gameObject);
+        } // Die ()
+
     } // Class HexUnit
 
 } // Namespace Arkayns Reckon HM

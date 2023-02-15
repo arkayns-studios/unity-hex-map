@@ -18,17 +18,17 @@ namespace Arkayns.Reckon.HM {
         private bool m_applyElevation = true;
         private bool m_applyWaterLevel = true;
         private bool m_applyUrbanLevel, m_applyFarmLevel, m_applyPlantLevel, m_applySpecialIndex;
-        private bool m_editMode;
 
         private OptionalToggle m_riverMode, m_roadMode, m_walledMode;
 
         private bool isDrag;
         private HexDirection m_dragDirection;
-        private HexCell m_previousCell, m_searchFromCell, m_searchToCell;
+        private HexCell m_previousCell;
         
         // -- Built-In Methods --
         private void Awake () {
             terrainMaterial.DisableKeyword("GRID_ON");
+            SetEditMode(false);
         } // Awake ()
 
         private void Update() {
@@ -52,8 +52,7 @@ namespace Arkayns.Reckon.HM {
 
         // -- Methods --
         private HexCell GetCellUnderCursor () {
-            var inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            return Physics.Raycast(inputRay, out var hit) ? hexGrid.GetCell(hit.point) : null;
+            return hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
         } // GetCellUnderCursor ()
         
         private void HandleInput() {
@@ -63,21 +62,7 @@ namespace Arkayns.Reckon.HM {
             if (currentCell) {
                 if (m_previousCell && m_previousCell != currentCell) ValidateDrag(currentCell);
                 else isDrag = false;
-
-                if (m_editMode) EditCells(currentCell);
-                else if (Input.GetKey(KeyCode.LeftShift) && m_searchToCell != currentCell) {
-                    if (m_searchFromCell != currentCell) {
-                        if (m_searchFromCell) m_searchFromCell.DisableHighlight();
-                        m_searchFromCell = currentCell;
-                        m_searchFromCell.EnableHighlight(Color.blue);
-                        if (m_searchToCell) hexGrid.FindPath(m_searchFromCell, m_searchToCell, 24);
-                    }
-                } else if (m_searchFromCell && m_searchFromCell != currentCell) {
-                    if (m_searchFromCell != currentCell) {
-                        m_searchToCell = currentCell;
-                        hexGrid.FindPath(m_searchFromCell, m_searchToCell, 24);
-                    }
-                }
+                EditCells(currentCell);
                 m_previousCell = currentCell;
             } else m_previousCell = null;
         } // HandleInput ()
@@ -211,8 +196,7 @@ namespace Arkayns.Reckon.HM {
         } // SetSpecialIndex ()
         
         public void SetEditMode (bool toggle) {
-            m_editMode = toggle;
-            hexGrid.ShowUI(!toggle);
+            enabled = toggle;
         } // SetEditMode ()
         
         public void ShowGrid (bool visible) {

@@ -381,4 +381,4 @@ namespace Arkayns.Reckon.HM {
 
     } // Class HexCell
 
-} // Namespace Arkayns Reckon HexMap
+} // Namespace Arkayns Reckon HM
