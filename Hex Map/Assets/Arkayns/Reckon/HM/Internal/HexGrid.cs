@@ -228,7 +228,7 @@ namespace Arkayns.Reckon.HM {
 				current.SearchPhase += 1;
 
 				if (current == toCell) return true;
-				var currentTurn = current.Distance / speed;
+				var currentTurn = (current.Distance - 1) / speed;
 				
 				for (var d = HexDirection.NE; d <= HexDirection.NW; d++) {
 					var neighbor = current.GetNeighbor(d);
@@ -276,7 +276,7 @@ namespace Arkayns.Reckon.HM {
 			if (m_currentPathExists) {
 				var current = m_currentPathTo;
 				while (current != m_currentPathFrom) {
-					var turn = current.Distance / speed;
+					var turn = (current.Distance - 1) / speed;
 					current.SetLabel(turn.ToString());
 					current.EnableHighlight(Color.white);
 					current = current.PathFrom;
