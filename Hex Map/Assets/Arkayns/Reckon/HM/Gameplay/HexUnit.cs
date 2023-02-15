@@ -12,7 +12,9 @@ namespace Arkayns.Reckon.HM {
         private HexCell m_location;
         private float m_orientation;
         private List<HexCell> m_pathToTravel;
+        
         private const float TravelSpeed = 4f;
+        private const float RotationSpeed = 180f;
         
         // -- Properties --
         public HexCell Location {
@@ -34,28 +36,6 @@ namespace Arkayns.Reckon.HM {
         } // Orientation
         
         // -- Built-In Methods --
-        private void OnDrawGizmos () {
-            if (m_pathToTravel == null || m_pathToTravel.Count == 0) return;
-            
-            Vector3 a, b, c = m_pathToTravel[0].Position;
-
-            for (var i = 1; i < m_pathToTravel.Count; i++) {
-                a = c;
-                b = m_pathToTravel[i - 1].Position;
-                c = (b + m_pathToTravel[i].Position) * 0.5f;
-                for (var t = 0f; t < 1f; t += 0.1f) {
-                    Gizmos.DrawSphere(HexBezier.GetPoint(a, b, c, t), 2f);
-                }
-            }
-            
-            a = c;
-            b = m_pathToTravel[^1].Position;
-            c = b;
-            for (var t = 0f; t < 1f; t += 0.1f) {
-                Gizmos.DrawSphere(HexBezier.GetPoint(a, b, c, t), 2f);
-            }
-        } // OnDrawGizmos()
-        
         private void OnEnable () {
             if (m_location) transform.localPosition = m_location.Position;
         } // OnEnable ()
@@ -71,6 +51,11 @@ namespace Arkayns.Reckon.HM {
             var orientation = reader.ReadSingle();
             grid.AddUnit(Instantiate(unitPrefab), grid.GetCell(coordinates), orientation);
         } // Load ()
+        
+        public void Die () {
+            m_location.Unit = null;
+            Destroy(gameObject);
+        } // Die ()
         
         public void ValidateLocation () {
             transform.localPosition = m_location.Position;
@@ -89,6 +74,8 @@ namespace Arkayns.Reckon.HM {
         
         private IEnumerator TravelPath () {
             Vector3 a, b, c = m_pathToTravel[0].Position;
+            transform.localPosition = c;
+            yield return LookAt(m_pathToTravel[1].Position);
             
             var t = Time.deltaTime * TravelSpeed;;
             for (var i = 1; i < m_pathToTravel.Count; i++) {
@@ -97,6 +84,9 @@ namespace Arkayns.Reckon.HM {
                 c = (b + m_pathToTravel[i].Position) * 0.5f;
                 for (; t < 1f; t += Time.deltaTime * TravelSpeed) {
                     transform.localPosition = HexBezier.GetPoint(a, b, c, t);
+                    var d = HexBezier.GetDerivative(a, b, c, t);
+                    d.y = 0f;
+                    transform.localRotation = Quaternion.LookRotation(d);
                     yield return null;
                 }
                 t -= 1f;
@@ -107,17 +97,39 @@ namespace Arkayns.Reckon.HM {
             c = b;
             for (; t < 1f; t += Time.deltaTime * TravelSpeed) {
                 transform.localPosition = HexBezier.GetPoint(a, b, c, t);
+                var d = HexBezier.GetDerivative(a, b, c, t);
+                d.y = 0f;
+                transform.localRotation = Quaternion.LookRotation(d);
                 yield return null;
             }
             
             transform.localPosition = m_location.Position;
+            m_orientation = transform.localRotation.eulerAngles.y;
+            
+            ListPool<HexCell>.Add(m_pathToTravel);
+            m_pathToTravel = null;
         } // TravelPath ()
 
-        public void Die () {
-            m_location.Unit = null;
-            Destroy(gameObject);
-        } // Die ()
+        private IEnumerator LookAt (Vector3 point) {
+            point.y = transform.localPosition.y;
+            var fromRotation = transform.localRotation;
+            var toRotation = Quaternion.LookRotation(point - transform.localPosition);
+		
+            var angle = Quaternion.Angle(fromRotation, toRotation);
 
+            if (!(angle > 0f)) yield break;
+            
+            var speed = RotationSpeed / angle;
+            
+            for (var t = Time.deltaTime * speed; t < 1f; t += Time.deltaTime * speed) {
+                transform.localRotation = Quaternion.Slerp(fromRotation, toRotation, t);
+                yield return null;
+            }
+            
+            transform.LookAt(point);
+            m_orientation = transform.localRotation.eulerAngles.y;
+        } // LookAt ()
+        
     } // Class HexUnit
 
 } // Namespace Arkayns Reckon HM
