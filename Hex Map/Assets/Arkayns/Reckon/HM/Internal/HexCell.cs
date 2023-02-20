@@ -29,7 +29,7 @@ namespace Arkayns.Reckon.HM {
             set {
                 if (m_terrainTypeIndex == value) return;
                 m_terrainTypeIndex = value;
-                Refresh();
+                ShaderData.RefreshTerrain(this);
             }
         } // TerrainTypeIndex
         
@@ -166,6 +166,10 @@ namespace Arkayns.Reckon.HM {
         
         public HexUnit Unit { get; set; }
         
+        public HexCellShaderData ShaderData { get; set; }
+        
+        public int Index { get; set; }
+        
         // -- Methods --
         public void Save (BinaryWriter writer) {
             writer.Write((byte)m_terrainTypeIndex);
@@ -201,6 +205,7 @@ namespace Arkayns.Reckon.HM {
         public void Load (BinaryReader reader) {
             // Debug.Log(Application.persistentDataPath);
             m_terrainTypeIndex = reader.ReadByte();
+            ShaderData.RefreshTerrain(this);
             m_elevation = reader.ReadByte();
             RefreshPosition();
             m_waterLevel = reader.ReadByte();

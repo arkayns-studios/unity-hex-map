@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Arkayns.Reckon.HM {
 
@@ -8,11 +9,12 @@ namespace Arkayns.Reckon.HM {
 	public class HexMesh : MonoBehaviour {
 
 		// -- Variables --
-		public bool useCollider, useColors, useUVCoordinates, useUV2Coordinates;
-		public bool useTerrainTypes;
-		
-		[NonSerialized] private List<Vector3> m_vertices, m_terrainTypes;
-		[NonSerialized] private List<Color> m_colors;
+		public bool useCollider;
+		[FormerlySerializedAs("usecellData")] [FormerlySerializedAs("useColors")] public bool useCellData;
+		public bool useUVCoordinates, useUV2Coordinates;
+
+		[NonSerialized] private List<Vector3> m_vertices, m_cellIndices;
+		[NonSerialized] private List<Color> m_cellWeights;
 		[NonSerialized] private List<Vector2> m_uvs, m_uv2s;
 		[NonSerialized] private List<int> m_triangles;
 
@@ -30,19 +32,23 @@ namespace Arkayns.Reckon.HM {
 		public void Clear () {
 			m_hexMesh.Clear();
 			m_vertices = ListPool<Vector3>.Get();
-			if (useColors) m_colors = ListPool<Color>.Get();
+			if (useCellData) {
+				m_cellWeights = ListPool<Color>.Get();
+				m_cellIndices = ListPool<Vector3>.Get();
+			}
 			if (useUVCoordinates) m_uvs = ListPool<Vector2>.Get();
 			if (useUV2Coordinates) m_uv2s = ListPool<Vector2>.Get();
-			if (useTerrainTypes) m_terrainTypes = ListPool<Vector3>.Get();
 			m_triangles = ListPool<int>.Get();
 		} // Clear ()
 
 		public void Apply () {
 			m_hexMesh.SetVertices(m_vertices);
 			ListPool<Vector3>.Add(m_vertices);
-			if (useColors) {
-				m_hexMesh.SetColors(m_colors);
-				ListPool<Color>.Add(m_colors);
+			if (useCellData) {
+				m_hexMesh.SetColors(m_cellWeights);
+				ListPool<Color>.Add(m_cellWeights);
+				m_hexMesh.SetUVs(2, m_cellIndices);
+				ListPool<Vector3>.Add(m_cellIndices);
 			}
 			if (useUVCoordinates) {
 				m_hexMesh.SetUVs(0, m_uvs);
@@ -51,10 +57,6 @@ namespace Arkayns.Reckon.HM {
 			if (useUV2Coordinates) {
 				m_hexMesh.SetUVs(0, m_uv2s);
 				ListPool<Vector2>.Add(m_uv2s);
-			}
-			if (useTerrainTypes) {
-				m_hexMesh.SetUVs(2, m_terrainTypes);
-				ListPool<Vector3>.Add(m_terrainTypes);
 			}
 			m_hexMesh.SetTriangles(m_triangles, 0);
 			ListPool<int>.Add(m_triangles);
@@ -84,17 +86,18 @@ namespace Arkayns.Reckon.HM {
 			m_triangles.Add(vertexIndex + 2);
 		} // AddTriangleUnperturbed ()
 
-		public void AddTriangleColor (Color color) {
-			m_colors.Add(color);
-			m_colors.Add(color);
-			m_colors.Add(color);
-		} // AddTriangleColor ()
-
-		public void AddTriangleColor (Color c1, Color c2, Color c3) {
-			m_colors.Add(c1);
-			m_colors.Add(c2);
-			m_colors.Add(c3);
-		} // AddTriangleColor ()
+		public void AddTriangleCellData (Vector3 indices, Color weights1, Color weights2, Color weights3) {
+			m_cellIndices.Add(indices);
+			m_cellIndices.Add(indices);
+			m_cellIndices.Add(indices);
+			m_cellWeights.Add(weights1);
+			m_cellWeights.Add(weights2);
+			m_cellWeights.Add(weights3);
+		} // AddTriangleCellData ()
+		
+		public void AddTriangleCellData (Vector3 indices, Color weights) {
+			AddTriangleCellData(indices, weights, weights, weights);
+		} // AddTriangleCellData ()
 
 		public void AddTriangleUV (Vector2 uv1, Vector2 uv2, Vector3 uv3) {
 			m_uvs.Add(uv1);
@@ -107,12 +110,7 @@ namespace Arkayns.Reckon.HM {
 			m_uv2s.Add(uv2);
 			m_uv2s.Add(uv3);
 		} // AddTriangleUV2 ()
-
-		public void AddTriangleTerrainTypes (Vector3 types) {
-			m_terrainTypes.Add(types);
-			m_terrainTypes.Add(types);
-			m_terrainTypes.Add(types);
-		} // AddTriangleTerrainTypes ()
+		
 		
 		public void AddQuad (Vector3 v1, Vector3 v2, Vector3 v3, Vector3 v4) {
 			var vertexIndex = m_vertices.Count;
@@ -142,26 +140,24 @@ namespace Arkayns.Reckon.HM {
 			m_triangles.Add(vertexIndex + 3);
 		} // AddQuadUnperturbed ()
 		
-		public void AddQuadColor (Color color) {
-			m_colors.Add(color);
-			m_colors.Add(color);
-			m_colors.Add(color);
-			m_colors.Add(color);
-		} // AddQuadColor ()
+		public void AddQuadCellData (Vector3 indices, Color weights1, Color weights2, Color weights3, Color weights4) {
+			m_cellIndices.Add(indices);
+			m_cellIndices.Add(indices);
+			m_cellIndices.Add(indices);
+			m_cellIndices.Add(indices);
+			m_cellWeights.Add(weights1);
+			m_cellWeights.Add(weights2);
+			m_cellWeights.Add(weights3);
+			m_cellWeights.Add(weights4);
+		} // AddQuadCellData ()
 
-		public void AddQuadColor (Color c1, Color c2) {
-			m_colors.Add(c1);
-			m_colors.Add(c1);
-			m_colors.Add(c2);
-			m_colors.Add(c2);
-		} // AddQuadColor ()
+		public void AddQuadCellData (Vector3 indices, Color weights1, Color weights2) {
+			AddQuadCellData(indices, weights1, weights1, weights2, weights2);
+		} // AddQuadCellData ()
 
-		public void AddQuadColor (Color c1, Color c2, Color c3, Color c4) {
-			m_colors.Add(c1);
-			m_colors.Add(c2);
-			m_colors.Add(c3);
-			m_colors.Add(c4);
-		} // AddQuadColor ()
+		public void AddQuadCellData (Vector3 indices, Color weights) {
+			AddQuadCellData(indices, weights, weights, weights, weights);
+		} // AddQuadCellData ()
 
 		public void AddQuadUV (Vector2 uv1, Vector2 uv2, Vector3 uv3, Vector3 uv4) {
 			m_uvs.Add(uv1);
@@ -191,12 +187,6 @@ namespace Arkayns.Reckon.HM {
 			m_uv2s.Add(new Vector2(uMax, vMax));
 		} // AddQuadUV ()
 		
-		public void AddQuadTerrainTypes (Vector3 types) {
-			m_terrainTypes.Add(types);
-			m_terrainTypes.Add(types);
-			m_terrainTypes.Add(types);
-			m_terrainTypes.Add(types);
-		} // AddQuadTerrainTypes ()
 		
 	} // Class HexMesh
 

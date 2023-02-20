@@ -9,9 +9,9 @@ namespace Arkayns.Reckon.HM {
         public HexFeatureManager features;
         private HexCell[] cells;
         private Canvas gridCanvas;
-        private static Color m_color1 = new Color(1f, 0f, 0f);
-        private static Color m_color2 = new Color(0f, 1f, 0f);
-        private static Color m_color3 = new Color(0f, 0f, 1f);
+        private static Color m_weights1 = new Color(1f, 0f, 0f);
+        private static Color m_weights2 = new Color(0f, 1f, 0f);
+        private static Color m_weights3 = new Color(0f, 0f, 1f);
         
         // -- Built-In Methods --
         private void Awake() {
@@ -105,7 +105,7 @@ namespace Arkayns.Reckon.HM {
         } // Triangulate ()
 
         private void TriangulateWithoutRiver (HexDirection direction, HexCell cell, Vector3 center, EdgeVertices e) {
-            TriangulateEdgeFan(center, e, cell.TerrainTypeIndex);
+            TriangulateEdgeFan(center, e, cell.Index);
             if (cell.HasRoads) {
                 var interpolators = GetRoadInterpolators(direction, cell);
                 TriangulateRoad(center, 
@@ -158,7 +158,7 @@ namespace Arkayns.Reckon.HM {
             var e2 = new EdgeVertices(center2  + HexMetrics.GetSecondSolidCorner(direction.Opposite()), center2  + HexMetrics.GetFirstSolidCorner(direction.Opposite()));
             
             if (cell.HasRiverThroughEdge(direction)) {
-                TriangulateEstuary(e1, e2, cell.IncomingRiver == direction);
+                TriangulateEstuary(e1, e2,cell.HasIncomingRiver && cell.IncomingRiver == direction);
             } else {
                 waterShore.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
                 waterShore.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
@@ -234,8 +234,8 @@ namespace Arkayns.Reckon.HM {
 
             var m = new EdgeVertices(Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f));
 
-            TriangulateEdgeStrip(m, m_color1, cell.TerrainTypeIndex, e, m_color1, cell.TerrainTypeIndex);
-            TriangulateEdgeFan(center, m, cell.TerrainTypeIndex);
+            TriangulateEdgeStrip(m, m_weights1, cell.Index, e, m_weights1, cell.Index);
+            TriangulateEdgeFan(center, m, cell.Index);
             
             if (!cell.IsUnderwater && !cell.HasRoadThroughEdge(direction)) {
                 features.AddFeature(cell, (center + e.v1 + e.v5) * (1f / 3f));
@@ -246,8 +246,8 @@ namespace Arkayns.Reckon.HM {
             var m = new EdgeVertices(Vector3.Lerp(center, e.v1, 0.5f), Vector3.Lerp(center, e.v5, 0.5f));
             m.v3.y = e.v3.y;
 
-            TriangulateEdgeStrip(m, m_color1, cell.TerrainTypeIndex, e, m_color1, cell.TerrainTypeIndex);
-            TriangulateEdgeFan(center, m, cell.TerrainTypeIndex);
+            TriangulateEdgeStrip(m, m_weights1, cell.Index, e, m_weights1, cell.Index);
+            TriangulateEdgeFan(center, m, cell.Index);
 
             if (!cell.IsUnderwater) {
                 var reversed = cell.HasIncomingRiver;
@@ -286,30 +286,24 @@ namespace Arkayns.Reckon.HM {
             var m = new EdgeVertices(Vector3.Lerp(centerL, e.v1, 0.5f), Vector3.Lerp(centerR, e.v5, 0.5f), 1f / 6f);
             m.v3.y = center.y = e.v3.y;
 
-            TriangulateEdgeStrip(m, m_color1, cell.TerrainTypeIndex, e, m_color1, cell.TerrainTypeIndex);
+            TriangulateEdgeStrip(m, m_weights1, cell.Index, e, m_weights1, cell.Index);
 
             terrain.AddTriangle(centerL, m.v1, m.v2);
             terrain.AddQuad(centerL, center, m.v2, m.v3);
             terrain.AddQuad(center, centerR, m.v3, m.v4);
             terrain.AddTriangle(centerR, m.v4, m.v5);
 
-            terrain.AddTriangleColor(m_color1);
-            terrain.AddQuadColor(m_color1);
-            terrain.AddQuadColor(m_color1);
-            terrain.AddTriangleColor(m_color1);
-            
-            Vector3 types;
-            types.x = types.y = types.z = cell.TerrainTypeIndex;
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
-            
-            if (!cell.IsUnderwater) {
-                var reversed = cell.IncomingRiver == direction;
-                TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed);
-                TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
-            }
+            Vector3 indices;
+            indices.x = indices.y = indices.z = cell.Index;
+            terrain.AddTriangleCellData(indices, m_weights1);
+            terrain.AddQuadCellData(indices, m_weights1);
+            terrain.AddQuadCellData(indices, m_weights1);
+            terrain.AddTriangleCellData(indices, m_weights1);
+
+            if (cell.IsUnderwater) return;
+            var reversed = cell.IncomingRiver == direction;
+            TriangulateRiverQuad(centerL, centerR, m.v2, m.v4, cell.RiverSurfaceY, 0.4f, reversed);
+            TriangulateRiverQuad(m.v2, m.v4, e.v2, e.v4, cell.RiverSurfaceY, 0.6f, reversed);
         } // TriangulateWithRiver ()
         
         private void TriangulateRoad (Vector3 center, Vector3 mL, Vector3 mR, EdgeVertices e, bool hasRoadThroughCellEdge) {
@@ -417,7 +411,7 @@ namespace Arkayns.Reckon.HM {
             if (cell.GetEdgeType(direction) == HexEdgeType.Slope) {
                 TriangulateEdgeTerraces(e1, cell, e2, neighbor, hasRoad);
             } else {
-                TriangulateEdgeStrip(e1, m_color1, cell.TerrainTypeIndex, e2, m_color2, neighbor.TerrainTypeIndex, hasRoad);
+                TriangulateEdgeStrip(e1, m_weights1, cell.Index, e2, m_weights2, neighbor.Index, hasRoad);
             }
             
             features.AddWall(e1, cell, e2, neighbor, hasRiver, hasRoad);
@@ -467,12 +461,11 @@ namespace Arkayns.Reckon.HM {
                 }
             } else {
                 terrain.AddTriangle(bottom, left, right);
-                terrain.AddTriangleColor(m_color1, m_color2, m_color3);
-                Vector3 types;
-                types.x = bottomCell.TerrainTypeIndex;
-                types.y = leftCell.TerrainTypeIndex;
-                types.z = rightCell.TerrainTypeIndex;
-                terrain.AddTriangleTerrainTypes(types);
+                Vector3 indices;
+                indices.x = bottomCell.Index;
+                indices.y = leftCell.Index;
+                indices.z = rightCell.Index;
+                terrain.AddTriangleCellData(indices, m_weights1, m_weights2, m_weights3);
             }
             
             features.AddWall(bottom, bottomCell, left, leftCell, right, rightCell);
@@ -480,54 +473,49 @@ namespace Arkayns.Reckon.HM {
 
         private void TriangulateEdgeTerraces(EdgeVertices begin, HexCell beginCell, EdgeVertices end, HexCell endCell, bool hasRoad) {
             var e2 = EdgeVertices.TerraceLerp(begin, end, 1);
-            var c2 = HexMetrics.TerraceLerp(m_color1, m_color2, 1);
-            float t1 = beginCell.TerrainTypeIndex;
-            float t2 = endCell.TerrainTypeIndex;
+            var w2 = HexMetrics.TerraceLerp(m_weights1, m_weights2, 1);
+            float i1 = beginCell.Index;
+            float i2 = endCell.Index;
 
-            TriangulateEdgeStrip(begin, m_color1, t1, e2, c2, t2, hasRoad);
+            TriangulateEdgeStrip(begin, m_weights1, i1, e2, w2, i2, hasRoad);
 
             for (var i = 2; i < HexMetrics.TerraceSteps; i++) {
                 var e1 = e2;
-                var c1 = c2;
+                var c1 = w2;
                 e2 = EdgeVertices.TerraceLerp(begin, end, i);
-                c2 = HexMetrics.TerraceLerp(m_color1, m_color2, i);
-                TriangulateEdgeStrip(e1, c1, t1, e2, c2, t2, hasRoad);
+                w2 = HexMetrics.TerraceLerp(m_weights1, m_weights2, i);
+                TriangulateEdgeStrip(e1, c1, i1, e2, w2, i2, hasRoad);
             }
 
-            TriangulateEdgeStrip(e2, c2, t1, end, m_color2, t2, hasRoad);
+            TriangulateEdgeStrip(e2, w2, i1, end, m_weights2, i2, hasRoad);
         } // TriangulateEdgeTerraces ()
 
         private void TriangulateCornerTerraces(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
             var v3 = HexMetrics.TerraceLerp(begin, left, 1);
             var v4 = HexMetrics.TerraceLerp(begin, right, 1);
-            var c3 = HexMetrics.TerraceLerp(m_color1, m_color2, 1);
-            var c4 = HexMetrics.TerraceLerp(m_color1, m_color3, 1);
-            Vector3 types;
-            types.x = beginCell.TerrainTypeIndex;
-            types.y = leftCell.TerrainTypeIndex;
-            types.z = rightCell.TerrainTypeIndex;
+            var w3 = HexMetrics.TerraceLerp(m_weights1, m_weights2, 1);
+            var w4 = HexMetrics.TerraceLerp(m_weights1, m_weights3, 1);
+            Vector3 indices;
+            indices.x = beginCell.Index;
+            indices.y = leftCell.Index;
+            indices.z = rightCell.Index;
             
             terrain.AddTriangle(begin, v3, v4);
-            terrain.AddTriangleColor(m_color1, c3, c4);
-            terrain.AddTriangleTerrainTypes(types);
-
             for (var i = 2; i < HexMetrics.TerraceSteps; i++) {
                 var v1 = v3;
                 var v2 = v4;
-                var c1 = c3;
-                var c2 = c4;
+                var w1 = w3;
+                var w2 = w4;
                 v3 = HexMetrics.TerraceLerp(begin, left, i);
                 v4 = HexMetrics.TerraceLerp(begin, right, i);
-                c3 = HexMetrics.TerraceLerp(m_color1, m_color2, i);
-                c4 = HexMetrics.TerraceLerp(m_color1, m_color3, i);
+                w3 = HexMetrics.TerraceLerp(m_weights1, m_weights2, i);
+                w4 = HexMetrics.TerraceLerp(m_weights1, m_weights3, i);
                 terrain.AddQuad(v1, v2, v3, v4);
-                terrain.AddQuadColor(c1, c2, c3, c4);
-                terrain.AddQuadTerrainTypes(types);
+                terrain.AddQuadCellData(indices, w1, w2, w3, w4);
             }
 
             terrain.AddQuad(v3, v4, left, right);
-            terrain.AddQuadColor(c3, c4, m_color2, m_color3);
-            terrain.AddQuadTerrainTypes(types);
+            terrain.AddQuadCellData(indices, w3, w4, m_weights2, m_weights3);
         } // TriangulateCornerTerraces ()
 
         private void TriangulateCornerTerracesCliff(Vector3 begin, HexCell beginCell, Vector3 left, HexCell leftCell, Vector3 right, HexCell rightCell) {
@@ -535,20 +523,19 @@ namespace Arkayns.Reckon.HM {
             if (b < 0) b = -b;
 
             var boundary = Vector3.Lerp(HexMetrics.Perturb(begin), HexMetrics.Perturb(right), b);
-            var boundaryColor = Color.Lerp(m_color1, m_color3, b);
-            Vector3 types;
-            types.x = beginCell.TerrainTypeIndex;
-            types.y = leftCell.TerrainTypeIndex;
-            types.z = rightCell.TerrainTypeIndex;
+            var boundaryWeights = Color.Lerp(m_weights1, m_weights3, b);
+            Vector3 indices;
+            indices.x = beginCell.Index;
+            indices.y = leftCell.Index;
+            indices.z = rightCell.Index;
 
-            TriangulateBoundaryTriangle(begin, m_color1, left, m_color2, boundary, boundaryColor, types);
+            TriangulateBoundaryTriangle(begin, m_weights1, left, m_weights2, boundary, boundaryWeights, indices);
 
             if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) { 
-                TriangulateBoundaryTriangle(left, m_color2, right, m_color3, boundary, boundaryColor, types);
+                TriangulateBoundaryTriangle(left, m_weights2, right, m_weights3, boundary, boundaryWeights, indices);
             } else {
                 terrain.AddTriangleUnperturbed(HexMetrics.Perturb(left), HexMetrics.Perturb(right), boundary);
-                terrain.AddTriangleColor(m_color2, m_color3, boundaryColor);
-                terrain.AddTriangleTerrainTypes(types);
+                terrain.AddTriangleCellData(indices, m_weights2, m_weights3, boundaryWeights);
             }
         } // TriangulateCornerTerracesCliff ()
 
@@ -557,84 +544,70 @@ namespace Arkayns.Reckon.HM {
             if (b < 0) b = -b;
 
             var boundary = Vector3.Lerp(HexMetrics.Perturb(begin), HexMetrics.Perturb(left), b);
-            var boundaryColor = Color.Lerp(m_color1, m_color2, b);
-            Vector3 types;
-            types.x = beginCell.TerrainTypeIndex;
-            types.y = leftCell.TerrainTypeIndex;
-            types.z = rightCell.TerrainTypeIndex;
+            var boundaryWeights = Color.Lerp(m_weights1, m_weights2, b);
+            Vector3 indices;
+            indices.x = beginCell.Index;
+            indices.y = leftCell.Index;
+            indices.z = rightCell.Index;
 
-            TriangulateBoundaryTriangle(right, m_color3, begin, m_color1, boundary, boundaryColor, types);
+            TriangulateBoundaryTriangle(right, m_weights3, begin, m_weights1, boundary, boundaryWeights, indices);
 
             if (leftCell.GetEdgeType(rightCell) == HexEdgeType.Slope) {
-                TriangulateBoundaryTriangle(left, m_color2, right, m_color3, boundary, boundaryColor, types);
+                TriangulateBoundaryTriangle(left, m_weights2, right, m_weights3, boundary, boundaryWeights, indices);
             } else {
                 terrain.AddTriangleUnperturbed(HexMetrics.Perturb(left), HexMetrics.Perturb(right), boundary);
-                terrain.AddTriangleColor(m_color2, m_color3, boundaryColor);
-                terrain.AddTriangleTerrainTypes(types);
+                terrain.AddTriangleCellData(indices, m_weights2, m_weights3, boundaryWeights);
             }
         } // TriangulateCornerCliffTerraces ()
 
-        private void TriangulateBoundaryTriangle(Vector3 begin, Color beginColor, Vector3 left, Color leftColor, Vector3 boundary, Color boundaryColor, Vector3 types) {
+        private void TriangulateBoundaryTriangle(Vector3 begin, Color beginWeights, Vector3 left, Color leftWeights, Vector3 boundary, Color boundaryWeights, Vector3 indices) {
             var v2 = HexMetrics.Perturb(HexMetrics.TerraceLerp(begin, left, 1));
-            var c2 = HexMetrics.TerraceLerp(beginColor, leftColor, 1);
+            var w2 = HexMetrics.TerraceLerp(beginWeights, leftWeights, 1);
 
             terrain.AddTriangleUnperturbed(HexMetrics.Perturb(begin), v2, boundary);
-            terrain.AddTriangleColor(beginColor, c2, boundaryColor);
-            terrain.AddTriangleTerrainTypes(types);
+            terrain.AddTriangleCellData(indices, beginWeights, w2, boundaryWeights);
 
             for (var i = 2; i < HexMetrics.TerraceSteps; i++) {
                 var v1 = v2;
-                var c1 = c2;
+                var w1 = w2;
                 v2 = HexMetrics.Perturb(HexMetrics.TerraceLerp(begin, left, i));
-                c2 = HexMetrics.TerraceLerp(beginColor, leftColor, i);
+                w2 = HexMetrics.TerraceLerp(beginWeights, leftWeights, i);
                 terrain.AddTriangleUnperturbed(v1, v2, boundary);
-                terrain.AddTriangleColor(c1, c2, boundaryColor);
-                terrain.AddTriangleTerrainTypes(types);
+                terrain.AddTriangleCellData(indices, w1, w2, boundaryWeights);
             }
 
             terrain.AddTriangleUnperturbed(v2, HexMetrics.Perturb(left), boundary);
-            terrain.AddTriangleColor(c2, leftColor, boundaryColor);
-            terrain.AddTriangleTerrainTypes(types);
+            terrain.AddTriangleCellData(indices, w2, leftWeights, boundaryWeights);
         } // TriangulateBoundaryTriangle ()
 
-        private void TriangulateEdgeFan(Vector3 center, EdgeVertices edge, float type) {
+        private void TriangulateEdgeFan(Vector3 center, EdgeVertices edge, float index) {
             terrain.AddTriangle(center, edge.v1, edge.v2);
             terrain.AddTriangle(center, edge.v2, edge.v3);
             terrain.AddTriangle(center, edge.v3, edge.v4);
             terrain.AddTriangle(center, edge.v4, edge.v5);
             
-            terrain.AddTriangleColor(m_color1);
-            terrain.AddTriangleColor(m_color1);
-            terrain.AddTriangleColor(m_color1);
-            terrain.AddTriangleColor(m_color1);
-            
-            Vector3 types;
-            types.x = types.y = types.z = type;
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
-            terrain.AddTriangleTerrainTypes(types);
+            Vector3 indices;
+            indices.x = indices.y = indices.z = index;
+            terrain.AddTriangleCellData(indices, m_weights1);
+            terrain.AddTriangleCellData(indices, m_weights1);
+            terrain.AddTriangleCellData(indices, m_weights1);
+            terrain.AddTriangleCellData(indices, m_weights1);
         } // TriangulateEdgeFan ()
 
-        private void TriangulateEdgeStrip(EdgeVertices e1, Color c1, float type1, EdgeVertices e2, Color c2, float type2, bool hasRoad = false) {
+        private void TriangulateEdgeStrip(EdgeVertices e1, Color w1, float index1, EdgeVertices e2, Color w2, float index2, bool hasRoad = false) {
             terrain.AddQuad(e1.v1, e1.v2, e2.v1, e2.v2);
             terrain.AddQuad(e1.v2, e1.v3, e2.v2, e2.v3);
             terrain.AddQuad(e1.v3, e1.v4, e2.v3, e2.v4);
             terrain.AddQuad(e1.v4, e1.v5, e2.v4, e2.v5);
 
-            terrain.AddQuadColor(c1, c2);
-            terrain.AddQuadColor(c1, c2);
-            terrain.AddQuadColor(c1, c2);
-            terrain.AddQuadColor(c1, c2);
+            Vector3 indices;
+            indices.x = indices.z = index1;
+            indices.y = index2;
+            terrain.AddQuadCellData(indices, w1, w2);
+            terrain.AddQuadCellData(indices, w1, w2);
+            terrain.AddQuadCellData(indices, w1, w2);
+            terrain.AddQuadCellData(indices, w1, w2);
 
-            Vector3 types;
-            types.x = types.z = type1;
-            types.y = type2;
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            terrain.AddQuadTerrainTypes(types);
-            
             if (hasRoad) TriangulateRoadSegment(e1.v2, e1.v3, e1.v4, e2.v2, e2.v3, e2.v4);
         } // TriangulateEdgeStrip ()
 

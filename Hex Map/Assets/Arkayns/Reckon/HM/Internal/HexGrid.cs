@@ -33,6 +33,8 @@ namespace Arkayns.Reckon.HM {
 		private List<HexUnit> m_units = new ();
 		public HexUnit unitPrefab;
 		
+		private HexCellShaderData m_cellShaderData;
+		
 		// -- Property --
 		public bool HasPath => m_currentPathExists;
 
@@ -41,6 +43,7 @@ namespace Arkayns.Reckon.HM {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
 			HexUnit.unitPrefab = unitPrefab;
+			m_cellShaderData = gameObject.AddComponent<HexCellShaderData>();
 			CreateMap(cellCountX, cellCountZ);
 		} // Awake ()
 		
@@ -98,7 +101,8 @@ namespace Arkayns.Reckon.HM {
 			cellCountZ = z;
 			m_chunkCountX = cellCountX / HexMetrics.ChunkSizeX;
 			m_chunkCountZ = cellCountZ / HexMetrics.ChunkSizeZ;
-
+			m_cellShaderData.Initialize(cellCountX, cellCountZ);
+			
 			CreateChunks();
 			CreateCells();
 			
@@ -141,6 +145,8 @@ namespace Arkayns.Reckon.HM {
 			var cell = m_cells[i] = Instantiate(cellPrefab);
 			cell.transform.localPosition = position;
 			cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
+			cell.Index = i;
+			cell.ShaderData = m_cellShaderData;
 
 			if (x > 0) cell.SetNeighbor(HexDirection.W, m_cells[i - 1]);
 			
